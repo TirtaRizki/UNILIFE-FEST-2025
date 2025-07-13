@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect } from "react"
@@ -92,7 +93,7 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
                 <FormItem>
                   <FormLabel>Harga</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="50" {...field} />
+                    <Input type="number" placeholder="50000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

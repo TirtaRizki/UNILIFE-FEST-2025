@@ -116,7 +116,9 @@ export default function TicketTable() {
                                 {tickets.map((ticket) => (
                                     <TableRow key={ticket.id}>
                                         <TableCell className="font-medium">{ticket.type}</TableCell>
-                                        <TableCell>${ticket.price.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(ticket.price)}
+                                        </TableCell>
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(ticket.status)}>{ticket.status}</Badge>
                                         </TableCell>
