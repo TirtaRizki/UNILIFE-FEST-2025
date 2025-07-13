@@ -40,39 +40,52 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // This effect runs on the client and ensures default users are present.
+    // This effect runs on the client and ensures default users are present without duplicates.
     const usersInStorage = localStorage.getItem('users');
     let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
-    // Check if default users exist, if not, add them.
-    const adminExists = users.some(u => u.email === 'admin@unilifefest.com');
-    if (!adminExists) {
-        users.push({
-            id: 'USR001',
-            name: 'Admin User',
-            email: 'admin@unilifefest.com',
-            role: 'Admin',
-            password: 'unilifejaya123'
-        });
-    }
-    
-    const panitiaExists = users.some(u => u.email === 'panitia2025@unilife.com');
-    if (!panitiaExists) {
-        users.push({
-            id: 'USR002',
-            name: 'Panitia Event',
-            email: 'panitia2025@unilife.com',
-            role: 'Panitia',
-            password: 'lampungfest123'
-        });
-    }
+    const defaultUsers = [
+      {
+        id: 'USR001',
+        name: 'Admin User',
+        email: 'admin@unilifefest.com',
+        role: 'Admin',
+        password: 'unilifejaya123'
+      },
+      {
+        id: 'USR002',
+        name: 'Panitia Event',
+        email: 'panitia2025@unilife.com',
+        role: 'Panitia',
+        password: 'lampungfest123'
+      }
+    ];
 
+    let needsUpdate = false;
+    
+    // Use a Map for efficient lookup of existing users by ID and Email
+    const userMapById = new Map(users.map(u => [u.id, u]));
+    const userMapByEmail = new Map(users.map(u => [u.email, u]));
+
+    defaultUsers.forEach(defaultUser => {
+      // If a user with the default ID or Email doesn't exist, we should add them.
+      if (!userMapById.has(defaultUser.id) && !userMapByEmail.has(defaultUser.email)) {
+        users.push(defaultUser);
+        needsUpdate = true;
+      }
+    });
+    
     // Add other mock users if they don't exist
     const existingEmails = new Set(users.map(u => u.email));
-    const filteredMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
-    const finalUsers = [...users, ...filteredMockUsers];
+    const newMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
+    if (newMockUsers.length > 0) {
+        users = [...users, ...newMockUsers];
+        needsUpdate = true;
+    }
 
-    localStorage.setItem('users', JSON.stringify(finalUsers));
+    if (needsUpdate) {
+        localStorage.setItem('users', JSON.stringify(users));
+    }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
