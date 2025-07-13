@@ -6,9 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 const Countdown = () => {
     const calculateTimeLeft = () => {
-        // Set a future date for the countdown
-        const eventDate = new Date();
-        eventDate.setDate(eventDate.getDate() + 50); // Set event 50 days from now
+        const eventDate = new Date("2025-07-30T00:00:00");
         const difference = +eventDate - +new Date();
         
         let timeLeft = {
@@ -38,8 +36,8 @@ const Countdown = () => {
         return () => clearTimeout(timer);
     });
 
-    const formatTime = (time: number | undefined) => {
-        return time !== undefined ? String(time).padStart(2, '0') : '00';
+    const formatTime = (time: number) => {
+        return String(time).padStart(2, '0');
     }
     
     const TimerUnit = ({ value, label }: { value: number, label: string }) => (
