@@ -1,5 +1,5 @@
-import EventTable from "./event-table";
+import EventGrid from "./event-table";
 
 export default function EventsPage() {
-    return <EventTable />;
+    return <EventGrid />;
 }

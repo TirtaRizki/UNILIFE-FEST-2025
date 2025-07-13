@@ -38,6 +38,7 @@ const eventSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
   location: z.string().min(3, "Location is required"),
   status: z.enum(["Upcoming", "Completed", "Cancelled"]),
+  imageUrl: z.string().url("Must be a valid URL").optional(),
 })
 
 type EventFormProps = {
@@ -57,6 +58,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
           date: new Date(),
           location: "",
           status: "Upcoming",
+          imageUrl: "",
         },
   })
 
@@ -65,7 +67,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
       form.reset(
         event
           ? { ...event, date: new Date(event.date) }
-          : { name: "", date: new Date(), location: "", status: "Upcoming" }
+          : { name: "", date: new Date(), location: "", status: "Upcoming", imageUrl: "" }
       )
     }
   }, [event, open, form])
@@ -98,6 +100,19 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
                   <FormLabel>Nama Event</FormLabel>
                   <FormControl>
                     <Input placeholder="Summer Music Festival" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL Gambar</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://placehold.co/300x400.png" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

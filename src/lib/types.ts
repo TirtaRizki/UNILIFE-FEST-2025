@@ -4,6 +4,7 @@ export type Event = {
     date: string;
     location: string;
     status: "Upcoming" | "Completed" | "Cancelled";
+    imageUrl?: string;
 };
 
 export type About = {
