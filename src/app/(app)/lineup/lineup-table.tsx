@@ -26,7 +26,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function LineupTable() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [lineups, setLineups] = useState<Lineup[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);

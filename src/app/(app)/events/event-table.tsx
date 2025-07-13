@@ -50,7 +50,7 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
 
 export default function EventGrid() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [events, setEvents] = useState<Event[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

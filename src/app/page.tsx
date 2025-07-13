@@ -27,15 +27,33 @@ export default function LoginPage() {
     const usersInStorage = localStorage.getItem('users');
     let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
-    if (!users.some((u: User) => u.email === 'admin@unilife.com')) {
-        const adminUser: User = {
+    const adminExists = users.some((u: User) => u.email === 'admin@unilife.com');
+    const panitiaExists = users.some((u: User) => u.email === 'panitia2025@unilife.com');
+
+    let needsUpdate = false;
+    if (!adminExists) {
+        users.push({
             id: 'USR001',
             name: 'Admin User',
             email: 'admin@unilife.com',
             role: 'Admin',
-            password: 'unilifejaya123' // Add password for admin
-        };
-        const initialUsers = [adminUser, ...mockUsers];
+            password: 'unilifejaya123'
+        });
+        needsUpdate = true;
+    }
+    if (!panitiaExists) {
+        users.push({
+            id: 'USR002',
+            name: 'Panitia Event',
+            email: 'panitia2025@unilife.com',
+            role: 'Panitia',
+            password: 'lampungfest123'
+        });
+        needsUpdate = true;
+    }
+    
+    if (needsUpdate) {
+        const initialUsers = [...users, ...mockUsers.filter(mu => !users.some(u => u.email === mu.email))];
         localStorage.setItem('users', JSON.stringify(initialUsers));
     }
   }, []);
@@ -47,13 +65,10 @@ export default function LoginPage() {
     
     const foundUser = users.find(user => user.email === email);
     
-    // Check if user exists and password matches
     if (foundUser && foundUser.password === password) {
-        // In a real app, you'd use a more secure session management method.
-        // Also, you would not store the password in the session.
         const userToStore = { ...foundUser };
         // @ts-ignore
-        delete userToStore.password; // Do not store password in session
+        delete userToStore.password;
         sessionStorage.setItem('loggedInUser', JSON.stringify(userToStore));
 
         toast({
