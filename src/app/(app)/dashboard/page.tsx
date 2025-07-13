@@ -1,8 +1,8 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BarChart, Calendar, Users, DollarSign, Activity } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, Bar, XAxis, YAxis, CartesianGrid } from '@/components/ui/chart';
-import { BarChart as RechartsBarChart, ResponsiveContainer } from "recharts";
+import { Calendar, Users, DollarSign, Activity } from "lucide-react";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import PageHeader from '@/components/page-header';
 
 const chartData = [
