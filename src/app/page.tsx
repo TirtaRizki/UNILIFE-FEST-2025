@@ -40,13 +40,12 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // This effect runs on the client and ensures default users are present.
     const usersInStorage = localStorage.getItem('users');
     let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
-    const adminExists = users.some((u: User) => u.email === 'admin@unilife.com');
-    const panitiaExists = users.some((u: User) => u.email === 'panitia2025@unilife.com');
-
-    let needsUpdate = false;
+    // Check if default users exist, if not, add them.
+    const adminExists = users.some(u => u.email === 'admin@unilife.com');
     if (!adminExists) {
         users.push({
             id: 'USR001',
@@ -55,8 +54,9 @@ export default function LoginPage() {
             role: 'Admin',
             password: 'unilifejaya123'
         });
-        needsUpdate = true;
     }
+    
+    const panitiaExists = users.some(u => u.email === 'panitia2025@unilife.com');
     if (!panitiaExists) {
         users.push({
             id: 'USR002',
@@ -65,16 +65,14 @@ export default function LoginPage() {
             role: 'Panitia',
             password: 'lampungfest123'
         });
-        needsUpdate = true;
     }
-    
-    if (needsUpdate) {
-        // We filter mockUsers to avoid duplicates if they were added manually
-        const existingEmails = new Set(users.map(u => u.email));
-        const filteredMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
-        const initialUsers = [...users, ...filteredMockUsers];
-        localStorage.setItem('users', JSON.stringify(initialUsers));
-    }
+
+    // Add other mock users if they don't exist
+    const existingEmails = new Set(users.map(u => u.email));
+    const filteredMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
+    const finalUsers = [...users, ...filteredMockUsers];
+
+    localStorage.setItem('users', JSON.stringify(finalUsers));
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -85,9 +83,13 @@ export default function LoginPage() {
     const foundUser = users.find(user => user.email === email);
     
     if (foundUser && foundUser.password === password) {
-        const userToStore = { ...foundUser };
-        // @ts-ignore
-        delete userToStore.password;
+        // Create a user object for the session without the password
+        const userToStore: Omit<User, 'password'> = {
+            id: foundUser.id,
+            name: foundUser.name,
+            email: foundUser.email,
+            role: foundUser.role,
+        };
         sessionStorage.setItem('loggedInUser', JSON.stringify(userToStore));
 
         toast({

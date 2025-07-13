@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect } from "react"
@@ -32,6 +33,7 @@ const userSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long"),
   email: z.string().email("Invalid email address"),
   role: z.enum(["Admin", "Member", "Panitia"]),
+  password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal('')),
 })
 
 type UserFormProps = {
@@ -44,20 +46,32 @@ type UserFormProps = {
 export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
-    defaultValues: user || { name: "", email: "", role: "Member" },
+    defaultValues: user || { name: "", email: "", role: "Member", password: "" },
   })
 
   useEffect(() => {
     if (open) {
-      form.reset(user || { name: "", email: "", role: "Member" });
+      // When editing, we don't pre-fill the password for security.
+      // When adding, all fields are empty.
+      const defaultValues = user 
+        ? { ...user, password: '' } 
+        : { name: "", email: "", role: "Member", password: "" };
+      form.reset(defaultValues);
     }
   }, [user, open, form])
 
   function onSubmit(values: z.infer<typeof userSchema>) {
     const userData: User = {
-        ...values,
         id: user?.id || "",
+        name: values.name,
+        email: values.email,
+        role: values.role,
     };
+    // Only include the password if a new one was entered
+    if (values.password) {
+        userData.password = values.password;
+    }
+    
     onSave(userData);
   }
 
@@ -116,6 +130,19 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
                       <SelectItem value="Panitia">Panitia</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder={user ? "Biarkan kosong untuk tidak mengubah" : "••••••••"} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

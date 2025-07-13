@@ -77,10 +77,20 @@ export default function UserTable() {
         let updatedUsers;
         if (selectedUser && userData.id) {
             // This is where you'll add your database update logic
-            updatedUsers = users.map(u => u.id === userData.id ? userData : u);
+            updatedUsers = users.map(u => {
+                if (u.id === userData.id) {
+                    const updatedUser = { ...u, ...userData };
+                    // If a new password isn't provided, keep the old one
+                    if (!userData.password) {
+                        updatedUser.password = u.password;
+                    }
+                    return updatedUser;
+                }
+                return u;
+            });
         } else {
             // This is where you'll add your database creation logic
-            const newUser = { ...userData, id: `USR${Date.now()}` }; // Replace with ID from DB
+            const newUser = { ...userData, id: `USR${Date.now()}` };
             updatedUsers = [...users, newUser];
         }
         updateUsers(updatedUsers);
