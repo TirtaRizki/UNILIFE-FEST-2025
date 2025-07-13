@@ -27,14 +27,19 @@ const Countdown = () => {
         return timeLeft;
     };
 
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        setIsClient(true);
+        setTimeLeft(calculateTimeLeft());
+
+        const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
-        return () => clearTimeout(timer);
-    });
+        
+        return () => clearInterval(timer);
+    }, []);
 
     const formatTime = (time: number) => {
         return String(time).padStart(2, '0');
@@ -46,6 +51,20 @@ const Countdown = () => {
             <div className="text-xs uppercase opacity-80">{label}</div>
         </div>
     );
+    
+    if (!isClient) {
+        return (
+            <div className="text-center">
+                 <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">Start The Event</h2>
+                 <div className="flex justify-center items-center gap-2 md:gap-4">
+                    <TimerUnit value={0} label="Days" />
+                    <TimerUnit value={0} label="Hours" />
+                    <TimerUnit value={0} label="Minutes" />
+                    <TimerUnit value={0} label="Seconds" />
+                 </div>
+            </div>
+        );
+    }
 
     return (
         <div className="text-center">
