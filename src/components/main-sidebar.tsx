@@ -1,3 +1,4 @@
+
 "use client"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,15 +22,13 @@ import {
   UserCog,
   LogOut,
   Ticket,
-  UserSquare,
 } from "lucide-react";
-import { Button } from "./ui/button";
 
 const Logo = () => (
     <h1 className="text-3xl font-headline font-bold text-primary px-4">UNLIFE</h1>
 );
 
-const navItems = [
+export const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/users", icon: UserCog, label: "Kelola User" },
   { href: "/committee", icon: Users, label: "Kelola Panitia"},
