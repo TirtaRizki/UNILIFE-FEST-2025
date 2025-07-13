@@ -22,6 +22,8 @@ import {
   UserCog,
   LogOut,
   Ticket,
+  User,
+  Settings,
 } from "lucide-react";
 
 const Logo = () => (
@@ -38,6 +40,8 @@ export const navItems = [
   { href: "/banners", icon: ImageIcon, label: "Kelola Banner" },
   { href: "/recap", icon: BookOpen, label: "Kelola Recap" },
   { href: "/about", icon: Info, label: "Kelola About" },
+  { href: "/profile", icon: User, label: "Profile" },
+  { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
 export function MainSidebar() {
