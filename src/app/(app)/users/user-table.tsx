@@ -68,7 +68,6 @@ export default function UserTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // This is where you'll add your database deletion logic
         const updatedUsers = users.filter(u => u.id !== id);
         updateUsers(updatedUsers);
     };
@@ -76,11 +75,9 @@ export default function UserTable() {
     const handleSave = async (userData: User) => {
         let updatedUsers;
         if (selectedUser && userData.id) {
-            // This is where you'll add your database update logic
             updatedUsers = users.map(u => {
                 if (u.id === userData.id) {
                     const updatedUser = { ...u, ...userData };
-                    // If a new password isn't provided, keep the old one
                     if (!userData.password) {
                         updatedUser.password = u.password;
                     }
@@ -89,7 +86,6 @@ export default function UserTable() {
                 return u;
             });
         } else {
-            // This is where you'll add your database creation logic
             const newUser = { ...userData, id: `USR${Date.now()}` };
             updatedUsers = [...users, newUser];
         }
@@ -173,12 +169,14 @@ export default function UserTable() {
                     </div>
                 </CardContent>
             </Card>
-            <UserForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                user={selectedUser}
-                onSave={handleSave}
-            />
+            {canManage && (
+              <UserForm 
+                  open={sheetOpen} 
+                  onOpenChange={setSheetOpen}
+                  user={selectedUser}
+                  onSave={handleSave}
+              />
+            )}
         </>
     );
 }
