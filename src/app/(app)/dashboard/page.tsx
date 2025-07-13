@@ -1,7 +1,8 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BarChart, Calendar, Users, DollarSign, Activity } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, Bar, XAxis, YAxis, CartesianGrid } from '@/components/ui/chart';
-import { BarChart as RechartsBarChart } from "recharts";
+import { BarChart as RechartsBarChart, ResponsiveContainer } from "recharts";
 import PageHeader from '@/components/page-header';
 
 const chartData = [
@@ -74,19 +75,21 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="pl-2">
             <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-              <RechartsBarChart accessibilityLayer data={chartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <YAxis />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                <Bar dataKey="events" fill="var(--color-events)" radius={8} />
-              </RechartsBarChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsBarChart accessibilityLayer data={chartData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                  <Bar dataKey="events" fill="var(--color-events)" radius={8} />
+                </RechartsBarChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
