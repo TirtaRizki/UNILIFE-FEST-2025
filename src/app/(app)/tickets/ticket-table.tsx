@@ -20,46 +20,43 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockEvents } from "@/lib/data";
-import type { Event } from "@/lib/types";
-import { EventForm } from './event-form';
+import { mockTickets } from "@/lib/data";
+import type { Ticket } from "@/lib/types";
+import { TicketForm } from './ticket-form';
 
-export default function EventTable() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+export default function TicketTable() {
+    const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
     const handleAdd = () => {
-        setSelectedEvent(null);
+        setSelectedTicket(null);
         setSheetOpen(true);
     };
 
-    const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+    const handleEdit = (ticket: Ticket) => {
+        setSelectedTicket(ticket);
         setSheetOpen(true);
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
-      setEvents(events.filter(event => event.id !== id));
+      setTickets(tickets.filter(t => t.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
-        if (selectedEvent && eventData.id) {
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+    const handleSave = (ticketData: Ticket) => {
+        if (selectedTicket && ticketData.id) {
+            setTickets(tickets.map(t => t.id === ticketData.id ? ticketData : t));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            setTickets([...tickets, { ...ticketData, id: `TKT${Date.now()}` }]);
         }
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Event['status']) => {
+    const getBadgeVariant = (status: Ticket['status']) => {
         switch (status) {
-            case 'Upcoming':
+            case 'Available':
                 return 'default';
-            case 'Completed':
-                return 'secondary';
-            case 'Cancelled':
+            case 'Sold Out':
                 return 'destructive';
             default:
                 return 'outline';
@@ -68,39 +65,37 @@ export default function EventTable() {
 
     return (
         <>
-            <PageHeader title="Kelola Event" actions={
+            <PageHeader title="Kelola Tiket" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Ticket
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>Ticket Management</CardTitle>
+                    <CardDescription>Manage all event tickets: view sales, check-in status, and issue new tickets.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Name</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Price</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Location</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {events.map((event) => (
-                                    <TableRow key={event.id}>
-                                        <TableCell className="font-medium">{event.name}</TableCell>
+                                {tickets.map((ticket) => (
+                                    <TableRow key={ticket.id}>
+                                        <TableCell className="font-medium">{ticket.type}</TableCell>
+                                        <TableCell>${ticket.price.toFixed(2)}</TableCell>
                                         <TableCell>
-                                            <Badge variant={getBadgeVariant(event.status)}>{event.status}</Badge>
+                                            <Badge variant={getBadgeVariant(ticket.status)}>{ticket.status}</Badge>
                                         </TableCell>
-                                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{event.location}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -111,8 +106,8 @@ export default function EventTable() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleEdit(ticket)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ticket.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -123,10 +118,10 @@ export default function EventTable() {
                     </div>
                 </CardContent>
             </Card>
-            <EventForm 
+            <TicketForm 
                 open={sheetOpen} 
                 onOpenChange={setSheetOpen}
-                event={selectedEvent}
+                ticket={selectedTicket}
                 onSave={handleSave}
             />
         </>

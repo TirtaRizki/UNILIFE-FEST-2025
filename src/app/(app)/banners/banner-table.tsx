@@ -20,47 +20,44 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockEvents } from "@/lib/data";
-import type { Event } from "@/lib/types";
-import { EventForm } from './event-form';
+import { mockBanners } from "@/lib/data";
+import type { Banner } from "@/lib/types";
+import { BannerForm } from './banner-form';
 
-export default function EventTable() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+export default function BannerTable() {
+    const [banners, setBanners] = useState<Banner[]>(mockBanners);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
 
     const handleAdd = () => {
-        setSelectedEvent(null);
+        setSelectedBanner(null);
         setSheetOpen(true);
     };
 
-    const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+    const handleEdit = (banner: Banner) => {
+        setSelectedBanner(banner);
         setSheetOpen(true);
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
-      setEvents(events.filter(event => event.id !== id));
+      setBanners(banners.filter(banner => banner.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
-        if (selectedEvent && eventData.id) {
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+    const handleSave = (bannerData: Banner) => {
+        if (selectedBanner && bannerData.id) {
+            setBanners(banners.map(b => b.id === bannerData.id ? bannerData : b));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            setBanners([...banners, { ...bannerData, id: `BNR${Date.now()}` }]);
         }
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Event['status']) => {
+    const getBadgeVariant = (status: Banner['status']) => {
         switch (status) {
-            case 'Upcoming':
+            case 'Active':
                 return 'default';
-            case 'Completed':
+            case 'Inactive':
                 return 'secondary';
-            case 'Cancelled':
-                return 'destructive';
             default:
                 return 'outline';
         }
@@ -68,39 +65,35 @@ export default function EventTable() {
 
     return (
         <>
-            <PageHeader title="Kelola Event" actions={
+            <PageHeader title="Kelola Banner" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Banner
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>Banner Management</CardTitle>
+                    <CardDescription>Manage display advertisements for your event.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Name</TableHead>
+                                    <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Location</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {events.map((event) => (
-                                    <TableRow key={event.id}>
-                                        <TableCell className="font-medium">{event.name}</TableCell>
+                                {banners.map((banner) => (
+                                    <TableRow key={banner.id}>
+                                        <TableCell className="font-medium">{banner.title}</TableCell>
                                         <TableCell>
-                                            <Badge variant={getBadgeVariant(event.status)}>{event.status}</Badge>
+                                            <Badge variant={getBadgeVariant(banner.status)}>{banner.status}</Badge>
                                         </TableCell>
-                                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{event.location}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -111,8 +104,8 @@ export default function EventTable() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleEdit(banner)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(banner.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -123,10 +116,10 @@ export default function EventTable() {
                     </div>
                 </CardContent>
             </Card>
-            <EventForm 
+            <BannerForm 
                 open={sheetOpen} 
                 onOpenChange={setSheetOpen}
-                event={selectedEvent}
+                banner={selectedBanner}
                 onSave={handleSave}
             />
         </>

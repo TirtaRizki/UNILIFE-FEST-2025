@@ -20,47 +20,44 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockEvents } from "@/lib/data";
-import type { Event } from "@/lib/types";
-import { EventForm } from './event-form';
+import { mockUsers } from "@/lib/data";
+import type { User } from "@/lib/types";
+import { UserForm } from './user-form';
 
-export default function EventTable() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+export default function UserTable() {
+    const [users, setUsers] = useState<User[]>(mockUsers);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleAdd = () => {
-        setSelectedEvent(null);
+        setSelectedUser(null);
         setSheetOpen(true);
     };
 
-    const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+    const handleEdit = (user: User) => {
+        setSelectedUser(user);
         setSheetOpen(true);
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
-      setEvents(events.filter(event => event.id !== id));
+      setUsers(users.filter(u => u.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
-        if (selectedEvent && eventData.id) {
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+    const handleSave = (userData: User) => {
+        if (selectedUser && userData.id) {
+            setUsers(users.map(u => u.id === userData.id ? userData : u));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            setUsers([...users, { ...userData, id: `USR${Date.now()}` }]);
         }
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Event['status']) => {
-        switch (status) {
-            case 'Upcoming':
-                return 'default';
-            case 'Completed':
-                return 'secondary';
-            case 'Cancelled':
+    const getBadgeVariant = (role: User['role']) => {
+        switch (role) {
+            case 'Admin':
                 return 'destructive';
+            case 'Member':
+                return 'secondary';
             default:
                 return 'outline';
         }
@@ -68,15 +65,15 @@ export default function EventTable() {
 
     return (
         <>
-            <PageHeader title="Kelola Event" actions={
+            <PageHeader title="Kelola User" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New User
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Manage user accounts and roles.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -84,23 +81,21 @@ export default function EventTable() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Location</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Role</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {events.map((event) => (
-                                    <TableRow key={event.id}>
-                                        <TableCell className="font-medium">{event.name}</TableCell>
+                                {users.map((user) => (
+                                    <TableRow key={user.id}>
+                                        <TableCell className="font-medium">{user.name}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
                                         <TableCell>
-                                            <Badge variant={getBadgeVariant(event.status)}>{event.status}</Badge>
+                                            <Badge variant={getBadgeVariant(user.role)}>{user.role}</Badge>
                                         </TableCell>
-                                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{event.location}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -111,8 +106,8 @@ export default function EventTable() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleEdit(user)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -123,10 +118,10 @@ export default function EventTable() {
                     </div>
                 </CardContent>
             </Card>
-            <EventForm 
+            <UserForm 
                 open={sheetOpen} 
                 onOpenChange={setSheetOpen}
-                event={selectedEvent}
+                user={selectedUser}
                 onSave={handleSave}
             />
         </>

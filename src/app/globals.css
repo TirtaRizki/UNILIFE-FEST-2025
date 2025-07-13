@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --background-start-rgb: 216, 222, 230; /* --background-hsl: 216 22% 87% */
-    --background-end-rgb: 199, 210, 223; /* --background-hsl: 210 27% 83% */
-    --foreground: 224 71% 4%;
-    --card: 210 40% 98%;
-    --card-foreground: 224 71% 4%;
+    --background: 220 25% 15%;
+    --background-start-rgb: 44, 48, 61; /* Darker blue-gray */
+    --background-end-rgb: 33, 37, 48;
+    --foreground: 224 71% 4%; /* Black for text */
+    --card: 210 40% 98%; /* Light card background */
+    --card-foreground: 224 71% 4%; /* Black for card text */
     --popover: 210 40% 98%;
     --popover-foreground: 224 71% 4%;
     --primary: 220 40% 45%;
@@ -42,9 +42,9 @@
     --background: 220 25% 15%;
     --background-start-rgb: 44, 48, 61; /* Darker blue-gray */
     --background-end-rgb: 33, 37, 48;
-    --foreground: 210 40% 98%;
-    --card: 220 25% 20%;
-    --card-foreground: 210 40% 98%;
+    --foreground: 224 71% 4%; /* Black for text */
+    --card: 210 40% 98%; /* Light card background */
+    --card-foreground: 224 71% 4%; /* Black for card text */
     --popover: 220 25% 20%;
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
@@ -83,4 +83,10 @@
   .glass-card {
       @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-2xl shadow-lg;
   }
+}
+
+@layer components {
+    .content-card {
+        @apply bg-card text-card-foreground;
+    }
 }

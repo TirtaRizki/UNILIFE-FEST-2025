@@ -16,67 +16,52 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockEvents } from "@/lib/data";
-import type { Event } from "@/lib/types";
-import { EventForm } from './event-form';
+import { mockCommittees } from "@/lib/data";
+import type { Committee } from "@/lib/types";
+import { CommitteeForm } from './committee-form';
 
-export default function EventTable() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+export default function CommitteeTable() {
+    const [committees, setCommittees] = useState<Committee[]>(mockCommittees);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
 
     const handleAdd = () => {
-        setSelectedEvent(null);
+        setSelectedCommittee(null);
         setSheetOpen(true);
     };
 
-    const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+    const handleEdit = (committee: Committee) => {
+        setSelectedCommittee(committee);
         setSheetOpen(true);
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
-      setEvents(events.filter(event => event.id !== id));
+      setCommittees(committees.filter(c => c.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
-        if (selectedEvent && eventData.id) {
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+    const handleSave = (committeeData: Committee) => {
+        if (selectedCommittee && committeeData.id) {
+            setCommittees(committees.map(c => c.id === committeeData.id ? committeeData : c));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            setCommittees([...committees, { ...committeeData, id: `CMT${Date.now()}` }]);
         }
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Event['status']) => {
-        switch (status) {
-            case 'Upcoming':
-                return 'default';
-            case 'Completed':
-                return 'secondary';
-            case 'Cancelled':
-                return 'destructive';
-            default:
-                return 'outline';
-        }
-    };
-
     return (
         <>
-            <PageHeader title="Kelola Event" actions={
+            <PageHeader title="Kelola Panitia" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Member
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>Committee Management</CardTitle>
+                    <CardDescription>Manage organizing committee members.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -84,23 +69,17 @@ export default function EventTable() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Location</TableHead>
+                                    <TableHead>Position</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {events.map((event) => (
-                                    <TableRow key={event.id}>
-                                        <TableCell className="font-medium">{event.name}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={getBadgeVariant(event.status)}>{event.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{event.location}</TableCell>
+                                {committees.map((committee) => (
+                                    <TableRow key={committee.id}>
+                                        <TableCell className="font-medium">{committee.name}</TableCell>
+                                        <TableCell>{committee.position}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -111,8 +90,8 @@ export default function EventTable() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleEdit(committee)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(committee.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -123,10 +102,10 @@ export default function EventTable() {
                     </div>
                 </CardContent>
             </Card>
-            <EventForm 
+            <CommitteeForm 
                 open={sheetOpen} 
                 onOpenChange={setSheetOpen}
-                event={selectedEvent}
+                committee={selectedCommittee}
                 onSave={handleSave}
             />
         </>

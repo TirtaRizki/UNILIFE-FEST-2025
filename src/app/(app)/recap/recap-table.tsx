@@ -20,47 +20,44 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockEvents } from "@/lib/data";
-import type { Event } from "@/lib/types";
-import { EventForm } from './event-form';
+import { mockRecaps } from "@/lib/data";
+import type { Recap } from "@/lib/types";
+import { RecapForm } from './recap-form';
 
-export default function EventTable() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+export default function RecapTable() {
+    const [recaps, setRecaps] = useState<Recap[]>(mockRecaps);
     const [sheetOpen, setSheetOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
 
     const handleAdd = () => {
-        setSelectedEvent(null);
+        setSelectedRecap(null);
         setSheetOpen(true);
     };
 
-    const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+    const handleEdit = (recap: Recap) => {
+        setSelectedRecap(recap);
         setSheetOpen(true);
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
-      setEvents(events.filter(event => event.id !== id));
+      setRecaps(recaps.filter(r => r.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
-        if (selectedEvent && eventData.id) {
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+    const handleSave = (recapData: Recap) => {
+        if (selectedRecap && recapData.id) {
+            setRecaps(recaps.map(r => r.id === recapData.id ? recapData : r));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            setRecaps([...recaps, { ...recapData, id: `RCP${Date.now()}` }]);
         }
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Event['status']) => {
+    const getBadgeVariant = (status: Recap['status']) => {
         switch (status) {
-            case 'Upcoming':
+            case 'Published':
                 return 'default';
-            case 'Completed':
+            case 'Draft':
                 return 'secondary';
-            case 'Cancelled':
-                return 'destructive';
             default:
                 return 'outline';
         }
@@ -68,39 +65,35 @@ export default function EventTable() {
 
     return (
         <>
-            <PageHeader title="Kelola Event" actions={
+            <PageHeader title="Kelola Recap" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Recap
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>Recap Management</CardTitle>
+                    <CardDescription>Manage event summaries and reviews.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Name</TableHead>
+                                    <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Location</TableHead>
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {events.map((event) => (
-                                    <TableRow key={event.id}>
-                                        <TableCell className="font-medium">{event.name}</TableCell>
+                                {recaps.map((recap) => (
+                                    <TableRow key={recap.id}>
+                                        <TableCell className="font-medium">{recap.title}</TableCell>
                                         <TableCell>
-                                            <Badge variant={getBadgeVariant(event.status)}>{event.status}</Badge>
+                                            <Badge variant={getBadgeVariant(recap.status)}>{recap.status}</Badge>
                                         </TableCell>
-                                        <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{event.location}</TableCell>
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -111,8 +104,8 @@ export default function EventTable() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleEdit(recap)}>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -123,10 +116,10 @@ export default function EventTable() {
                     </div>
                 </CardContent>
             </Card>
-            <EventForm 
+            <RecapForm 
                 open={sheetOpen} 
                 onOpenChange={setSheetOpen}
-                event={selectedEvent}
+                recap={selectedRecap}
                 onSave={handleSave}
             />
         </>
