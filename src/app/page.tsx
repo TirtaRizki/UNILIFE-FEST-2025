@@ -25,28 +25,35 @@ export default function LoginPage() {
   useEffect(() => {
     // Initialize admin user if not present
     const usersInStorage = localStorage.getItem('users');
-    if (!usersInStorage) {
+    let users = usersInStorage ? JSON.parse(usersInStorage) : [];
+
+    if (!users.some((u: User) => u.email === 'admin@unilife.com')) {
         const initialUsers: User[] = [
             { id: 'USR001', name: 'Admin User', email: 'admin@unilife.com', role: 'Admin' },
             ...mockUsers
         ];
+        // Note: For a real app, do not store passwords in localStorage. This is for demo purposes.
         localStorage.setItem('users', JSON.stringify(initialUsers));
-    } else {
-        const users: User[] = JSON.parse(usersInStorage);
-        if (!users.some(u => u.email === 'admin@unilife.com')) {
-            const adminUser: User = { id: 'USR001', name: 'Admin User', email: 'admin@unilife.com', role: 'Admin' };
-            const updatedUsers = [adminUser, ...users];
-            localStorage.setItem('users', JSON.stringify(updatedUsers));
-        }
     }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === "admin@unilife.com" && password === "unilifejaya123") {
+    const usersInStorage = localStorage.getItem('users');
+    const users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
+    
+    const foundUser = users.find(user => user.email === email);
+    
+    // For demo: admin has a specific password, others can log in with a generic password.
+    const isPasswordCorrect = (foundUser?.role === 'Admin' && password === 'unilifejaya123') || (foundUser?.role !== 'Admin' && password === 'unilifejaya123');
+
+    if (foundUser && isPasswordCorrect) {
+        // In a real app, you'd use a more secure session management method.
+        sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+
         toast({
             title: "Login Successful",
-            description: "Welcome back, Admin!",
+            description: `Welcome back, ${foundUser.name}!`,
         });
         router.push("/dashboard");
     } else {
@@ -91,6 +98,7 @@ export default function LoginPage() {
                 className="bg-white"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
               />
             </div>
             <div className="flex items-center justify-between">

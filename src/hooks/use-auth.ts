@@ -3,41 +3,50 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from '@/lib/types';
 
-// Let's assume the current logged-in user is the one with the 'Admin' role for this demo.
-// In a real app, this would come from a proper auth context after login.
-const getDemoUser = (users: User[]): User | null => {
-    // For this demo, we'll try to find an 'Admin', then 'Panitia', then the first user as the logged-in user.
-    return users.find(u => u.role === 'Admin') || users.find(u => u.role === 'Panitia') || users[0] || null;
-}
-
 export function useAuth() {
     const [user, setUser] = useState<User | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        const handleStorageChange = () => {
-            const usersInStorage = localStorage.getItem('users');
-            if (usersInStorage) {
-                const allUsers: User[] = JSON.parse(usersInStorage);
-                setUser(getDemoUser(allUsers));
+        setIsClient(true);
+    }, []);
+
+    const updateUserFromStorage = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            const userJson = sessionStorage.getItem('loggedInUser');
+            if (userJson) {
+                try {
+                    setUser(JSON.parse(userJson));
+                } catch (e) {
+                    console.error("Failed to parse user from sessionStorage", e);
+                    setUser(null);
+                    sessionStorage.removeItem('loggedInUser');
+                }
             } else {
                 setUser(null);
             }
+        }
+    }, []);
+
+    useEffect(() => {
+        updateUserFromStorage();
+
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'loggedInUser' || event.key === 'users') {
+                updateUserFromStorage();
+            }
         };
 
-        // Initial load
-        handleStorageChange();
-
-        // Listen for changes
         window.addEventListener('storage', handleStorageChange);
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
-    }, []);
+    }, [updateUserFromStorage]);
 
     const hasRole = useCallback((roles: Array<User['role']>) => {
-        if (!user) return false;
+        if (!isClient || !user) return false;
         return roles.includes(user.role);
-    }, [user]);
+    }, [user, isClient]);
     
-    return { user, hasRole };
+    return { user, hasRole, isClient };
 }
