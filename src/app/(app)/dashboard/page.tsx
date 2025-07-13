@@ -103,44 +103,44 @@ const TiketinCta = () => (
 
 
 export default function DashboardPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [lineups, setLineups] = useState<Lineup[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
-  // In a real app, you would fetch this data from your API
-  // For now, we simulate this by reading from localStorage if available
   useEffect(() => {
-    const storedCommittees = localStorage.getItem('committees');
-    if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+    // This effect runs only on the client side
+    setIsClient(true);
+    setDate(new Date());
 
-    const storedUsers = localStorage.getItem('users');
-    if (storedUsers) setUsers(JSON.parse(storedUsers));
-
-    const storedEvents = localStorage.getItem('events');
-    if (storedEvents) setEvents(JSON.parse(storedEvents));
-
-    const storedLineups = localStorage.getItem('lineups');
-    if (storedLineups) setLineups(JSON.parse(storedLineups));
-
-    // Listen for storage changes to update in real-time
-    const handleStorageChange = () => {
+    const updateStateFromStorage = () => {
         const storedCommittees = localStorage.getItem('committees');
         if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+
         const storedUsers = localStorage.getItem('users');
         if (storedUsers) setUsers(JSON.parse(storedUsers));
+
         const storedEvents = localStorage.getItem('events');
         if (storedEvents) setEvents(JSON.parse(storedEvents));
+
         const storedLineups = localStorage.getItem('lineups');
         if (storedLineups) setLineups(JSON.parse(storedLineups));
     };
+    
+    updateStateFromStorage();
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', updateStateFromStorage);
     return () => {
-        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('storage', updateStateFromStorage);
     };
   }, []);
+
+  if (!isClient) {
+    // Render a loading state or skeleton on the server and initial client render
+    return null;
+  }
 
   const activeEventsCount = events.filter(e => e.status === "Upcoming").length;
 
@@ -169,3 +169,4 @@ export default function DashboardPage() {
     </>
   );
 }
+
