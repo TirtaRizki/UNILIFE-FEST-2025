@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,6 +39,7 @@ import type { Event } from "@/lib/types"
 const eventSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters long"),
+  description: z.string().min(10, "Description must be at least 10 characters long"),
   date: z.date({ required_error: "A date is required." }),
   location: z.string().min(3, "Location is required"),
   status: z.enum(["Upcoming", "Completed", "Cancelled"]),
@@ -60,6 +62,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
       ? { ...event, date: new Date(event.date) }
       : {
           name: "",
+          description: "",
           date: new Date(),
           location: "",
           status: "Upcoming",
@@ -71,7 +74,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
     if (open) {
       const defaultValues = event
         ? { ...event, date: new Date(event.date) }
-        : { name: "", date: new Date(), location: "", status: "Upcoming", imageUrl: "" };
+        : { name: "", description: "", date: new Date(), location: "", status: "Upcoming", imageUrl: "" };
       form.reset(defaultValues);
       setImagePreview(defaultValues.imageUrl || null);
     }
@@ -108,7 +111,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg">
+      <SheetContent className="sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{event ? "Edit Event" : "Tambah Event Baru"}</SheetTitle>
           <SheetDescription>
@@ -125,6 +128,20 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
                   <FormLabel>Nama Event</FormLabel>
                   <FormControl>
                     <Input placeholder="Summer Music Festival" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deskripsi Event</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Jelaskan secara singkat tentang event ini..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

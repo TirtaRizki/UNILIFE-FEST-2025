@@ -2,27 +2,28 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Calendar, MapPin } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import type { Event } from "@/lib/types";
 import { EventForm } from './event-form';
 import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
+import { format } from 'date-fns';
 
 const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
-        <Card className="overflow-hidden content-card group">
-            <CardContent className="p-0">
+        <Card className="overflow-hidden content-card group flex flex-col">
+            <CardHeader className="p-0">
                 <div className="relative">
                     <Image
-                        src={event.imageUrl || "https://placehold.co/300x400.png"}
+                        src={event.imageUrl || "https://placehold.co/400x300.png"}
                         alt={event.name}
-                        width={300}
-                        height={400}
-                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint="event poster"
+                        width={400}
+                        height={300}
+                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint="event concert festival"
                     />
                     {canManage && (
                         <div className="absolute top-2 right-2">
@@ -42,7 +43,25 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
                         </div>
                     )}
                 </div>
+            </CardHeader>
+            <CardContent className="p-4 flex-grow">
+                <CardTitle className="text-lg font-bold mb-2">{event.name}</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground line-clamp-3">
+                    {event.description}
+                </CardDescription>
             </CardContent>
+            <CardFooter className="p-4 pt-0 text-sm text-muted-foreground bg-white/50 border-t border-black/5">
+                <div className="flex flex-col gap-2 w-full">
+                     <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>{format(new Date(event.date), "PPP")}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        <span>{event.location}</span>
+                    </div>
+                </div>
+            </CardFooter>
         </Card>
     );
 };
@@ -108,7 +127,7 @@ export default function EventGrid() {
                 )
             } />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event) => (
                     <EventCard key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
                 ))}

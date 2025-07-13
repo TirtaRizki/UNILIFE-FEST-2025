@@ -2,6 +2,7 @@
 export type Event = {
     id: string;
     name: string;
+    description: string;
     date: string;
     location: string;
     status: "Upcoming" | "Completed" | "Cancelled";
@@ -21,7 +22,7 @@ export type Banner = {
 };
 
 export type Committee = {
-    id: string;
+    id:string;
     name: string;
     position: string;
 };
