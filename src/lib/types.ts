@@ -38,7 +38,9 @@ export type Lineup = {
 export type Recap = {
     id: string;
     title: string;
+    description?: string;
     status: "Published" | "Draft";
+    imageUrl?: string;
 };
 
 export type Ticket = {
@@ -52,7 +54,6 @@ export type User = {
     id: string;
     name: string;
     email: string;
-    phoneNumber: string;
     role: "Admin" | "Member" | "Panitia";
     password?: string;
 };

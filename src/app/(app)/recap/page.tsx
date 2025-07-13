@@ -1,5 +1,5 @@
-import RecapTable from "./recap-table";
+import RecapGrid from "./recap-table";
 
 export default function RecapPage() {
-    return <RecapTable />;
+    return <RecapGrid />;
 }

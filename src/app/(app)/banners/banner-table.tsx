@@ -37,6 +37,9 @@ export default function BannerTable() {
         const storedBanners = localStorage.getItem('banners');
         if (storedBanners) {
             setBanners(JSON.parse(storedBanners));
+        } else {
+            // Initialize with empty array if nothing is in storage
+            setBanners([]);
         }
     }, []);
 
@@ -103,7 +106,7 @@ export default function BannerTable() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[150px]">Image</TableHead>
+                                    <TableHead className="w-[40%]">Image</TableHead>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
                                     {canManage && (
@@ -118,11 +121,11 @@ export default function BannerTable() {
                                     <TableRow key={banner.id}>
                                         <TableCell>
                                             <Image 
-                                                src={banner.imageUrl || "https://placehold.co/150x84.png"}
+                                                src={banner.imageUrl || "https://placehold.co/400x225.png"}
                                                 alt={banner.title}
-                                                width={150}
-                                                height={84}
-                                                className="rounded-md object-cover aspect-video"
+                                                width={400}
+                                                height={225}
+                                                className="rounded-md object-cover w-full aspect-video"
                                                 data-ai-hint="banner advertisement"
                                             />
                                         </TableCell>

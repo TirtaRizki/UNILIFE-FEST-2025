@@ -16,13 +16,12 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
     return (
         <Card className="overflow-hidden content-card group flex flex-col">
             <CardHeader className="p-0">
-                <div className="relative">
+                <div className="relative w-full aspect-[4/3]">
                     <Image
                         src={event.imageUrl || "https://placehold.co/400x300.png"}
                         alt={event.name}
-                        width={400}
-                        height={300}
-                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                        layout="fill"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint="event concert festival"
                     />
                     {canManage && (
@@ -83,7 +82,23 @@ export default function EventGrid() {
 
     const updateEvents = (updatedEvents: Event[]) => {
         setEvents(updatedEvents);
-        localStorage.setItem('events', JSON.stringify(updatedEvents));
+        const eventsForStorage = updatedEvents.map(event => {
+            const { imageUrl, ...rest } = event;
+            // Only include imageUrl in localStorage if it's not a session-based blob URL
+            if (imageUrl && imageUrl.startsWith('http')) {
+                return event;
+            }
+             if (!imageUrl) {
+                return rest;
+            }
+            return rest;
+        });
+
+        try {
+            localStorage.setItem('events', JSON.stringify(eventsForStorage));
+        } catch (error) {
+            console.error("Failed to save events to localStorage:", error);
+        }
         window.dispatchEvent(new Event('storage'));
     };
 
@@ -93,28 +108,53 @@ export default function EventGrid() {
     };
 
     const handleEdit = (event: Event) => {
-        setSelectedEvent(event);
+        let eventWithFullImage = { ...event };
+        if (event.id && !event.imageUrl?.startsWith('http')) {
+            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
+            if (sessionImage) {
+                eventWithFullImage.imageUrl = sessionImage;
+            }
+        }
+        setSelectedEvent(eventWithFullImage);
         setSheetOpen(true);
     };
     
     const handleDelete = async (id: string) => {
-        // This is where you'll add your database deletion logic
         const updatedEvents = events.filter(event => event.id !== id);
         updateEvents(updatedEvents);
+        sessionStorage.removeItem(`event_image_${id}`);
     };
 
     const handleSave = async (eventData: Event) => {
+        if (eventData.imageUrl && !eventData.imageUrl.startsWith('http')) {
+            const eventId = eventData.id || `EVT${Date.now()}`;
+            eventData.id = eventId;
+            sessionStorage.setItem(`event_image_${eventId}`, eventData.imageUrl);
+            // Don't store the large data URI in the main list state that goes to localStorage
+            eventData.imageUrl = `placeholder_for_${eventId}`;
+        }
+        
         let updatedEvents;
         if (selectedEvent && eventData.id) {
-            // This is where you'll add your database update logic
             updatedEvents = events.map(e => e.id === eventData.id ? eventData : e);
         } else {
-            // This is where you'll add your database creation logic
-            const newEvent = { ...eventData, id: `EVT${Date.now()}` }; // Replace with ID from DB
-            updatedEvents = [...events, newEvent];
+            updatedEvents = [...events, eventData];
         }
         updateEvents(updatedEvents);
         setSheetOpen(false);
+    }
+
+    const getEventImageUrl = (event: Event) => {
+        if (event.imageUrl?.startsWith('http')) {
+            return event.imageUrl;
+        }
+        if (event.id) {
+            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
+            if (sessionImage) {
+                return sessionImage;
+            }
+        }
+        return "https://placehold.co/400x300.png";
     }
     
     return (
@@ -129,7 +169,13 @@ export default function EventGrid() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event) => (
-                    <EventCard key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
+                    <EventCard 
+                        key={event.id} 
+                        event={{...event, imageUrl: getEventImageUrl(event)}} 
+                        onEdit={handleEdit} 
+                        onDelete={handleDelete} 
+                        canManage={canManage} 
+                    />
                 ))}
             </div>
             

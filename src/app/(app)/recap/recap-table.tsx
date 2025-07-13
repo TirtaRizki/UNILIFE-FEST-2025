@@ -1,31 +1,70 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Recap } from "@/lib/types";
 import { RecapForm } from './recap-form';
+import Image from 'next/image';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 
-export default function RecapTable() {
+const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdit: (recap: Recap) => void, onDelete: (id: string) => void, canManage: boolean }) => {
+    const getBadgeVariant = (status: Recap['status']) => {
+        switch (status) {
+            case 'Published': return 'default';
+            case 'Draft': return 'secondary';
+            default: return 'outline';
+        }
+    };
+
+    return (
+        <Card className="overflow-hidden content-card group flex flex-col">
+            <CardHeader className="p-0">
+                <div className="relative w-full aspect-video">
+                    <Image
+                        src={recap.imageUrl || "https://placehold.co/400x225.png"}
+                        alt={recap.title}
+                        layout="fill"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint="event recap concert"
+                    />
+                    {canManage && (
+                        <div className="absolute top-2 right-2">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                        <span className="sr-only">Actions</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => onEdit(recap)}>Edit</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete(recap.id)}>Delete</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    )}
+                </div>
+            </CardHeader>
+            <CardContent className="p-4 flex-grow">
+                <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-lg font-bold">{recap.title}</CardTitle>
+                    <Badge variant={getBadgeVariant(recap.status)}>{recap.status}</Badge>
+                </div>
+                <CardDescription className="text-sm text-muted-foreground line-clamp-3">
+                    {recap.description}
+                </CardDescription>
+            </CardContent>
+        </Card>
+    );
+};
+
+export default function RecapGrid() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
     const [recaps, setRecaps] = useState<Recap[]>([]);
@@ -56,8 +95,8 @@ export default function RecapTable() {
     };
     
     const handleDelete = async (id: string) => {
-      const updatedRecaps = recaps.filter(r => r.id !== id);
-      updateRecaps(updatedRecaps);
+        const updatedRecaps = recaps.filter(r => r.id !== id);
+        updateRecaps(updatedRecaps);
     };
 
     const handleSave = async (recapData: Recap) => {
@@ -72,17 +111,6 @@ export default function RecapTable() {
         setSheetOpen(false);
     }
     
-    const getBadgeVariant = (status: Recap['status']) => {
-        switch (status) {
-            case 'Published':
-                return 'default';
-            case 'Draft':
-                return 'secondary';
-            default:
-                return 'outline';
-        }
-    };
-
     return (
         <>
             <PageHeader title="Kelola Recap" actions={
@@ -92,56 +120,13 @@ export default function RecapTable() {
                     </Button>
                 )
             } />
-            <Card className="content-card">
-                <CardHeader>
-                    <CardTitle>Rekap Event</CardTitle>
-                    <CardDescription>Kelola rangkuman dan ulasan event.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    {canManage && (
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
-                                    )}
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {recaps.map((recap) => (
-                                    <TableRow key={recap.id}>
-                                        <TableCell className="font-medium">{recap.title}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={getBadgeVariant(recap.status)}>{recap.status}</Badge>
-                                        </TableCell>
-                                        {canManage && (
-                                            <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                            <span className="sr-only">Toggle menu</span>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleEdit(recap)}>Edit</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        )}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {recaps.map((recap) => (
+                    <RecapCard key={recap.id} recap={recap} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
+                ))}
+            </div>
+            
             {canManage && (
                 <RecapForm 
                     open={sheetOpen} 
