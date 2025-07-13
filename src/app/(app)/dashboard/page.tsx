@@ -11,7 +11,7 @@ import type { Committee, User, Event, Lineup } from '@/lib/types';
 
 const Countdown = () => {
     const calculateTimeLeft = () => {
-        const eventDate = new Date("2025-07-30T00:00:00");
+        const eventDate = new Date("2025-08-30T00:00:00");
         const difference = +eventDate - +new Date();
         
         let timeLeft = {
@@ -169,4 +169,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
