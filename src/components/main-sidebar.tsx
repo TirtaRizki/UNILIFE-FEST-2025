@@ -2,6 +2,8 @@
 "use client"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Sidebar,
   SidebarHeader,
@@ -26,9 +28,24 @@ import {
   Settings,
 } from "lucide-react";
 
-const Logo = () => (
-    <h1 className="text-3xl font-headline font-bold text-primary px-4">UNLIFE</h1>
-);
+const Logo = () => {
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const storedLogo = localStorage.getItem('appLogo');
+            setLogoUrl(storedLogo);
+        };
+        handleStorageChange(); // Initial load
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    if (logoUrl) {
+        return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" />;
+    }
+    return <h1 className="text-3xl font-headline font-bold text-primary">UNILIFE</h1>;
+};
 
 export const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -53,8 +70,10 @@ export function MainSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader className="pt-6 pb-8">
-                <Logo />
+            <SidebarHeader className="pt-6 pb-8 px-4">
+                <div className="h-10 flex items-center">
+                    <Logo />
+                </div>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>

@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,9 +14,21 @@ import { useToast } from "@/hooks/use-toast";
 import type { User } from '@/lib/types';
 import { mockUsers } from '@/lib/data';
 
-const Logo = () => (
-    <h1 className="text-3xl font-headline font-bold text-primary">UNILIFE</h1>
-);
+const Logo = () => {
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const storedLogo = localStorage.getItem('appLogo');
+        if (storedLogo) {
+            setLogoUrl(storedLogo);
+        }
+    }, []);
+
+    if (logoUrl) {
+        return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" />;
+    }
+    return <h1 className="text-3xl font-headline font-bold text-primary">UNILIFE</h1>;
+};
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -89,7 +102,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-[rgb(var(--background-start-rgb))] to-[rgb(var(--background-end-rgb))] px-4">
       <Card className="w-full max-w-md rounded-2xl border-white/20 bg-white/95 p-4 shadow-2xl backdrop-blur-lg sm:p-8">
         <CardHeader className="pb-4">
-            <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center mb-4 h-10">
                 <Logo />
             </div>
           <CardTitle className="text-2xl font-bold text-center text-foreground">Welcome Back</CardTitle>
