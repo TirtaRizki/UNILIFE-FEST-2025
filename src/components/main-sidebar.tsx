@@ -17,32 +17,20 @@ import {
   Mic,
   Calendar,
   BookOpen,
-  Image as ImageIcon,
+  ImageIcon,
   UserCog,
   LogOut,
+  Ticket,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Logo = () => (
-  <div className="flex items-center">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="mr-2 h-6 w-6 text-primary"
-    >
-      <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-    </svg>
-    <h1 className="text-xl font-headline font-semibold">EventFlow</h1>
-  </div>
+    <h1 className="text-2xl font-headline font-bold text-white px-4">UNILIFE</h1>
 );
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/committee", icon: Users, label: "Kelola Panitia" },
+  { href: "/tickets", icon: Ticket, label: "Kelola Tiket" },
   { href: "/about", icon: Info, label: "Kelola About" },
   { href: "/lineup", icon: Mic, label: "Kelola Line Up" },
   { href: "/events", icon: Calendar, label: "Kelola Event" },
@@ -60,14 +48,21 @@ export function MainSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader>
+            <SidebarHeader className="pt-6 pb-4">
                 <Logo />
             </SidebarHeader>
             <SidebarContent>
+                <div className="flex flex-col items-center gap-2 py-4">
+                    <Avatar className="h-20 w-20">
+                        <AvatarImage data-ai-hint="person user" src="https://placehold.co/80x80.png" alt="Julian" />
+                        <AvatarFallback>J</AvatarFallback>
+                    </Avatar>
+                    <p className="font-semibold text-white">Julian</p>
+                </div>
                 <SidebarMenu>
                     {navItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
-                            <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.label}>
+                            <SidebarMenuButton asChild isActive={isActive(item.href)} className="justify-start data-[active=true]:bg-sidebar-accent">
                                 <Link href={item.href}>
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -80,10 +75,10 @@ export function MainSidebar() {
             <SidebarFooter>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Logout">
+                  <SidebarMenuButton asChild className="justify-start">
                     <Link href="/">
                       <LogOut />
-                      <span>Logout</span>
+                      <span>Kelola Login</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

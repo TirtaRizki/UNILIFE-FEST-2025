@@ -1,98 +1,115 @@
 "use client"
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Calendar, Users, DollarSign, Activity } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Ticket, Clock, LogIn } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 import PageHeader from '@/components/page-header';
 
-const chartData = [
-  { month: "January", events: 186 },
-  { month: "February", events: 305 },
-  { month: "March", events: 237 },
-  { month: "April", events: 273 },
-  { month: "May", events: 209 },
-  { month: "June", events: 214 },
-];
+const Countdown = () => {
+    const calculateTimeLeft = () => {
+        const difference = +new Date("2025-01-01") - +new Date();
+        let timeLeft = {};
 
-const chartConfig = {
-  events: {
-    label: "Events",
-    color: "hsl(var(--primary))",
-  },
+        if (difference > 0) {
+            timeLeft = {
+                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                seconds: Math.floor((difference / 1000) % 60)
+            };
+        }
+        return timeLeft;
+    };
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
+
+    const formatTime = (time: number | undefined) => {
+        return time !== undefined ? String(time).padStart(2, '0') : '00';
+    }
+
+    return (
+        <div className="text-center">
+            <h2 className="text-xl font-semibold uppercase tracking-widest text-white mb-2">Start The Event</h2>
+            <div className="flex justify-center items-center gap-4 text-white">
+                <div className="flex flex-col items-center">
+                    <span className="text-6xl font-bold">{formatTime(timeLeft.days)}</span>
+                    <span className="text-sm uppercase">Days</span>
+                </div>
+                <span className="text-6xl font-bold">:</span>
+                <div className="flex flex-col items-center">
+                    <span className="text-6xl font-bold">{formatTime(timeLeft.hours)}</span>
+                    <span className="text-sm uppercase">Hours</span>
+                </div>
+                <span className="text-6xl font-bold">:</span>
+                <div className="flex flex-col items-center">
+                    <span className="text-6xl font-bold">{formatTime(timeLeft.minutes)}</span>
+                    <span className="text-sm uppercase">Minute</span>
+                </div>
+                <span className="text-6xl font-bold">:</span>
+                <div className="flex flex-col items-center">
+                    <span className="text-6xl font-bold">{formatTime(timeLeft.seconds)}</span>
+                    <span className="text-sm uppercase">Second</span>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default function DashboardPage() {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
   return (
     <>
-      <PageHeader title="Dashboard" />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+      <PageHeader title="Dasboard" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="glass-card text-white">
+          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tiket Terjual</CardTitle>
+            <div className="text-2xl font-bold">383</div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+        <Card className="glass-card text-white">
+          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tiket Pending</CardTitle>
+            <div className="text-2xl font-bold">233</div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
-            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
-          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        <Card className="glass-card text-white">
+          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Riwayat Login</CardTitle>
+            <div className="text-2xl font-bold">-</div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
-            <p className="text-xs text-muted-foreground">+19% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
-            <p className="text-xs text-muted-foreground">+201 since last hour</p>
-          </CardContent>
         </Card>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Events Overview</CardTitle>
-            <CardDescription>An overview of events organized per month.</CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-              <ResponsiveContainer width="100%" height={300}>
-                <RechartsBarChart accessibilityLayer data={chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <YAxis />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <Bar dataKey="events" fill="var(--color-events)" radius={8} />
-                </RechartsBarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+        <div className="lg:col-span-2 glass-card p-6">
+          <Countdown />
+        </div>
+        <div className="glass-card flex justify-center items-center p-4">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md"
+            classNames={{
+                caption: "text-white",
+                caption_label: "text-white",
+                nav_button: "text-white hover:bg-white/10",
+                head_cell: "text-white/80",
+                day: "text-white hover:bg-white/20",
+                day_selected: "bg-white/30 text-white",
+                day_today: "bg-white/10 text-white",
+                day_outside: "text-white/50",
+            }}
+          />
+        </div>
       </div>
     </>
   );

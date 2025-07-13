@@ -1,21 +1,16 @@
 import PageHeader from "@/components/page-header";
-import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function AboutPage() {
     return (
         <>
-            <PageHeader title="Kelola About" />
-            <Card>
-                <CardHeader>
-                    <CardTitle>About Section Management</CardTitle>
-                    <CardDescription>
-                        Manage and update information related to the 'About Us' section of the platform.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p>Content for managing the About section will be displayed here.</p>
-                </CardContent>
-            </Card>
+            <PageHeader 
+                title="Kelola About"
+                actions={
+                    <Button className="bg-white/30 text-white hover:bg-white/40">Tambah About</Button>
+                }
+            />
+            {/* The rest of the content for managing the About section will go here. */}
         </>
     );
 }
