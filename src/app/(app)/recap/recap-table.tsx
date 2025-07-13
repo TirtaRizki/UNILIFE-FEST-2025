@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -31,11 +32,18 @@ export default function RecapTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-        // const fetchedRecaps = await fetch('/api/recaps');
-        // setRecaps(fetchedRecaps);
+        const storedRecaps = localStorage.getItem('recaps');
+        if (storedRecaps) {
+            setRecaps(JSON.parse(storedRecaps));
+        }
     }, []);
+
+    const updateRecaps = (updatedRecaps: Recap[]) => {
+        setRecaps(updatedRecaps);
+        localStorage.setItem('recaps', JSON.stringify(updatedRecaps));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedRecap(null);
@@ -48,22 +56,19 @@ export default function RecapTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/recaps/${id}`, { method: 'DELETE' });
-      setRecaps(recaps.filter(r => r.id !== id));
+      const updatedRecaps = recaps.filter(r => r.id !== id);
+      updateRecaps(updatedRecaps);
     };
 
     const handleSave = async (recapData: Recap) => {
+        let updatedRecaps;
         if (selectedRecap && recapData.id) {
-            // TODO: Add your database update logic here
-            // const updatedRecap = await fetch(`/api/recaps/${recapData.id}`, { method: 'PUT', body: JSON.stringify(recapData) });
-            setRecaps(recaps.map(r => r.id === recapData.id ? recapData : r));
+            updatedRecaps = recaps.map(r => r.id === recapData.id ? recapData : r);
         } else {
-            // TODO: Add your database creation logic here
-            const newRecap = { ...recapData, id: `RCP${Date.now()}` }; // Replace with ID from DB
-            // const createdRecap = await fetch('/api/recaps', { method: 'POST', body: JSON.stringify(newRecap) });
-            setRecaps([...recaps, newRecap]);
+            const newRecap = { ...recapData, id: `RCP${Date.now()}` };
+            updatedRecaps = [...recaps, newRecap];
         }
+        updateRecaps(updatedRecaps);
         setSheetOpen(false);
     }
     

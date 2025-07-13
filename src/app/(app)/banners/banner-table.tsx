@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -31,11 +32,18 @@ export default function BannerTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-      // const fetchedBanners = await fetch('/api/banners');
-      // setBanners(fetchedBanners);
+        const storedBanners = localStorage.getItem('banners');
+        if (storedBanners) {
+            setBanners(JSON.parse(storedBanners));
+        }
     }, []);
+
+    const updateBanners = (updatedBanners: Banner[]) => {
+        setBanners(updatedBanners);
+        localStorage.setItem('banners', JSON.stringify(updatedBanners));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedBanner(null);
@@ -48,22 +56,19 @@ export default function BannerTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/banners/${id}`, { method: 'DELETE' });
-      setBanners(banners.filter(banner => banner.id !== id));
+        const updatedBanners = banners.filter(banner => banner.id !== id);
+        updateBanners(updatedBanners);
     };
 
     const handleSave = async (bannerData: Banner) => {
+        let updatedBanners;
         if (selectedBanner && bannerData.id) {
-            // TODO: Add your database update logic here
-            // const updatedBanner = await fetch(`/api/banners/${bannerData.id}`, { method: 'PUT', body: JSON.stringify(bannerData) });
-            setBanners(banners.map(b => b.id === bannerData.id ? bannerData : b));
+            updatedBanners = banners.map(b => b.id === bannerData.id ? bannerData : b);
         } else {
-            // TODO: Add your database creation logic here
-            const newBanner = { ...bannerData, id: `BNR${Date.now()}` }; // Replace with ID from DB
-            // const createdBanner = await fetch('/api/banners', { method: 'POST', body: JSON.stringify(newBanner) });
-            setBanners([...banners, newBanner]);
+            const newBanner = { ...bannerData, id: `BNR${Date.now()}` };
+            updatedBanners = [...banners, newBanner];
         }
+        updateBanners(updatedBanners);
         setSheetOpen(false);
     }
     

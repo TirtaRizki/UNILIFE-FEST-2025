@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -31,11 +32,18 @@ export default function TicketTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-        // const fetchedTickets = await fetch('/api/tickets');
-        // setTickets(fetchedTickets);
+        const storedTickets = localStorage.getItem('tickets');
+        if (storedTickets) {
+            setTickets(JSON.parse(storedTickets));
+        }
     }, []);
+
+    const updateTickets = (updatedTickets: Ticket[]) => {
+        setTickets(updatedTickets);
+        localStorage.setItem('tickets', JSON.stringify(updatedTickets));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedTicket(null);
@@ -48,22 +56,19 @@ export default function TicketTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/tickets/${id}`, { method: 'DELETE' });
-      setTickets(tickets.filter(t => t.id !== id));
+      const updatedTickets = tickets.filter(t => t.id !== id);
+      updateTickets(updatedTickets);
     };
 
     const handleSave = async (ticketData: Ticket) => {
+        let updatedTickets;
         if (selectedTicket && ticketData.id) {
-            // TODO: Add your database update logic here
-            // const updatedTicket = await fetch(`/api/tickets/${ticketData.id}`, { method: 'PUT', body: JSON.stringify(ticketData) });
-            setTickets(tickets.map(t => t.id === ticketData.id ? ticketData : t));
+            updatedTickets = tickets.map(t => t.id === ticketData.id ? ticketData : t);
         } else {
-            // TODO: Add your database creation logic here
-            const newTicket = { ...ticketData, id: `TKT${Date.now()}` }; // Replace with ID from DB
-            // const createdTicket = await fetch('/api/tickets', { method: 'POST', body: JSON.stringify(newTicket) });
-            setTickets([...tickets, newTicket]);
+            const newTicket = { ...ticketData, id: `TKT${Date.now()}` };
+            updatedTickets = [...tickets, newTicket];
         }
+        updateTickets(updatedTickets);
         setSheetOpen(false);
     }
     

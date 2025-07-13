@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -30,11 +31,18 @@ export default function AboutTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-      // const fetchedAbouts = await fetch('/api/abouts');
-      // setAbouts(fetchedAbouts);
+        const storedAbouts = localStorage.getItem('abouts');
+        if (storedAbouts) {
+            setAbouts(JSON.parse(storedAbouts));
+        }
     }, []);
+
+    const updateAbouts = (updatedAbouts: About[]) => {
+        setAbouts(updatedAbouts);
+        localStorage.setItem('abouts', JSON.stringify(updatedAbouts));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedAbout(null);
@@ -47,22 +55,19 @@ export default function AboutTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/abouts/${id}`, { method: 'DELETE' });
-      setAbouts(abouts.filter(about => about.id !== id));
+        const updatedAbouts = abouts.filter(about => about.id !== id);
+        updateAbouts(updatedAbouts);
     };
 
     const handleSave = async (aboutData: About) => {
+        let updatedAbouts;
         if (selectedAbout && aboutData.id) {
-            // TODO: Add your database update logic here
-            // const updatedAbout = await fetch(`/api/abouts/${aboutData.id}`, { method: 'PUT', body: JSON.stringify(aboutData) });
-            setAbouts(abouts.map(a => a.id === aboutData.id ? aboutData : a));
+            updatedAbouts = abouts.map(a => a.id === aboutData.id ? aboutData : a);
         } else {
-            // TODO: Add your database creation logic here
-            const newAbout = { ...aboutData, id: `ABT${Date.now()}` }; // Replace with ID from DB
-            // const createdAbout = await fetch('/api/abouts', { method: 'POST', body: JSON.stringify(newAbout) });
-            setAbouts([...abouts, newAbout]);
+            const newAbout = { ...aboutData, id: `ABT${Date.now()}` };
+            updatedAbouts = [...abouts, newAbout];
         }
+        updateAbouts(updatedAbouts);
         setSheetOpen(false);
     }
     
