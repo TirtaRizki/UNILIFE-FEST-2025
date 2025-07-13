@@ -18,10 +18,13 @@ const Logo = () => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        const storedLogo = localStorage.getItem('appLogo');
-        if (storedLogo) {
+        const handleStorageChange = () => {
+            const storedLogo = localStorage.getItem('appLogo');
             setLogoUrl(storedLogo);
-        }
+        };
+        handleStorageChange(); // Initial load
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     if (logoUrl) {
@@ -66,7 +69,10 @@ export default function LoginPage() {
     }
     
     if (needsUpdate) {
-        const initialUsers = [...users, ...mockUsers.filter(mu => !users.some(u => u.email === mu.email))];
+        // We filter mockUsers to avoid duplicates if they were added manually
+        const existingEmails = new Set(users.map(u => u.email));
+        const filteredMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
+        const initialUsers = [...users, ...filteredMockUsers];
         localStorage.setItem('users', JSON.stringify(initialUsers));
     }
   }, []);
