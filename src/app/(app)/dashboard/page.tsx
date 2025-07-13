@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, UserCheck, Calendar as CalendarIcon, Mic } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const Countdown = () => {
     const calculateTimeLeft = () => {
@@ -27,13 +29,11 @@ const Countdown = () => {
         return timeLeft;
     };
 
-    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
-        setTimeLeft(calculateTimeLeft());
-
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
@@ -47,25 +47,11 @@ const Countdown = () => {
     
     const TimerUnit = ({ value, label }: { value: number, label: string }) => (
         <div className="bg-gradient-to-br from-primary to-[#764ba2] text-white rounded-lg p-3 md:p-4 text-center min-w-[70px] md:min-w-[80px]">
-            <div className="text-2xl md:text-3xl font-bold">{formatTime(value)}</div>
+            <div className="text-2xl md:text-3xl font-bold">{isClient ? formatTime(value) : '00'}</div>
             <div className="text-xs uppercase opacity-80">{label}</div>
         </div>
     );
     
-    if (!isClient) {
-        return (
-            <div className="text-center">
-                 <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">Start The Event</h2>
-                 <div className="flex justify-center items-center gap-2 md:gap-4">
-                    <TimerUnit value={0} label="Days" />
-                    <TimerUnit value={0} label="Hours" />
-                    <TimerUnit value={0} label="Minutes" />
-                    <TimerUnit value={0} label="Seconds" />
-                 </div>
-            </div>
-        );
-    }
-
     return (
         <div className="text-center">
             <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">Start The Event</h2>
@@ -91,6 +77,28 @@ const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, 
     </Card>
 );
 
+const TiketinCta = () => (
+    <Link href="https://mytiketin.com/" target="_blank" rel="noopener noreferrer" className="block group">
+        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-[#0a205a] via-[#0a4d9e] to-[#0a4d9e] transition-transform duration-300 group-hover:scale-[1.02]">
+            <div className="relative z-10">
+                <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4">
+                    Tinggal Klik, Tiketin Aja!
+                </h2>
+                <p className="max-w-xl mx-auto mb-6 text-white/80">
+                    Sekarang beli tiket hanya semudah klik, cari informasi tentang event kamu disini biar gak ketinggalan!
+                </p>
+                <Button 
+                    size="lg"
+                    className="bg-white/90 text-primary hover:bg-white font-semibold transition-all"
+                >
+                    Cari Event Sekarang
+                </Button>
+            </div>
+        </div>
+    </Link>
+);
+
+
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
@@ -115,6 +123,7 @@ export default function DashboardPage() {
           />
         </Card>
       </div>
+      <TiketinCta />
     </>
   );
 }
