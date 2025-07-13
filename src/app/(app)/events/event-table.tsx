@@ -40,7 +40,6 @@ export default function EventTable() {
     };
     
     const handleDelete = (id: string) => {
-      // In a real app, you would show a confirmation dialog before deleting.
       setEvents(events.filter(event => event.id !== id));
     };
 
@@ -70,13 +69,13 @@ export default function EventTable() {
         <>
             <PageHeader title="Kelola Event" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Event
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Events</CardTitle>
-                    <CardDescription>Manage your events and view their details.</CardDescription>
+                    <CardTitle>Daftar Event</CardTitle>
+                    <CardDescription>Kelola semua event Anda dan lihat detailnya.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -112,7 +111,7 @@ export default function EventTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(event)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(event.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

@@ -64,9 +64,9 @@ export function RecapForm({ open, onOpenChange, recap, onSave }: RecapFormProps)
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{recap ? "Edit Recap" : "Create New Recap"}</SheetTitle>
+          <SheetTitle>{recap ? "Edit Recap" : "Tambah Recap Baru"}</SheetTitle>
           <SheetDescription>
-            {recap ? "Update the recap details." : "Fill in the details for the new recap."}
+            {recap ? "Perbarui detail rekap." : "Isi detail untuk rekap baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -76,9 +76,9 @@ export function RecapForm({ open, onOpenChange, recap, onSave }: RecapFormProps)
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Judul</FormLabel>
                   <FormControl>
-                    <Input placeholder="Recap Title" {...field} />
+                    <Input placeholder="Judul Recap" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +93,7 @@ export function RecapForm({ open, onOpenChange, recap, onSave }: RecapFormProps)
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
+                        <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -107,9 +107,9 @@ export function RecapForm({ open, onOpenChange, recap, onSave }: RecapFormProps)
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

@@ -55,13 +55,13 @@ export default function AboutTable() {
         <>
             <PageHeader title="Kelola About" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New About
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah About
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>About Section</CardTitle>
-                    <CardDescription>Manage the content of your about page.</CardDescription>
+                    <CardTitle>Konten About</CardTitle>
+                    <CardDescription>Kelola konten halaman 'About' Anda.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -91,7 +91,7 @@ export default function AboutTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(about)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(about.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(about.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

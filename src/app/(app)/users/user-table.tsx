@@ -67,13 +67,13 @@ export default function UserTable() {
         <>
             <PageHeader title="Kelola User" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New User
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah User
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>User Management</CardTitle>
-                    <CardDescription>Manage user accounts and roles.</CardDescription>
+                    <CardTitle>Daftar Pengguna</CardTitle>
+                    <CardDescription>Kelola akun pengguna dan peran mereka.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -107,7 +107,7 @@ export default function UserTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(user)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

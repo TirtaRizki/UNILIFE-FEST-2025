@@ -67,13 +67,13 @@ export default function TicketTable() {
         <>
             <PageHeader title="Kelola Tiket" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Ticket
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Ticket Management</CardTitle>
-                    <CardDescription>Manage all event tickets: view sales, check-in status, and issue new tickets.</CardDescription>
+                    <CardTitle>Manajemen Tiket</CardTitle>
+                    <CardDescription>Kelola semua tiket event: lihat penjualan, status, dan terbitkan tiket baru.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -107,7 +107,7 @@ export default function TicketTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(ticket)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(ticket.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(ticket.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

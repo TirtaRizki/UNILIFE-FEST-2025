@@ -1,14 +1,22 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Ticket, Clock, LogIn } from "lucide-react";
+import { Users, UserCheck, Calendar as CalendarIcon, Mic } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import PageHeader from '@/components/page-header';
 
 const Countdown = () => {
     const calculateTimeLeft = () => {
-        const difference = +new Date("2025-01-01") - +new Date();
-        let timeLeft = {};
+        // Set a future date for the countdown
+        const eventDate = new Date();
+        eventDate.setDate(eventDate.getDate() + 50); // Set event 50 days from now
+        const difference = +eventDate - +new Date();
+        
+        let timeLeft = {
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        };
 
         if (difference > 0) {
             timeLeft = {
@@ -33,83 +41,62 @@ const Countdown = () => {
     const formatTime = (time: number | undefined) => {
         return time !== undefined ? String(time).padStart(2, '0') : '00';
     }
+    
+    const TimerUnit = ({ value, label }: { value: number, label: string }) => (
+        <div className="bg-gradient-to-br from-primary to-[#764ba2] text-white rounded-lg p-3 md:p-4 text-center min-w-[70px] md:min-w-[80px]">
+            <div className="text-2xl md:text-3xl font-bold">{formatTime(value)}</div>
+            <div className="text-xs uppercase opacity-80">{label}</div>
+        </div>
+    );
 
     return (
         <div className="text-center">
-            <h2 className="text-xl font-semibold uppercase tracking-widest text-white mb-2">Start The Event</h2>
-            <div className="flex justify-center items-center gap-4 text-white">
-                <div className="flex flex-col items-center">
-                    <span className="text-6xl font-bold">{formatTime(timeLeft.days)}</span>
-                    <span className="text-sm uppercase">Days</span>
-                </div>
-                <span className="text-6xl font-bold">:</span>
-                <div className="flex flex-col items-center">
-                    <span className="text-6xl font-bold">{formatTime(timeLeft.hours)}</span>
-                    <span className="text-sm uppercase">Hours</span>
-                </div>
-                <span className="text-6xl font-bold">:</span>
-                <div className="flex flex-col items-center">
-                    <span className="text-6xl font-bold">{formatTime(timeLeft.minutes)}</span>
-                    <span className="text-sm uppercase">Minute</span>
-                </div>
-                <span className="text-6xl font-bold">:</span>
-                <div className="flex flex-col items-center">
-                    <span className="text-6xl font-bold">{formatTime(timeLeft.seconds)}</span>
-                    <span className="text-sm uppercase">Second</span>
-                </div>
+            <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">Start The Event</h2>
+            <div className="flex justify-center items-center gap-2 md:gap-4">
+                <TimerUnit value={timeLeft.days} label="Days" />
+                <TimerUnit value={timeLeft.hours} label="Hours" />
+                <TimerUnit value={timeLeft.minutes} label="Minutes" />
+                <TimerUnit value={timeLeft.seconds} label="Seconds" />
             </div>
         </div>
     );
 };
+
+const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+    <Card className="content-card p-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+            <Icon className="h-5 w-5 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="p-2 pt-0">
+            <div className="text-2xl font-bold text-foreground">{value}</div>
+        </CardContent>
+    </Card>
+);
 
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   return (
     <>
-      <PageHeader title="Dasboard" />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="glass-card text-white">
-          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiket Terjual</CardTitle>
-            <div className="text-2xl font-bold">383</div>
-          </CardHeader>
-        </Card>
-        <Card className="glass-card text-white">
-          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiket Pending</CardTitle>
-            <div className="text-2xl font-bold">233</div>
-          </CardHeader>
-        </Card>
-        <Card className="glass-card text-white">
-          <CardHeader className="flex flex-col items-start justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Riwayat Login</CardTitle>
-            <div className="text-2xl font-bold">-</div>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Panitia" value="303" icon={Users} />
+        <StatCard title="Peserta Terdaftar" value="235" icon={UserCheck} />
+        <StatCard title="Event Aktif" value="12" icon={CalendarIcon} />
+        <StatCard title="Lineup Artis" value="8" icon={Mic} />
       </div>
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-        <div className="lg:col-span-2 glass-card p-6">
+      <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
+        <Card className="lg:col-span-3 content-card p-4 md:p-6">
           <Countdown />
-        </div>
-        <div className="glass-card flex justify-center items-center p-4">
+        </Card>
+        <Card className="lg:col-span-2 content-card flex justify-center items-center p-2">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
             className="rounded-md"
-            classNames={{
-                caption: "text-white",
-                caption_label: "text-white",
-                nav_button: "text-white hover:bg-white/10",
-                head_cell: "text-white/80",
-                day: "text-white hover:bg-white/20",
-                day_selected: "bg-white/30 text-white",
-                day_today: "bg-white/10 text-white",
-                day_outside: "text-white/50",
-            }}
           />
-        </div>
+        </Card>
       </div>
     </>
   );

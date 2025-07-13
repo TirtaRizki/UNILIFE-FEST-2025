@@ -64,9 +64,9 @@ export function LineupForm({ open, onOpenChange, lineup, onSave }: LineupFormPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{lineup ? "Edit Lineup" : "Add to Lineup"}</SheetTitle>
+          <SheetTitle>{lineup ? "Edit Lineup" : "Tambah ke Lineup"}</SheetTitle>
           <SheetDescription>
-            {lineup ? "Update the artist details." : "Add a new artist to the lineup."}
+            {lineup ? "Perbarui detail artis." : "Tambah artis baru ke lineup."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -76,9 +76,9 @@ export function LineupForm({ open, onOpenChange, lineup, onSave }: LineupFormPro
               name="artistName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Artist Name</FormLabel>
+                  <FormLabel>Nama Artis</FormLabel>
                   <FormControl>
-                    <Input placeholder="The Headliners" {...field} />
+                    <Input placeholder="Nama Artis" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,9 +89,9 @@ export function LineupForm({ open, onOpenChange, lineup, onSave }: LineupFormPro
               name="day"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Day</FormLabel>
+                  <FormLabel>Hari</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Friday" {...field} />
+                    <Input placeholder="cth., Jumat" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,9 +102,9 @@ export function LineupForm({ open, onOpenChange, lineup, onSave }: LineupFormPro
               name="time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Time</FormLabel>
+                  <FormLabel>Waktu</FormLabel>
                   <FormControl>
-                    <Input placeholder="HH:mm (e.g., 21:00)" {...field} />
+                    <Input placeholder="JJ:mm (cth., 21:00)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,9 +112,9 @@ export function LineupForm({ open, onOpenChange, lineup, onSave }: LineupFormPro
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

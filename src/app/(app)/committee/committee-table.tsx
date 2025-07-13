@@ -55,13 +55,13 @@ export default function CommitteeTable() {
         <>
             <PageHeader title="Kelola Panitia" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Member
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Panitia
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Committee Management</CardTitle>
-                    <CardDescription>Manage organizing committee members.</CardDescription>
+                    <CardTitle>Daftar Panitia</CardTitle>
+                    <CardDescription>Kelola anggota panitia penyelenggara.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -91,7 +91,7 @@ export default function CommitteeTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(committee)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(committee.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(committee.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

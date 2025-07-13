@@ -83,9 +83,9 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{event ? "Edit Event" : "Create New Event"}</SheetTitle>
+          <SheetTitle>{event ? "Edit Event" : "Tambah Event Baru"}</SheetTitle>
           <SheetDescription>
-            {event ? "Update the details of your event." : "Fill in the details for the new event."}
+            {event ? "Perbarui detail event Anda." : "Isi detail untuk event baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -95,7 +95,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Event Name</FormLabel>
+                  <FormLabel>Nama Event</FormLabel>
                   <FormControl>
                     <Input placeholder="Summer Music Festival" {...field} />
                   </FormControl>
@@ -108,7 +108,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Event Date</FormLabel>
+                  <FormLabel>Tanggal Event</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -122,7 +122,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>Pilih tanggal</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -146,7 +146,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Lokasi</FormLabel>
                   <FormControl>
                     <Input placeholder="Grand Park, New York" {...field} />
                   </FormControl>
@@ -163,7 +163,7 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
+                        <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -178,9 +178,9 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

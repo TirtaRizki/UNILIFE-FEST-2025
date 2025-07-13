@@ -64,9 +64,9 @@ export function AboutForm({ open, onOpenChange, about, onSave }: AboutFormProps)
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{about ? "Edit About" : "Create New About"}</SheetTitle>
+          <SheetTitle>{about ? "Edit About" : "Tambah Konten About"}</SheetTitle>
           <SheetDescription>
-            {about ? "Update the details." : "Fill in the details for the new about section."}
+            {about ? "Perbarui detail." : "Isi detail untuk bagian about yang baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -76,9 +76,9 @@ export function AboutForm({ open, onOpenChange, about, onSave }: AboutFormProps)
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Judul</FormLabel>
                   <FormControl>
-                    <Input placeholder="Section Title" {...field} />
+                    <Input placeholder="Judul Bagian" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,9 +89,9 @@ export function AboutForm({ open, onOpenChange, about, onSave }: AboutFormProps)
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Deskripsi</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Detailed description..." {...field} />
+                    <Textarea placeholder="Deskripsi lengkap..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -99,9 +99,9 @@ export function AboutForm({ open, onOpenChange, about, onSave }: AboutFormProps)
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

@@ -65,9 +65,9 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{ticket ? "Edit Ticket" : "Create New Ticket"}</SheetTitle>
+          <SheetTitle>{ticket ? "Edit Tiket" : "Tambah Tiket Baru"}</SheetTitle>
           <SheetDescription>
-            {ticket ? "Update the ticket details." : "Fill in the details for the new ticket type."}
+            {ticket ? "Perbarui detail tiket." : "Isi detail untuk tipe tiket baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -77,9 +77,9 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ticket Type</FormLabel>
+                  <FormLabel>Tipe Tiket</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., General Admission" {...field} />
+                    <Input placeholder="cth., General Admission" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +90,7 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Harga</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="50" {...field} />
                   </FormControl>
@@ -107,12 +107,12 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
+                        <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Available">Available</SelectItem>
-                      <SelectItem value="Sold Out">Sold Out</SelectItem>
+                      <SelectItem value="Available">Tersedia</SelectItem>
+                      <SelectItem value="Sold Out">Habis</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -121,9 +121,9 @@ export function TicketForm({ open, onOpenChange, ticket, onSave }: TicketFormPro
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

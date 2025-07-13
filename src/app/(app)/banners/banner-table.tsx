@@ -67,13 +67,13 @@ export default function BannerTable() {
         <>
             <PageHeader title="Kelola Banner" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Banner
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Banner
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Banner Management</CardTitle>
-                    <CardDescription>Manage display advertisements for your event.</CardDescription>
+                    <CardTitle>Daftar Banner</CardTitle>
+                    <CardDescription>Kelola banner iklan untuk event Anda.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -105,7 +105,7 @@ export default function BannerTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(banner)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(banner.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(banner.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

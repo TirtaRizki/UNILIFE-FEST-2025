@@ -67,13 +67,13 @@ export default function RecapTable() {
         <>
             <PageHeader title="Kelola Recap" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Recap
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Recap
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Recap Management</CardTitle>
-                    <CardDescription>Manage event summaries and reviews.</CardDescription>
+                    <CardTitle>Rekap Event</CardTitle>
+                    <CardDescription>Kelola rangkuman dan ulasan event.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -105,7 +105,7 @@ export default function RecapTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(recap)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

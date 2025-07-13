@@ -15,28 +15,30 @@ import {
   Users,
   Info,
   Mic,
-  Calendar,
+  Calendar as CalendarIcon,
   BookOpen,
   ImageIcon,
   UserCog,
   LogOut,
   Ticket,
+  UserSquare,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "./ui/button";
 
 const Logo = () => (
-    <h1 className="text-2xl font-headline font-bold text-white px-4">UNILIFE</h1>
+    <h1 className="text-3xl font-headline font-bold text-primary px-4">UNLIFE</h1>
 );
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/tickets", icon: Ticket, label: "Kelola Tiket" },
-  { href: "/about", icon: Info, label: "Kelola About" },
-  { href: "/lineup", icon: Mic, label: "Kelola Line Up" },
-  { href: "/events", icon: Calendar, label: "Kelola Event" },
-  { href: "/recap", icon: BookOpen, label: "Kelola Recap" },
-  { href: "/banners", icon: ImageIcon, label: "Kelola Banner" },
   { href: "/users", icon: UserCog, label: "Kelola User" },
+  { href: "/committee", icon: Users, label: "Kelola Panitia"},
+  { href: "/events", icon: CalendarIcon, label: "Kelola Event" },
+  { href: "/lineup", icon: Mic, label: "Kelola Line Up" },
+  { href: "/tickets", icon: Ticket, label: "Kelola Tiket" },
+  { href: "/banners", icon: ImageIcon, label: "Kelola Banner" },
+  { href: "/recap", icon: BookOpen, label: "Kelola Recap" },
+  { href: "/about", icon: Info, label: "Kelola About" },
 ];
 
 export function MainSidebar() {
@@ -48,24 +50,22 @@ export function MainSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader className="pt-6 pb-4">
+            <SidebarHeader className="pt-6 pb-8">
                 <Logo />
             </SidebarHeader>
             <SidebarContent>
-                <div className="flex flex-col items-center gap-2 py-4">
-                    <Avatar className="h-20 w-20">
-                        <AvatarImage data-ai-hint="person user" src="https://placehold.co/80x80.png" alt="Julian" />
-                        <AvatarFallback>J</AvatarFallback>
-                    </Avatar>
-                    <p className="font-semibold text-white">Julian</p>
-                </div>
                 <SidebarMenu>
                     {navItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
-                            <SidebarMenuButton asChild isActive={isActive(item.href)} className="justify-start data-[active=true]:bg-sidebar-accent">
+                            <SidebarMenuButton 
+                                asChild 
+                                isActive={isActive(item.href)}
+                                className="justify-start data-[active=true]:border-l-4 data-[active=true]:border-sidebar-border data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground rounded-none"
+                                variant="ghost"
+                            >
                                 <Link href={item.href}>
-                                    <item.icon />
-                                    <span>{item.label}</span>
+                                    <item.icon className="h-5 w-5" />
+                                    <span className="text-base font-medium">{item.label}</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -75,10 +75,10 @@ export function MainSidebar() {
             <SidebarFooter>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="justify-start">
+                  <SidebarMenuButton asChild className="justify-start" variant="ghost">
                     <Link href="/">
-                      <LogOut />
-                      <span>Kelola Login</span>
+                      <LogOut className="h-5 w-5"/>
+                      <span className="text-base font-medium">Logout</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

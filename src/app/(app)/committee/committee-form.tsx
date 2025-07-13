@@ -63,9 +63,9 @@ export function CommitteeForm({ open, onOpenChange, committee, onSave }: Committ
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{committee ? "Edit Committee Member" : "Add New Committee Member"}</SheetTitle>
+          <SheetTitle>{committee ? "Edit Anggota Panitia" : "Tambah Anggota Panitia"}</SheetTitle>
           <SheetDescription>
-            {committee ? "Update the member details." : "Fill in the details for the new member."}
+            {committee ? "Perbarui detail anggota." : "Isi detail untuk anggota baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -75,9 +75,9 @@ export function CommitteeForm({ open, onOpenChange, committee, onSave }: Committ
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nama</FormLabel>
                   <FormControl>
-                    <Input placeholder="Member's Name" {...field} />
+                    <Input placeholder="Nama Anggota" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,9 +88,9 @@ export function CommitteeForm({ open, onOpenChange, committee, onSave }: Committ
               name="position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Position</FormLabel>
+                  <FormLabel>Posisi</FormLabel>
                   <FormControl>
-                    <Input placeholder="Member's Position" {...field} />
+                    <Input placeholder="Posisi Anggota" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,9 +98,9 @@ export function CommitteeForm({ open, onOpenChange, committee, onSave }: Committ
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

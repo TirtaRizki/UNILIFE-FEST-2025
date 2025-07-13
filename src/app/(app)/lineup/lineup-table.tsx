@@ -55,13 +55,13 @@ export default function LineupTable() {
         <>
             <PageHeader title="Kelola Line Up" actions={
                 <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Artist
+                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Artis
                 </Button>
             } />
             <Card className="content-card">
                 <CardHeader>
-                    <CardTitle>Lineup Management</CardTitle>
-                    <CardDescription>Handle listing artists and performers.</CardDescription>
+                    <CardTitle>Daftar Lineup</CardTitle>
+                    <CardDescription>Kelola daftar artis dan penampil.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -93,7 +93,7 @@ export default function LineupTable() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuItem onClick={() => handleEdit(lineup)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(lineup.id)}>Delete</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(lineup.id)}>Delete</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

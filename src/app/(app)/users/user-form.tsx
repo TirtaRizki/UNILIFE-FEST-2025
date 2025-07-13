@@ -65,9 +65,9 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{user ? "Edit User" : "Create New User"}</SheetTitle>
+          <SheetTitle>{user ? "Edit User" : "Tambah User Baru"}</SheetTitle>
           <SheetDescription>
-            {user ? "Update the user's details." : "Fill in the details for the new user."}
+            {user ? "Perbarui detail pengguna." : "Isi detail untuk pengguna baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -77,9 +77,9 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nama</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full Name" {...field} />
+                    <Input placeholder="Nama Lengkap" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,7 +107,7 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
+                        <SelectValue placeholder="Pilih role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -121,9 +121,9 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>

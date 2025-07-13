@@ -64,9 +64,9 @@ export function BannerForm({ open, onOpenChange, banner, onSave }: BannerFormPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>{banner ? "Edit Banner" : "Create New Banner"}</SheetTitle>
+          <SheetTitle>{banner ? "Edit Banner" : "Tambah Banner Baru"}</SheetTitle>
           <SheetDescription>
-            {banner ? "Update the banner details." : "Fill in the details for the new banner."}
+            {banner ? "Perbarui detail banner." : "Isi detail untuk banner baru."}
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
@@ -76,9 +76,9 @@ export function BannerForm({ open, onOpenChange, banner, onSave }: BannerFormPro
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Judul</FormLabel>
                   <FormControl>
-                    <Input placeholder="Banner Title" {...field} />
+                    <Input placeholder="Judul Banner" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,12 +93,12 @@ export function BannerForm({ open, onOpenChange, banner, onSave }: BannerFormPro
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
+                        <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Active">Aktif</SelectItem>
+                      <SelectItem value="Inactive">Tidak Aktif</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -107,9 +107,9 @@ export function BannerForm({ open, onOpenChange, banner, onSave }: BannerFormPro
             />
             <SheetFooter className="pt-4">
                 <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">Batal</Button>
                 </SheetClose>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Simpan</Button>
             </SheetFooter>
           </form>
         </Form>
