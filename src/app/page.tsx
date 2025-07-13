@@ -45,12 +45,12 @@ export default function LoginPage() {
     let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
     // Check if default users exist, if not, add them.
-    const adminExists = users.some(u => u.email === 'admin@unilife.com');
+    const adminExists = users.some(u => u.email === 'admin@unilifefest.com');
     if (!adminExists) {
         users.push({
             id: 'USR001',
             name: 'Admin User',
-            email: 'admin@unilife.com',
+            email: 'admin@unilifefest.com',
             role: 'Admin',
             password: 'unilifejaya123'
         });
