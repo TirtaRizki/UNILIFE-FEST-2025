@@ -22,8 +22,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Banner } from "@/lib/types";
 import { BannerForm } from './banner-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function BannerTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [banners, setBanners] = useState<Banner[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
@@ -78,9 +81,11 @@ export default function BannerTable() {
     return (
         <>
             <PageHeader title="Kelola Banner" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Banner
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Banner
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -94,9 +99,11 @@ export default function BannerTable() {
                                 <TableRow>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -106,21 +113,23 @@ export default function BannerTable() {
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(banner.status)}>{banner.status}</Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(banner)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(banner.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(banner)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(banner.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -128,12 +137,14 @@ export default function BannerTable() {
                     </div>
                 </CardContent>
             </Card>
-            <BannerForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                banner={selectedBanner}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <BannerForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    banner={selectedBanner}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

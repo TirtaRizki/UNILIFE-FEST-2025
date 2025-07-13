@@ -21,8 +21,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { About } from "@/lib/types";
 import { AboutForm } from './about-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function AboutTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [abouts, setAbouts] = useState<About[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
@@ -66,9 +69,11 @@ export default function AboutTable() {
     return (
         <>
             <PageHeader title="Kelola About" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah About
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah About
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -82,9 +87,11 @@ export default function AboutTable() {
                                 <TableRow>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Description</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -92,21 +99,23 @@ export default function AboutTable() {
                                     <TableRow key={about.id}>
                                         <TableCell className="font-medium">{about.title}</TableCell>
                                         <TableCell>{about.description}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(about)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(about.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(about)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(about.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -114,12 +123,14 @@ export default function AboutTable() {
                     </div>
                 </CardContent>
             </Card>
-            <AboutForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                about={selectedAbout}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <AboutForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    about={selectedAbout}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

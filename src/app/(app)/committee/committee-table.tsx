@@ -22,8 +22,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Committee } from "@/lib/types";
 import { CommitteeForm } from './committee-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function CommitteeTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [committees, setCommittees] = useState<Committee[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
@@ -33,6 +36,18 @@ export default function CommitteeTable() {
         if (storedCommittees) {
             setCommittees(JSON.parse(storedCommittees));
         }
+        
+        const handleStorageChange = () => {
+            const storedCommittees = localStorage.getItem('committees');
+            if (storedCommittees) {
+                setCommittees(JSON.parse(storedCommittees));
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const updateCommittees = (updatedCommittees: Committee[]) => {
@@ -74,9 +89,11 @@ export default function CommitteeTable() {
     return (
         <>
             <PageHeader title="Kelola Panitia" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Panitia
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Panitia
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -90,9 +107,11 @@ export default function CommitteeTable() {
                                 <TableRow>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Position</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -100,21 +119,23 @@ export default function CommitteeTable() {
                                     <TableRow key={committee.id}>
                                         <TableCell className="font-medium">{committee.name}</TableCell>
                                         <TableCell>{committee.position}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(committee)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(committee.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(committee)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(committee.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -122,12 +143,14 @@ export default function CommitteeTable() {
                     </div>
                 </CardContent>
             </Card>
-            <CommitteeForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                committee={selectedCommittee}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <CommitteeForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    committee={selectedCommittee}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

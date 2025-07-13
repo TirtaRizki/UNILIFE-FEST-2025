@@ -22,8 +22,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Lineup } from "@/lib/types";
 import { LineupForm } from './lineup-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function LineupTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [lineups, setLineups] = useState<Lineup[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);
@@ -74,9 +77,11 @@ export default function LineupTable() {
     return (
         <>
             <PageHeader title="Kelola Line Up" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Artis
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Artis
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -91,9 +96,11 @@ export default function LineupTable() {
                                     <TableHead>Artist Name</TableHead>
                                     <TableHead>Day</TableHead>
                                     <TableHead>Time</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -102,21 +109,23 @@ export default function LineupTable() {
                                         <TableCell className="font-medium">{lineup.artistName}</TableCell>
                                         <TableCell>{lineup.day}</TableCell>
                                         <TableCell>{lineup.time}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(lineup)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(lineup.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(lineup)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(lineup.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -124,12 +133,14 @@ export default function LineupTable() {
                     </div>
                 </CardContent>
             </Card>
-            <LineupForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                lineup={selectedLineup}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <LineupForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    lineup={selectedLineup}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

@@ -49,6 +49,12 @@ export default function LoginPage() {
             <Button type="submit" className="w-full text-base font-semibold mt-2" asChild>
                 <Link href="/dashboard">Login</Link>
             </Button>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="underline">
+                Sign up
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

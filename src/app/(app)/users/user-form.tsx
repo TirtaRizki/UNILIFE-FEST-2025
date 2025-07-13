@@ -31,7 +31,7 @@ const userSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters long"),
   email: z.string().email("Invalid email address"),
-  role: z.enum(["Admin", "Member"]),
+  role: z.enum(["Admin", "Member", "Panitia"]),
 })
 
 type UserFormProps = {
@@ -113,6 +113,7 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
                     <SelectContent>
                       <SelectItem value="Admin">Admin</SelectItem>
                       <SelectItem value="Member">Member</SelectItem>
+                      <SelectItem value="Panitia">Panitia</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

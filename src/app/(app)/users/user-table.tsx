@@ -23,8 +23,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { User } from "@/lib/types";
 import { UserForm } from './user-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function UserTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [users, setUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -34,6 +37,18 @@ export default function UserTable() {
         if (storedUsers) {
             setUsers(JSON.parse(storedUsers));
         }
+
+        const handleStorageChange = () => {
+            const storedUsers = localStorage.getItem('users');
+            if (storedUsers) {
+                setUsers(JSON.parse(storedUsers));
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const updateUsers = (updatedUsers: User[]) => {
@@ -77,6 +92,7 @@ export default function UserTable() {
             case 'Admin':
                 return 'destructive';
             case 'Member':
+            case 'Panitia':
                 return 'secondary';
             default:
                 return 'outline';
@@ -85,11 +101,16 @@ export default function UserTable() {
 
     return (
         <>
-            <PageHeader title="Kelola User" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah User
-                </Button>
-            } />
+            <PageHeader 
+                title="Kelola User" 
+                actions={
+                    canManage && (
+                        <Button onClick={handleAdd}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Tambah User
+                        </Button>
+                    )
+                } 
+            />
             <Card className="content-card">
                 <CardHeader>
                     <CardTitle>Daftar Pengguna</CardTitle>
@@ -103,9 +124,11 @@ export default function UserTable() {
                                     <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
                                     <TableHead>Role</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -116,21 +139,23 @@ export default function UserTable() {
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(user.role)}>{user.role}</Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(user)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(user)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>

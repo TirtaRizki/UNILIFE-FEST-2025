@@ -9,8 +9,9 @@ import { EventForm } from './event-form';
 import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
-const EventCard = ({ event, onEdit, onDelete }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void }) => {
+const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
         <Card className="overflow-hidden content-card group">
             <CardContent className="p-0">
@@ -23,21 +24,23 @@ const EventCard = ({ event, onEdit, onDelete }: { event: Event, onEdit: (event: 
                         className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint="event poster"
                     />
-                    <div className="absolute top-2 right-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Actions</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => onEdit(event)}>Edit</DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete(event.id)}>Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                    {canManage && (
+                        <div className="absolute top-2 right-2">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                        <span className="sr-only">Actions</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => onEdit(event)}>Edit</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete(event.id)}>Delete</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
@@ -46,6 +49,8 @@ const EventCard = ({ event, onEdit, onDelete }: { event: Event, onEdit: (event: 
 
 
 export default function EventGrid() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [events, setEvents] = useState<Event[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -96,23 +101,27 @@ export default function EventGrid() {
     return (
         <>
             <PageHeader title="Kelola Post Event" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Event
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Event
+                    </Button>
+                )
             } />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {events.map((event) => (
-                    <EventCard key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} />
+                    <EventCard key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
                 ))}
             </div>
             
-            <EventForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                event={selectedEvent}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <EventForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    event={selectedEvent}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

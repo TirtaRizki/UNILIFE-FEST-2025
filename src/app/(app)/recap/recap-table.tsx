@@ -22,8 +22,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Recap } from "@/lib/types";
 import { RecapForm } from './recap-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function RecapTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [recaps, setRecaps] = useState<Recap[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
@@ -78,9 +81,11 @@ export default function RecapTable() {
     return (
         <>
             <PageHeader title="Kelola Recap" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Recap
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Recap
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -94,9 +99,11 @@ export default function RecapTable() {
                                 <TableRow>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
+                                    {canManage && (
                                     <TableHead>
                                         <span className="sr-only">Actions</span>
                                     </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -106,21 +113,23 @@ export default function RecapTable() {
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(recap.status)}>{recap.status}</Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(recap)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(recap)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(recap.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -128,12 +137,14 @@ export default function RecapTable() {
                     </div>
                 </CardContent>
             </Card>
-            <RecapForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                recap={selectedRecap}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <RecapForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    recap={selectedRecap}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

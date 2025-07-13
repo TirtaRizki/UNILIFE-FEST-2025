@@ -49,5 +49,5 @@ export type User = {
     id: string;
     name: string;
     email: string;
-    role: "Admin" | "Member";
+    role: "Admin" | "Member" | "Panitia";
 };

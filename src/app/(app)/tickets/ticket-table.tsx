@@ -22,8 +22,11 @@ import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Ticket } from "@/lib/types";
 import { TicketForm } from './ticket-form';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function TicketTable() {
+    const { hasRole } = useAuth();
+    const canManage = hasRole(['Admin']);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -78,9 +81,11 @@ export default function TicketTable() {
     return (
         <>
             <PageHeader title="Kelola Tiket" actions={
-                <Button onClick={handleAdd}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket
-                </Button>
+                canManage && (
+                    <Button onClick={handleAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket
+                    </Button>
+                )
             } />
             <Card className="content-card">
                 <CardHeader>
@@ -95,9 +100,11 @@ export default function TicketTable() {
                                     <TableHead>Type</TableHead>
                                     <TableHead>Price</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Actions</span>
-                                    </TableHead>
+                                    {canManage && (
+                                        <TableHead>
+                                            <span className="sr-only">Actions</span>
+                                        </TableHead>
+                                    )}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -108,21 +115,23 @@ export default function TicketTable() {
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(ticket.status)}>{ticket.status}</Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Toggle menu</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleEdit(ticket)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(ticket.id)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        {canManage && (
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEdit(ticket)}>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(ticket.id)}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -130,12 +139,14 @@ export default function TicketTable() {
                     </div>
                 </CardContent>
             </Card>
-            <TicketForm 
-                open={sheetOpen} 
-                onOpenChange={setSheetOpen}
-                ticket={selectedTicket}
-                onSave={handleSave}
-            />
+            {canManage && (
+                <TicketForm 
+                    open={sheetOpen} 
+                    onOpenChange={setSheetOpen}
+                    ticket={selectedTicket}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }
