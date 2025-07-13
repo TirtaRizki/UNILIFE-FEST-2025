@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background-start-rgb: 102, 126, 234;
-    --background-end-rgb: 118, 75, 162;
+    --background-start-rgb: 219, 234, 254;
+    --background-end-rgb: 255, 255, 255;
     --background: 230 79% 66%;
     --foreground: 220 13% 9%;
 
@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 9%;
 
-    --primary: 230 79% 66%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 9% 96%;
@@ -32,24 +32,24 @@
 
     --border: 220 9% 91%;
     --input: 220 9% 91%;
-    --ring: 230 79% 66%;
+    --ring: 221 83% 53%;
 
     --radius: 0.8rem;
 
     /* Sidebar specific variables */
     --sidebar-background: 0 0% 100% / 0.95;
     --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 230 79% 66%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 230 79% 66% / 0.1;
-    --sidebar-accent-foreground: 230 79% 66%;
-    --sidebar-border: 230 79% 66%;
-    --sidebar-ring: 230 79% 66%;
+    --sidebar-accent: 221 83% 53% / 0.1;
+    --sidebar-accent-foreground: 221 83% 53%;
+    --sidebar-border: 221 83% 53%;
+    --sidebar-ring: 221 83% 53%;
   }
 
   .dark {
-    --background-start-rgb: 102, 126, 234;
-    --background-end-rgb: 118, 75, 162;
+    --background-start-rgb: 219, 234, 254;
+    --background-end-rgb: 255, 255, 255;
     --background: 230 79% 66%;
     --foreground: 220 13% 9%;
 
@@ -59,7 +59,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 9%;
 
-    --primary: 230 79% 66%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 9% 96%;
@@ -76,17 +76,17 @@
 
     --border: 220 9% 91%;
     --input: 220 9% 91%;
-    --ring: 230 79% 66%;
+    --ring: 221 83% 53%;
     
     /* Dark Sidebar */
     --sidebar-background: 0 0% 100% / 0.95;
     --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 230 79% 66%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 230 79% 66% / 0.1;
-    --sidebar-accent-foreground: 230 79% 66%;
-    --sidebar-border: 230 79% 66%;
-    --sidebar-ring: 230 79% 66%;
+    --sidebar-accent: 221 83% 53% / 0.1;
+    --sidebar-accent-foreground: 221 83% 53%;
+    --sidebar-border: 221 83% 53%;
+    --sidebar-ring: 221 83% 53%;
   }
 }
 
