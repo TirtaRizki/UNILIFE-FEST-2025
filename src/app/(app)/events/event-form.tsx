@@ -1,9 +1,11 @@
+
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -27,8 +29,9 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, Upload } from "lucide-react"
 import { format } from "date-fns"
 import type { Event } from "@/lib/types"
 
@@ -38,7 +41,7 @@ const eventSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
   location: z.string().min(3, "Location is required"),
   status: z.enum(["Upcoming", "Completed", "Cancelled"]),
-  imageUrl: z.string().url("Must be a valid URL").optional(),
+  imageUrl: z.string().optional(),
 })
 
 type EventFormProps = {
@@ -49,6 +52,8 @@ type EventFormProps = {
 }
 
 export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps) {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: event
@@ -64,19 +69,39 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
 
   useEffect(() => {
     if (open) {
-      form.reset(
-        event
-          ? { ...event, date: new Date(event.date) }
-          : { name: "", date: new Date(), location: "", status: "Upcoming", imageUrl: "" }
-      )
+      const defaultValues = event
+        ? { ...event, date: new Date(event.date) }
+        : { name: "", date: new Date(), location: "", status: "Upcoming", imageUrl: "" };
+      form.reset(defaultValues);
+      setImagePreview(defaultValues.imageUrl || null);
     }
   }, [event, open, form])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setImagePreview(dataUrl);
+        form.setValue("imageUrl", dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    form.setValue("imageUrl", url);
+    setImagePreview(url);
+  };
 
   function onSubmit(values: z.infer<typeof eventSchema>) {
     const eventData: Event = {
         ...values,
         id: event?.id || "",
         date: format(values.date, "yyyy-MM-dd"),
+        imageUrl: imagePreview || values.imageUrl,
     };
     onSave(eventData)
   }
@@ -105,19 +130,52 @@ export function EventForm({ open, onOpenChange, event, onSave }: EventFormProps)
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL Gambar</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://placehold.co/300x400.png" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
+            <FormItem>
+                <FormLabel>Gambar Event</FormLabel>
+                {imagePreview && (
+                  <div className="mt-2 relative w-full h-48 rounded-md overflow-hidden border">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      layout="fill"
+                      objectFit="cover"
+                      data-ai-hint="event poster"
+                    />
+                  </div>
+                )}
+                <Tabs defaultValue="url" className="w-full mt-2">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="url">URL</TabsTrigger>
+                        <TabsTrigger value="upload">Upload</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="url">
+                        <FormControl>
+                            <Input 
+                              placeholder="https://placehold.co/300x400.png" 
+                              onChange={handleUrlChange}
+                              defaultValue={form.getValues("imageUrl")}
+                            />
+                        </FormControl>
+                    </TabsContent>
+                    <TabsContent value="upload">
+                         <FormControl>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                              className="w-full text-sm text-slate-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-primary/10 file:text-primary
+                                hover:file:bg-primary/20"
+                            />
+                        </FormControl>
+                    </TabsContent>
+                </Tabs>
+            </FormItem>
+            
             <FormField
               control={form.control}
               name="date"
