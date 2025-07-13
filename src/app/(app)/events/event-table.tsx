@@ -1,9 +1,8 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
-import { mockEvents } from "@/lib/data";
 import type { Event } from "@/lib/types";
 import { EventForm } from './event-form';
 import Image from 'next/image';
@@ -46,9 +45,15 @@ const EventCard = ({ event, onEdit, onDelete }: { event: Event, onEdit: (event: 
 
 
 export default function EventGrid() {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+    const [events, setEvents] = useState<Event[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+    // TODO: Fetch data from your database
+    useEffect(() => {
+        // const fetchedEvents = await fetch('/api/events');
+        // setEvents(fetchedEvents);
+    }, []);
 
     const handleAdd = () => {
         setSelectedEvent(null);
@@ -60,15 +65,22 @@ export default function EventGrid() {
         setSheetOpen(true);
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+      // TODO: Add your database deletion logic here
+      // await fetch(`/api/events/${id}`, { method: 'DELETE' });
       setEvents(events.filter(event => event.id !== id));
     };
 
-    const handleSave = (eventData: Event) => {
+    const handleSave = async (eventData: Event) => {
         if (selectedEvent && eventData.id) {
+            // TODO: Add your database update logic here
+            // const updatedEvent = await fetch(`/api/events/${eventData.id}`, { method: 'PUT', body: JSON.stringify(eventData) });
             setEvents(events.map(e => e.id === eventData.id ? eventData : e));
         } else {
-            setEvents([...events, { ...eventData, id: `EVT${Date.now()}` }]);
+            // TODO: Add your database creation logic here
+            const newEvent = { ...eventData, id: `EVT${Date.now()}` }; // Replace with ID from DB
+            // const createdEvent = await fetch('/api/events', { method: 'POST', body: JSON.stringify(newEvent) });
+            setEvents([...events, newEvent]);
         }
         setSheetOpen(false);
     }

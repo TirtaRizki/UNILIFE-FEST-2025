@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -20,14 +20,19 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockRecaps } from "@/lib/data";
 import type { Recap } from "@/lib/types";
 import { RecapForm } from './recap-form';
 
 export default function RecapTable() {
-    const [recaps, setRecaps] = useState<Recap[]>(mockRecaps);
+    const [recaps, setRecaps] = useState<Recap[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
+
+    // TODO: Fetch data from your database
+    useEffect(() => {
+        // const fetchedRecaps = await fetch('/api/recaps');
+        // setRecaps(fetchedRecaps);
+    }, []);
 
     const handleAdd = () => {
         setSelectedRecap(null);
@@ -39,15 +44,22 @@ export default function RecapTable() {
         setSheetOpen(true);
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+      // TODO: Add your database deletion logic here
+      // await fetch(`/api/recaps/${id}`, { method: 'DELETE' });
       setRecaps(recaps.filter(r => r.id !== id));
     };
 
-    const handleSave = (recapData: Recap) => {
+    const handleSave = async (recapData: Recap) => {
         if (selectedRecap && recapData.id) {
+            // TODO: Add your database update logic here
+            // const updatedRecap = await fetch(`/api/recaps/${recapData.id}`, { method: 'PUT', body: JSON.stringify(recapData) });
             setRecaps(recaps.map(r => r.id === recapData.id ? recapData : r));
         } else {
-            setRecaps([...recaps, { ...recapData, id: `RCP${Date.now()}` }]);
+            // TODO: Add your database creation logic here
+            const newRecap = { ...recapData, id: `RCP${Date.now()}` }; // Replace with ID from DB
+            // const createdRecap = await fetch('/api/recaps', { method: 'POST', body: JSON.stringify(newRecap) });
+            setRecaps([...recaps, newRecap]);
         }
         setSheetOpen(false);
     }

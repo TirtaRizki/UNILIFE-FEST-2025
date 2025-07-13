@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -19,14 +19,19 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockLineups } from "@/lib/data";
 import type { Lineup } from "@/lib/types";
 import { LineupForm } from './lineup-form';
 
 export default function LineupTable() {
-    const [lineups, setLineups] = useState<Lineup[]>(mockLineups);
+    const [lineups, setLineups] = useState<Lineup[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);
+
+    // TODO: Fetch data from your database
+    useEffect(() => {
+      // const fetchedLineups = await fetch('/api/lineups');
+      // setLineups(fetchedLineups);
+    }, []);
 
     const handleAdd = () => {
         setSelectedLineup(null);
@@ -38,15 +43,22 @@ export default function LineupTable() {
         setSheetOpen(true);
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+      // TODO: Add your database deletion logic here
+      // await fetch(`/api/lineups/${id}`, { method: 'DELETE' });
       setLineups(lineups.filter(l => l.id !== id));
     };
 
-    const handleSave = (lineupData: Lineup) => {
+    const handleSave = async (lineupData: Lineup) => {
         if (selectedLineup && lineupData.id) {
+            // TODO: Add your database update logic here
+            // const updatedLineup = await fetch(`/api/lineups/${lineupData.id}`, { method: 'PUT', body: JSON.stringify(lineupData) });
             setLineups(lineups.map(l => l.id === lineupData.id ? lineupData : l));
         } else {
-            setLineups([...lineups, { ...lineupData, id: `LNP${Date.now()}` }]);
+            // TODO: Add your database creation logic here
+            const newLineup = { ...lineupData, id: `LNP${Date.now()}` }; // Replace with ID from DB
+            // const createdLineup = await fetch('/api/lineups', { method: 'POST', body: JSON.stringify(newLineup) });
+            setLineups([...lineups, newLineup]);
         }
         setSheetOpen(false);
     }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -20,14 +20,19 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockUsers } from "@/lib/data";
 import type { User } from "@/lib/types";
 import { UserForm } from './user-form';
 
 export default function UserTable() {
-    const [users, setUsers] = useState<User[]>(mockUsers);
+    const [users, setUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    // TODO: Fetch data from your database
+    useEffect(() => {
+        // const fetchedUsers = await fetch('/api/users');
+        // setUsers(fetchedUsers);
+    }, []);
 
     const handleAdd = () => {
         setSelectedUser(null);
@@ -39,15 +44,22 @@ export default function UserTable() {
         setSheetOpen(true);
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+      // TODO: Add your database deletion logic here
+      // await fetch(`/api/users/${id}`, { method: 'DELETE' });
       setUsers(users.filter(u => u.id !== id));
     };
 
-    const handleSave = (userData: User) => {
+    const handleSave = async (userData: User) => {
         if (selectedUser && userData.id) {
+            // TODO: Add your database update logic here
+            // const updatedUser = await fetch(`/api/users/${userData.id}`, { method: 'PUT', body: JSON.stringify(userData) });
             setUsers(users.map(u => u.id === userData.id ? userData : u));
         } else {
-            setUsers([...users, { ...userData, id: `USR${Date.now()}` }]);
+            // TODO: Add your database creation logic here
+            const newUser = { ...userData, id: `USR${Date.now()}` }; // Replace with ID from DB
+            // const createdUser = await fetch('/api/users', { method: 'POST', body: JSON.stringify(newUser) });
+            setUsers([...users, newUser]);
         }
         setSheetOpen(false);
     }

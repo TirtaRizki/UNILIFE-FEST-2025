@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -19,14 +19,19 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockAbouts } from "@/lib/data";
 import type { About } from "@/lib/types";
 import { AboutForm } from './about-form';
 
 export default function AboutTable() {
-    const [abouts, setAbouts] = useState<About[]>(mockAbouts);
+    const [abouts, setAbouts] = useState<About[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
+
+    // TODO: Fetch data from your database
+    useEffect(() => {
+      // const fetchedAbouts = await fetch('/api/abouts');
+      // setAbouts(fetchedAbouts);
+    }, []);
 
     const handleAdd = () => {
         setSelectedAbout(null);
@@ -38,15 +43,22 @@ export default function AboutTable() {
         setSheetOpen(true);
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+      // TODO: Add your database deletion logic here
+      // await fetch(`/api/abouts/${id}`, { method: 'DELETE' });
       setAbouts(abouts.filter(about => about.id !== id));
     };
 
-    const handleSave = (aboutData: About) => {
+    const handleSave = async (aboutData: About) => {
         if (selectedAbout && aboutData.id) {
+            // TODO: Add your database update logic here
+            // const updatedAbout = await fetch(`/api/abouts/${aboutData.id}`, { method: 'PUT', body: JSON.stringify(aboutData) });
             setAbouts(abouts.map(a => a.id === aboutData.id ? aboutData : a));
         } else {
-            setAbouts([...abouts, { ...aboutData, id: `ABT${Date.now()}` }]);
+            // TODO: Add your database creation logic here
+            const newAbout = { ...aboutData, id: `ABT${Date.now()}` }; // Replace with ID from DB
+            // const createdAbout = await fetch('/api/abouts', { method: 'POST', body: JSON.stringify(newAbout) });
+            setAbouts([...abouts, newAbout]);
         }
         setSheetOpen(false);
     }
