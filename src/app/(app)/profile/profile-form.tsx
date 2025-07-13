@@ -17,6 +17,7 @@ const profileSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Nama harus memiliki setidaknya 3 karakter"),
   email: z.string().email("Alamat email tidak valid"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   password: z.string().min(8, "Password harus memiliki setidaknya 8 karakter").optional().or(z.literal('')),
   confirmPassword: z.string().optional(),
 }).refine((data) => {
@@ -57,6 +58,7 @@ export function ProfileForm() {
         defaultValues: {
             name: "",
             email: "",
+            phoneNumber: "",
             password: "",
             confirmPassword: "",
         },
@@ -68,6 +70,7 @@ export function ProfileForm() {
                 id: currentUser.id,
                 name: currentUser.name,
                 email: currentUser.email,
+                phoneNumber: currentUser.phoneNumber || "",
                 password: "",
                 confirmPassword: "",
             });
@@ -87,6 +90,7 @@ export function ProfileForm() {
                     ...u,
                     name: values.name,
                     email: values.email,
+                    phoneNumber: values.phoneNumber,
                 };
                 if (values.password) {
                     updatedUser.password = values.password;
@@ -107,6 +111,7 @@ export function ProfileForm() {
               name: newlyUpdatedUser.name,
               email: newlyUpdatedUser.email,
               role: newlyUpdatedUser.role,
+              phoneNumber: newlyUpdatedUser.phoneNumber,
           };
           sessionStorage.setItem('loggedInUser', JSON.stringify(userForSession));
           
@@ -163,6 +168,20 @@ export function ProfileForm() {
                             </FormItem>
                         )}
                     />
+                     <FormField
+                        control={form.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nomor Telepon</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="081234567890" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div></div>
                     <FormField
                         control={form.control}
                         name="password"

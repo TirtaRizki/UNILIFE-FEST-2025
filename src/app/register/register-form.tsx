@@ -21,6 +21,7 @@ import type { User } from "@/lib/types";
 const registerSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long"),
   email: z.string().email("Invalid email address"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -33,6 +34,7 @@ export function RegisterForm() {
     defaultValues: {
       name: "",
       email: "",
+      phoneNumber: "",
       password: "",
     },
   });
@@ -55,13 +57,13 @@ export function RegisterForm() {
         id: `USR${Date.now()}`,
         name: values.name,
         email: values.email,
-        role: "Member", // Default role for new users
-        password: values.password, // IMPORTANT: Storing password for demo purposes
+        phoneNumber: values.phoneNumber,
+        role: "Member",
+        password: values.password,
     };
 
     const updatedUsers = [...users, newUser];
     localStorage.setItem('users', JSON.stringify(updatedUsers));
-    // Dispatch storage event to notify other components like user-table
     window.dispatchEvent(new Event('storage'));
 
     toast({
@@ -96,6 +98,19 @@ export function RegisterForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="m@example.com" {...field} className="bg-white" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="phoneNumber"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input placeholder="081234567890" {...field} className="bg-white" />
               </FormControl>
               <FormMessage />
             </FormItem>

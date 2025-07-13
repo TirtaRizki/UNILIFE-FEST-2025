@@ -26,7 +26,7 @@ import { UserForm } from './user-form';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function UserTable() {
-    const { hasRole } = useAuth();
+    const { user: loggedInUser, hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
     const [users, setUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -68,6 +68,10 @@ export default function UserTable() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id === loggedInUser?.id) {
+            alert("You cannot delete your own account.");
+            return;
+        }
         const updatedUsers = users.filter(u => u.id !== id);
         updateUsers(updatedUsers);
     };
@@ -75,23 +79,19 @@ export default function UserTable() {
     const handleSave = async (userData: User) => {
         let updatedUsers;
         if (selectedUser && userData.id) {
-            // Logic for editing an existing user
             updatedUsers = users.map(u => {
                 if (u.id === userData.id) {
-                    // Start with the existing user data (including password)
                     const existingUser = { ...u };
-                    // Merge the new data from the form
                     const updatedUser = { ...existingUser, ...userData };
                     
-                    // The 'userData' from the form will only have a 'password' field 
-                    // if a new one was typed. If it was left blank, 'userData.password'
-                    // will be undefined, so the existing password from 'existingUser' is preserved.
+                    if (!userData.password) {
+                        updatedUser.password = existingUser.password;
+                    }
                     return updatedUser;
                 }
                 return u;
             });
         } else {
-            // Logic for adding a new user
             const newUser = { ...userData, id: `USR${Date.now()}` };
             updatedUsers = [...users, newUser];
         }
@@ -135,6 +135,7 @@ export default function UserTable() {
                                 <TableRow>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Email</TableHead>
+                                    <TableHead>Phone Number</TableHead>
                                     <TableHead>Role</TableHead>
                                     {canManage && (
                                         <TableHead>
@@ -148,14 +149,15 @@ export default function UserTable() {
                                     <TableRow key={user.id}>
                                         <TableCell className="font-medium">{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
+                                        <TableCell>{user.phoneNumber}</TableCell>
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(user.role)}>{user.role}</Badge>
                                         </TableCell>
-                                        {canManage && (
+                                        {canManage && user.role !== 'Admin' && (
                                             <TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost" disabled={user.role === 'Admin'}>
                                                             <MoreHorizontal className="h-4 w-4" />
                                                             <span className="sr-only">Toggle menu</span>
                                                         </Button>
@@ -163,11 +165,12 @@ export default function UserTable() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuItem onClick={() => handleEdit(user)}>Edit</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(user.id)}>Delete</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(user.id)} disabled={user.id === loggedInUser?.id}>Delete</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
                                         )}
+                                        {canManage && user.role === 'Admin' && <TableCell></TableCell>}
                                     </TableRow>
                                 ))}
                             </TableBody>

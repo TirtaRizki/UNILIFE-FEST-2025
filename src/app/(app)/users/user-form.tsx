@@ -32,7 +32,8 @@ const userSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(3, "Name must be at least 3 characters long"),
   email: z.string().email("Invalid email address"),
-  role: z.enum(["Admin", "Member", "Panitia"]),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+  role: z.enum(["Member", "Panitia"]),
   password: z.string().min(8, "Password must be at least 8 characters").optional().or(z.literal('')),
 })
 
@@ -46,14 +47,14 @@ type UserFormProps = {
 export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
-    defaultValues: user || { name: "", email: "", role: "Member", password: "" },
+    defaultValues: user || { name: "", email: "", phoneNumber: "", role: "Member", password: "" },
   })
 
   useEffect(() => {
     if (open) {
       const defaultValues = user 
         ? { ...user, password: '' } 
-        : { name: "", email: "", role: "Member", password: "" };
+        : { name: "", email: "", phoneNumber: "", role: "Member", password: "" };
       form.reset(defaultValues);
     }
   }, [user, open, form])
@@ -63,6 +64,7 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
         id: user?.id || "",
         name: values.name,
         email: values.email,
+        phoneNumber: values.phoneNumber,
         role: values.role,
     };
     if (values.password) {
@@ -104,6 +106,19 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="user@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor Telepon</FormLabel>
+                  <FormControl>
+                    <Input placeholder="081234567890" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

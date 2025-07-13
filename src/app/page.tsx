@@ -40,42 +40,39 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // This effect runs on the client and ensures default users are present without duplicates.
     const usersInStorage = localStorage.getItem('users');
     let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
-    const defaultUsers = [
+    const defaultUsers: User[] = [
       {
         id: 'USR001',
         name: 'Admin User',
         email: 'admin@unilifefest.com',
         role: 'Admin',
-        password: 'unilifejaya123'
+        password: 'unilifejaya123',
+        phoneNumber: '081234567890'
       },
       {
         id: 'USR002',
         name: 'Panitia Event',
         email: 'panitia2025@unilife.com',
         role: 'Panitia',
-        password: 'lampungfest123'
+        password: 'lampungfest123',
+        phoneNumber: '080987654321'
       }
     ];
 
     let needsUpdate = false;
     
-    // Use a Map for efficient lookup of existing users by ID and Email
     const userMapById = new Map(users.map(u => [u.id, u]));
-    const userMapByEmail = new Map(users.map(u => [u.email, u]));
 
     defaultUsers.forEach(defaultUser => {
-      // If a user with the default ID or Email doesn't exist, we should add them.
-      if (!userMapById.has(defaultUser.id) && !userMapByEmail.has(defaultUser.email)) {
+      if (!userMapById.has(defaultUser.id)) {
         users.push(defaultUser);
         needsUpdate = true;
       }
     });
     
-    // Add other mock users if they don't exist
     const existingEmails = new Set(users.map(u => u.email));
     const newMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
     if (newMockUsers.length > 0) {
@@ -96,12 +93,12 @@ export default function LoginPage() {
     const foundUser = users.find(user => user.email === email);
     
     if (foundUser && foundUser.password === password) {
-        // Create a user object for the session without the password
         const userToStore: Omit<User, 'password'> = {
             id: foundUser.id,
             name: foundUser.name,
             email: foundUser.email,
             role: foundUser.role,
+            phoneNumber: foundUser.phoneNumber,
         };
         sessionStorage.setItem('loggedInUser', JSON.stringify(userToStore));
 
@@ -160,7 +157,7 @@ export default function LoginPage() {
                     <Checkbox id="remember-me" />
                     <Label htmlFor="remember-me" className="text-sm font-normal">Remember me</Label>
                 </div>
-                <Link href="#" className="ml-auto inline-block text-sm text-primary hover:underline" prefetch={false}>
+                <Link href="/forgot-password" className="ml-auto inline-block text-sm text-primary hover:underline" prefetch={false}>
                   Forgot your password?
                 </Link>
             </div>
