@@ -16,8 +16,8 @@ export default function AppLayout({
         <MainSidebar />
         <div className="flex flex-col w-full">
           <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-black/10 bg-transparent px-4 sm:px-6">
-            <SidebarTrigger className="sm:hidden -ml-2 mr-auto text-white"/>
-            <h1 className="text-xl font-semibold text-white sm:text-2xl">Dashboard</h1>
+            <SidebarTrigger className="sm:hidden -ml-2 mr-auto text-foreground"/>
+            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Dashboard</h1>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
