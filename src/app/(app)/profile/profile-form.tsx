@@ -31,7 +31,7 @@ const profileSchema = z.object({
 
 
 export function ProfileForm() {
-    const { user: authUser, updateUserFromStorage } = useAuth();
+    const { user: authUser } = useAuth();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const { toast } = useToast();
 
@@ -44,7 +44,11 @@ export function ProfileForm() {
                 if(fullUser) {
                     setCurrentUser(fullUser);
                 }
+            } else {
+                setCurrentUser(null);
             }
+        } else {
+            setCurrentUser(null);
         }
     }, [authUser]);
 
@@ -79,13 +83,11 @@ export function ProfileForm() {
         let allUsers: User[] = JSON.parse(usersInStorage);
         const updatedUsers = allUsers.map(u => {
             if (u.id === currentUser.id) {
-                // IMPORTANT FIX: Preserve existing password if new one is not provided.
                 const updatedUser = {
-                    ...u, // Start with the full existing user data (including password)
+                    ...u,
                     name: values.name,
                     email: values.email,
                 };
-                // Only update password if a new one is entered
                 if (values.password) {
                     updatedUser.password = values.password;
                 }
@@ -100,7 +102,6 @@ export function ProfileForm() {
         if (newlyUpdatedUser) {
           setCurrentUser(newlyUpdatedUser);
           
-          // Update sessionStorage as well to reflect name/email changes in the UI
           const userForSession: Omit<User, 'password'> = {
               id: newlyUpdatedUser.id,
               name: newlyUpdatedUser.name,
@@ -109,7 +110,6 @@ export function ProfileForm() {
           };
           sessionStorage.setItem('loggedInUser', JSON.stringify(userForSession));
           
-          // Trigger storage event for other components
           window.dispatchEvent(new Event('storage'));
         }
 

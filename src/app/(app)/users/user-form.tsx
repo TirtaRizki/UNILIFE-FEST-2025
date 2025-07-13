@@ -51,8 +51,6 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
 
   useEffect(() => {
     if (open) {
-      // When editing, we don't pre-fill the password for security.
-      // When adding, all fields are empty.
       const defaultValues = user 
         ? { ...user, password: '' } 
         : { name: "", email: "", role: "Member", password: "" };
@@ -67,7 +65,6 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
         email: values.email,
         role: values.role,
     };
-    // Only include the password if a new one was entered
     if (values.password) {
         userData.password = values.password;
     }
@@ -125,7 +122,6 @@ export function UserForm({ open, onOpenChange, user, onSave }: UserFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
                       <SelectItem value="Member">Member</SelectItem>
                       <SelectItem value="Panitia">Panitia</SelectItem>
                     </SelectContent>
