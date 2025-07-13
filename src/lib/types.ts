@@ -19,6 +19,7 @@ export type Banner = {
     id: string;
     title: string;
     status: "Active" | "Inactive";
+    imageUrl?: string;
 };
 
 export type Committee = {

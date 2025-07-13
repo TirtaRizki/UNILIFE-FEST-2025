@@ -24,6 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Banner } from "@/lib/types";
 import { BannerForm } from './banner-form';
 import { useAuth } from '@/hooks/use-auth';
+import Image from 'next/image';
 
 export default function BannerTable() {
     const { hasRole } = useAuth();
@@ -102,6 +103,7 @@ export default function BannerTable() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead className="w-[150px]">Image</TableHead>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Status</TableHead>
                                     {canManage && (
@@ -114,6 +116,16 @@ export default function BannerTable() {
                             <TableBody>
                                 {banners.map((banner) => (
                                     <TableRow key={banner.id}>
+                                        <TableCell>
+                                            <Image 
+                                                src={banner.imageUrl || "https://placehold.co/150x84.png"}
+                                                alt={banner.title}
+                                                width={150}
+                                                height={84}
+                                                className="rounded-md object-cover aspect-video"
+                                                data-ai-hint="banner advertisement"
+                                            />
+                                        </TableCell>
                                         <TableCell className="font-medium">{banner.title}</TableCell>
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(banner.status)}>{banner.status}</Badge>
