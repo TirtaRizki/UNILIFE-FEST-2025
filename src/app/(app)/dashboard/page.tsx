@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -5,6 +6,8 @@ import { Users, UserCheck, Calendar as CalendarIcon, Mic } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import type { Committee, User, Event, Lineup } from '@/lib/types';
+
 
 const Countdown = () => {
     const calculateTimeLeft = () => {
@@ -101,14 +104,53 @@ const TiketinCta = () => (
 
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [committees, setCommittees] = useState<Committee[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [lineups, setLineups] = useState<Lineup[]>([]);
+
+  // In a real app, you would fetch this data from your API
+  // For now, we simulate this by reading from localStorage if available
+  useEffect(() => {
+    const storedCommittees = localStorage.getItem('committees');
+    if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) setUsers(JSON.parse(storedUsers));
+
+    const storedEvents = localStorage.getItem('events');
+    if (storedEvents) setEvents(JSON.parse(storedEvents));
+
+    const storedLineups = localStorage.getItem('lineups');
+    if (storedLineups) setLineups(JSON.parse(storedLineups));
+
+    // Listen for storage changes to update in real-time
+    const handleStorageChange = () => {
+        const storedCommittees = localStorage.getItem('committees');
+        if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+        const storedUsers = localStorage.getItem('users');
+        if (storedUsers) setUsers(JSON.parse(storedUsers));
+        const storedEvents = localStorage.getItem('events');
+        if (storedEvents) setEvents(JSON.parse(storedEvents));
+        const storedLineups = localStorage.getItem('lineups');
+        if (storedLineups) setLineups(JSON.parse(storedLineups));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const activeEventsCount = events.filter(e => e.status === "Upcoming").length;
 
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Panitia" value="303" icon={Users} />
-        <StatCard title="Peserta Terdaftar" value="235" icon={UserCheck} />
-        <StatCard title="Event Aktif" value="12" icon={CalendarIcon} />
-        <StatCard title="Lineup Artis" value="8" icon={Mic} />
+        <StatCard title="Total Panitia" value={String(committees.length)} icon={Users} />
+        <StatCard title="Peserta Terdaftar" value={String(users.length)} icon={UserCheck} />
+        <StatCard title="Event Aktif" value={String(activeEventsCount)} icon={CalendarIcon} />
+        <StatCard title="Lineup Artis" value={String(lineups.length)} icon={Mic} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
         <Card className="lg:col-span-3 content-card p-4 md:p-6">

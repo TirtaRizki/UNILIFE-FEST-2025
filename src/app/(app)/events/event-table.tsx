@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
@@ -49,11 +50,18 @@ export default function EventGrid() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-        // const fetchedEvents = await fetch('/api/events');
-        // setEvents(fetchedEvents);
+        const storedEvents = localStorage.getItem('events');
+        if (storedEvents) {
+            setEvents(JSON.parse(storedEvents));
+        }
     }, []);
+
+    const updateEvents = (updatedEvents: Event[]) => {
+        setEvents(updatedEvents);
+        localStorage.setItem('events', JSON.stringify(updatedEvents));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedEvent(null);
@@ -66,22 +74,22 @@ export default function EventGrid() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/events/${id}`, { method: 'DELETE' });
-      setEvents(events.filter(event => event.id !== id));
+        // This is where you'll add your database deletion logic
+        const updatedEvents = events.filter(event => event.id !== id);
+        updateEvents(updatedEvents);
     };
 
     const handleSave = async (eventData: Event) => {
+        let updatedEvents;
         if (selectedEvent && eventData.id) {
-            // TODO: Add your database update logic here
-            // const updatedEvent = await fetch(`/api/events/${eventData.id}`, { method: 'PUT', body: JSON.stringify(eventData) });
-            setEvents(events.map(e => e.id === eventData.id ? eventData : e));
+            // This is where you'll add your database update logic
+            updatedEvents = events.map(e => e.id === eventData.id ? eventData : e);
         } else {
-            // TODO: Add your database creation logic here
+            // This is where you'll add your database creation logic
             const newEvent = { ...eventData, id: `EVT${Date.now()}` }; // Replace with ID from DB
-            // const createdEvent = await fetch('/api/events', { method: 'POST', body: JSON.stringify(newEvent) });
-            setEvents([...events, newEvent]);
+            updatedEvents = [...events, newEvent];
         }
+        updateEvents(updatedEvents);
         setSheetOpen(false);
     }
     

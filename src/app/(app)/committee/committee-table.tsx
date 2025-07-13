@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -27,11 +28,18 @@ export default function CommitteeTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-      // const fetchedCommittees = await fetch('/api/committees');
-      // setCommittees(fetchedCommittees);
+        const storedCommittees = localStorage.getItem('committees');
+        if (storedCommittees) {
+            setCommittees(JSON.parse(storedCommittees));
+        }
     }, []);
+
+    const updateCommittees = (updatedCommittees: Committee[]) => {
+        setCommittees(updatedCommittees);
+        localStorage.setItem('committees', JSON.stringify(updatedCommittees));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedCommittee(null);
@@ -44,22 +52,22 @@ export default function CommitteeTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/committees/${id}`, { method: 'DELETE' });
-      setCommittees(committees.filter(c => c.id !== id));
+        // This is where you'll add your database deletion logic
+        const updatedCommittees = committees.filter(c => c.id !== id);
+        updateCommittees(updatedCommittees);
     };
 
     const handleSave = async (committeeData: Committee) => {
+        let updatedCommittees;
         if (selectedCommittee && committeeData.id) {
-            // TODO: Add your database update logic here
-            // const updatedCommittee = await fetch(`/api/committees/${committeeData.id}`, { method: 'PUT', body: JSON.stringify(committeeData) });
-            setCommittees(committees.map(c => c.id === committeeData.id ? committeeData : c));
+            // This is where you'll add your database update logic
+            updatedCommittees = committees.map(c => c.id === committeeData.id ? committeeData : c);
         } else {
-            // TODO: Add your database creation logic here
+            // This is where you'll add your database creation logic
             const newCommittee = { ...committeeData, id: `CMT${Date.now()}` }; // Replace with ID from DB
-            // const createdCommittee = await fetch('/api/committees', { method: 'POST', body: JSON.stringify(newCommittee) });
-            setCommittees([...committees, newCommittee]);
+            updatedCommittees = [...committees, newCommittee];
         }
+        updateCommittees(updatedCommittees);
         setSheetOpen(false);
     }
     

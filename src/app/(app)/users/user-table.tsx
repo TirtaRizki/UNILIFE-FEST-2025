@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import {
@@ -28,11 +29,18 @@ export default function UserTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-    // TODO: Fetch data from your database
     useEffect(() => {
-        // const fetchedUsers = await fetch('/api/users');
-        // setUsers(fetchedUsers);
+        const storedUsers = localStorage.getItem('users');
+        if (storedUsers) {
+            setUsers(JSON.parse(storedUsers));
+        }
     }, []);
+
+    const updateUsers = (updatedUsers: User[]) => {
+        setUsers(updatedUsers);
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        window.dispatchEvent(new Event('storage'));
+    };
 
     const handleAdd = () => {
         setSelectedUser(null);
@@ -45,22 +53,22 @@ export default function UserTable() {
     };
     
     const handleDelete = async (id: string) => {
-      // TODO: Add your database deletion logic here
-      // await fetch(`/api/users/${id}`, { method: 'DELETE' });
-      setUsers(users.filter(u => u.id !== id));
+        // This is where you'll add your database deletion logic
+        const updatedUsers = users.filter(u => u.id !== id);
+        updateUsers(updatedUsers);
     };
 
     const handleSave = async (userData: User) => {
+        let updatedUsers;
         if (selectedUser && userData.id) {
-            // TODO: Add your database update logic here
-            // const updatedUser = await fetch(`/api/users/${userData.id}`, { method: 'PUT', body: JSON.stringify(userData) });
-            setUsers(users.map(u => u.id === userData.id ? userData : u));
+            // This is where you'll add your database update logic
+            updatedUsers = users.map(u => u.id === userData.id ? userData : u);
         } else {
-            // TODO: Add your database creation logic here
+            // This is where you'll add your database creation logic
             const newUser = { ...userData, id: `USR${Date.now()}` }; // Replace with ID from DB
-            // const createdUser = await fetch('/api/users', { method: 'POST', body: JSON.stringify(newUser) });
-            setUsers([...users, newUser]);
+            updatedUsers = [...users, newUser];
         }
+        updateUsers(updatedUsers);
         setSheetOpen(false);
     }
     
