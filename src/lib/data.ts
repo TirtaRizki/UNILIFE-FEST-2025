@@ -14,4 +14,6 @@ export const mockRecaps: Recap[] = [];
 
 export const mockTickets: Ticket[] = [];
 
+// We will add the admin user programmatically on the login page
+// to ensure it's always available.
 export const mockUsers: User[] = [];
