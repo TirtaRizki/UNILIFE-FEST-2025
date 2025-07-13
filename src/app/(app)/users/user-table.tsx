@@ -75,17 +75,23 @@ export default function UserTable() {
     const handleSave = async (userData: User) => {
         let updatedUsers;
         if (selectedUser && userData.id) {
+            // Logic for editing an existing user
             updatedUsers = users.map(u => {
                 if (u.id === userData.id) {
-                    const updatedUser = { ...u, ...userData };
-                    if (!userData.password) {
-                        updatedUser.password = u.password;
-                    }
+                    // Start with the existing user data (including password)
+                    const existingUser = { ...u };
+                    // Merge the new data from the form
+                    const updatedUser = { ...existingUser, ...userData };
+                    
+                    // The 'userData' from the form will only have a 'password' field 
+                    // if a new one was typed. If it was left blank, 'userData.password'
+                    // will be undefined, so the existing password from 'existingUser' is preserved.
                     return updatedUser;
                 }
                 return u;
             });
         } else {
+            // Logic for adding a new user
             const newUser = { ...userData, id: `USR${Date.now()}` };
             updatedUsers = [...users, newUser];
         }
