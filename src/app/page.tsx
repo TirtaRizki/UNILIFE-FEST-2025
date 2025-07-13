@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import Image from "next/image";
 
 const Logo = () => (
-    <h1 className="text-3xl font-headline font-bold text-primary">UNLIFE</h1>
+    <h1 className="text-3xl font-headline font-bold text-primary">UNILIFE</h1>
 );
 
 export default function LoginPage() {
