@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -55,6 +56,7 @@ export function RegisterForm() {
         name: values.name,
         email: values.email,
         role: "Member", // Default role for new users
+        password: values.password, // IMPORTANT: Storing password for demo purposes
     };
 
     const updatedUsers = [...users, newUser];

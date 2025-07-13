@@ -1,3 +1,4 @@
+
 import type { Event, About, Banner, Committee, Lineup, Recap, Ticket, User } from "./types";
 
 export const mockEvents: Event[] = [];

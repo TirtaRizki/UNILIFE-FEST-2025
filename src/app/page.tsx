@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -23,16 +24,18 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize admin user if not present
     const usersInStorage = localStorage.getItem('users');
-    let users = usersInStorage ? JSON.parse(usersInStorage) : [];
+    let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
 
     if (!users.some((u: User) => u.email === 'admin@unilife.com')) {
-        const initialUsers: User[] = [
-            { id: 'USR001', name: 'Admin User', email: 'admin@unilife.com', role: 'Admin' },
-            ...mockUsers
-        ];
-        // Note: For a real app, do not store passwords in localStorage. This is for demo purposes.
+        const adminUser: User = {
+            id: 'USR001',
+            name: 'Admin User',
+            email: 'admin@unilife.com',
+            role: 'Admin',
+            password: 'unilifejaya123' // Add password for admin
+        };
+        const initialUsers = [adminUser, ...mockUsers];
         localStorage.setItem('users', JSON.stringify(initialUsers));
     }
   }, []);
@@ -44,12 +47,14 @@ export default function LoginPage() {
     
     const foundUser = users.find(user => user.email === email);
     
-    // For demo: admin has a specific password, others can log in with a generic password.
-    const isPasswordCorrect = (foundUser?.role === 'Admin' && password === 'unilifejaya123') || (foundUser?.role !== 'Admin' && password === 'unilifejaya123');
-
-    if (foundUser && isPasswordCorrect) {
+    // Check if user exists and password matches
+    if (foundUser && foundUser.password === password) {
         // In a real app, you'd use a more secure session management method.
-        sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+        // Also, you would not store the password in the session.
+        const userToStore = { ...foundUser };
+        // @ts-ignore
+        delete userToStore.password; // Do not store password in session
+        sessionStorage.setItem('loggedInUser', JSON.stringify(userToStore));
 
         toast({
             title: "Login Successful",

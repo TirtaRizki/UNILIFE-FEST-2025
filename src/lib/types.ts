@@ -1,3 +1,4 @@
+
 export type Event = {
     id: string;
     name: string;
@@ -50,4 +51,5 @@ export type User = {
     name: string;
     email: string;
     role: "Admin" | "Member" | "Panitia";
+    password?: string;
 };
