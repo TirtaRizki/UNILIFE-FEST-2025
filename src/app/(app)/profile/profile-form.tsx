@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 const profileSchema = z.object({
   id: z.string().optional(),
@@ -30,23 +31,22 @@ const profileSchema = z.object({
 
 
 export function ProfileForm() {
-    const [user, setUser] = useState<User | null>(null);
+    const { user: authUser, updateUserFromStorage } = useAuth();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const { toast } = useToast();
 
-    // In a real app, you would fetch the current user's data from your authentication context or API
     useEffect(() => {
-        const usersInStorage = localStorage.getItem('users');
-        if (usersInStorage) {
-            const allUsers: User[] = JSON.parse(usersInStorage);
-            // For demo purposes, we'll assume the 'Admin' is the current user
-            const adminUser = allUsers.find(u => u.role === 'Admin');
-            if(adminUser) {
-                setUser(adminUser);
-            } else if (allUsers.length > 0) {
-                setUser(allUsers[0]); // fallback to first user
+        if (authUser) {
+            const usersInStorage = localStorage.getItem('users');
+            if (usersInStorage) {
+                const allUsers: User[] = JSON.parse(usersInStorage);
+                const fullUser = allUsers.find(u => u.id === authUser.id);
+                if(fullUser) {
+                    setCurrentUser(fullUser);
+                }
             }
         }
-    }, []);
+    }, [authUser]);
 
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -59,36 +59,36 @@ export function ProfileForm() {
     });
 
     useEffect(() => {
-        if (user) {
+        if (currentUser) {
             form.reset({
-                id: user.id,
-                name: user.name,
-                email: user.email,
+                id: currentUser.id,
+                name: currentUser.name,
+                email: currentUser.email,
                 password: "",
                 confirmPassword: "",
             });
         }
-    }, [user, form]);
+    }, [currentUser, form]);
     
     const onSubmit = (values: z.infer<typeof profileSchema>) => {
-        if (!user) return;
+        if (!currentUser) return;
         
         const usersInStorage = localStorage.getItem('users');
         if (!usersInStorage) return;
 
         let allUsers: User[] = JSON.parse(usersInStorage);
         const updatedUsers = allUsers.map(u => {
-            if (u.id === user.id) {
-                // For a real app, you would handle password hashing on the server
-                // Here we just demonstrate the logic
+            if (u.id === currentUser.id) {
+                // IMPORTANT FIX: Preserve existing password if new one is not provided.
                 const updatedUser = {
-                    ...u,
+                    ...u, // Start with the full existing user data (including password)
                     name: values.name,
                     email: values.email,
-                    // Note: In a real app, never store plain text passwords.
-                    // This is just for demonstration.
                 };
-                 // password field is omitted for security demo
+                // Only update password if a new one is entered
+                if (values.password) {
+                    updatedUser.password = values.password;
+                }
                 return updatedUser;
             }
             return u;
@@ -96,11 +96,20 @@ export function ProfileForm() {
 
         localStorage.setItem('users', JSON.stringify(updatedUsers));
         
-        // Update local state to reflect changes immediately
-        const newlyUpdatedUser = updatedUsers.find(u => u.id === user.id);
+        const newlyUpdatedUser = updatedUsers.find(u => u.id === currentUser.id);
         if (newlyUpdatedUser) {
-          setUser(newlyUpdatedUser);
-          // Also trigger storage event for other components if needed
+          setCurrentUser(newlyUpdatedUser);
+          
+          // Update sessionStorage as well to reflect name/email changes in the UI
+          const userForSession: Omit<User, 'password'> = {
+              id: newlyUpdatedUser.id,
+              name: newlyUpdatedUser.name,
+              email: newlyUpdatedUser.email,
+              role: newlyUpdatedUser.role,
+          };
+          sessionStorage.setItem('loggedInUser', JSON.stringify(userForSession));
+          
+          // Trigger storage event for other components
           window.dispatchEvent(new Event('storage'));
         }
 
@@ -108,21 +117,22 @@ export function ProfileForm() {
             title: "Profil Diperbarui",
             description: "Informasi profil Anda telah berhasil disimpan.",
         });
+        form.reset({ ...form.getValues(), password: '', confirmPassword: '' });
     };
 
-    if(!user) return <div>Memuat profil...</div>
+    if(!currentUser) return <div>Memuat profil...</div>
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="flex items-center gap-6">
                     <Avatar className="h-20 w-20 border-4 border-white/50 shadow-md">
-                        <AvatarImage src="https://placehold.co/80x80.png" alt={user.name} data-ai-hint="person user"/>
-                        <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src="https://placehold.co/80x80.png" alt={currentUser.name} data-ai-hint="person user"/>
+                        <AvatarFallback>{currentUser.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                        <h3 className="text-2xl font-bold">{user.name}</h3>
-                        <p className="text-muted-foreground">{user.email}</p>
+                        <h3 className="text-2xl font-bold">{currentUser.name}</h3>
+                        <p className="text-muted-foreground">{currentUser.email}</p>
                     </div>
                 </div>
 
