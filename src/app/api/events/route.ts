@@ -6,7 +6,8 @@ import type { Event } from '@/lib/types';
 // GET /api/events
 export async function GET() {
     try {
-        return NextResponse.json(db.events);
+        const data = db.read();
+        return NextResponse.json(data.events);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching events', error }, { status: 500 });
     }
@@ -16,22 +17,23 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const eventData: Event = await request.json();
-        const events = db.events;
+        const data = db.read();
         let savedEvent: Event;
 
         if (eventData.id) { // Update
-             const index = events.findIndex(e => e.id === eventData.id);
+             const index = data.events.findIndex(e => e.id === eventData.id);
             if (index !== -1) {
-                events[index] = eventData;
+                data.events[index] = eventData;
                 savedEvent = eventData;
             } else {
                 return NextResponse.json({ message: 'Event not found' }, { status: 404 });
             }
         } else { // Create
             savedEvent = { ...eventData, id: `EVT${Date.now()}` };
-            events.push(savedEvent);
+            data.events.push(savedEvent);
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Event saved successfully', event: savedEvent }, { status: 201 });
 
     } catch (error) {

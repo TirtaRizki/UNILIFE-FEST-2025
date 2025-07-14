@@ -6,14 +6,16 @@ import { db } from '@/lib/data';
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        const initialLength = db.tickets.length;
+        const data = db.read();
+        const initialLength = data.tickets.length;
         
-        db.tickets = db.tickets.filter(t => t.id !== id);
+        data.tickets = data.tickets.filter(t => t.id !== id);
 
-        if (db.tickets.length === initialLength) {
+        if (data.tickets.length === initialLength) {
              return NextResponse.json({ message: 'Ticket not found' }, { status: 404 });
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Ticket deleted successfully' }, { status: 200 });
 
     } catch (error) {

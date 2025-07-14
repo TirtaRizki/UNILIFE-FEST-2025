@@ -6,7 +6,8 @@ import type { About } from '@/lib/types';
 // GET /api/about
 export async function GET() {
     try {
-        return NextResponse.json(db.abouts);
+        const data = db.read();
+        return NextResponse.json(data.abouts);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching about content', error }, { status: 500 });
     }
@@ -16,22 +17,23 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const aboutData: About = await request.json();
-        const abouts = db.abouts;
+        const data = db.read();
         let savedAbout: About;
 
         if (aboutData.id) { // Update
-            const index = abouts.findIndex(a => a.id === aboutData.id);
+            const index = data.abouts.findIndex(a => a.id === aboutData.id);
             if (index !== -1) {
-                abouts[index] = aboutData;
+                data.abouts[index] = aboutData;
                 savedAbout = aboutData;
             } else {
                 return NextResponse.json({ message: 'About content not found' }, { status: 404 });
             }
         } else { // Create
             savedAbout = { ...aboutData, id: `ABT${Date.now()}` };
-            abouts.push(savedAbout);
+            data.abouts.push(savedAbout);
         }
 
+        db.write(data);
         return NextResponse.json({ message: 'About content saved successfully', about: savedAbout }, { status: 201 });
 
     } catch (error) {

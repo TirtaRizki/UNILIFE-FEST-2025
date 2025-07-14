@@ -6,7 +6,8 @@ import type { Ticket } from '@/lib/types';
 // GET /api/tickets - Fetch all tickets
 export async function GET() {
     try {
-        return NextResponse.json(db.tickets);
+        const data = db.read();
+        return NextResponse.json(data.tickets);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching tickets', error }, { status: 500 });
     }
@@ -16,14 +17,14 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const ticketData: Ticket = await request.json();
-        const tickets = db.tickets;
+        const data = db.read();
         let savedTicket: Ticket;
 
         if (ticketData.id) {
             // Update existing ticket
-            const index = tickets.findIndex(t => t.id === ticketData.id);
+            const index = data.tickets.findIndex(t => t.id === ticketData.id);
             if (index !== -1) {
-                tickets[index] = ticketData;
+                data.tickets[index] = ticketData;
                 savedTicket = ticketData;
             } else {
                 return NextResponse.json({ message: 'Ticket not found' }, { status: 404 });
@@ -31,9 +32,10 @@ export async function POST(request: Request) {
         } else {
             // Create new ticket
             savedTicket = { ...ticketData, id: `TKT${Date.now()}` };
-            tickets.push(savedTicket);
+            data.tickets.push(savedTicket);
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Ticket saved successfully', ticket: savedTicket }, { status: 201 });
 
     } catch (error) {

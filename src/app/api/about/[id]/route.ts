@@ -6,14 +6,16 @@ import { db } from '@/lib/data';
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        const initialLength = db.abouts.length;
+        const data = db.read();
+        const initialLength = data.abouts.length;
         
-        db.abouts = db.abouts.filter(a => a.id !== id);
+        data.abouts = data.abouts.filter(a => a.id !== id);
 
-        if (db.abouts.length === initialLength) {
+        if (data.abouts.length === initialLength) {
              return NextResponse.json({ message: 'About content not found' }, { status: 404 });
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'About content deleted successfully' }, { status: 200 });
 
     } catch (error) {

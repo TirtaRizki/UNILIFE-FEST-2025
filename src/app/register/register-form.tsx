@@ -59,6 +59,10 @@ export function RegisterForm() {
         const data = await response.json();
 
         if (!response.ok) {
+            // Specifically handle 409 Conflict error for existing email
+            if (response.status === 409) {
+                throw new Error(data.message || "Email already exists");
+            }
             throw new Error(data.message || "Registration failed");
         }
 

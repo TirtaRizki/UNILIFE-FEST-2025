@@ -6,14 +6,16 @@ import { db } from '@/lib/data';
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        const initialLength = db.banners.length;
+        const data = db.read();
+        const initialLength = data.banners.length;
         
-        db.banners = db.banners.filter(b => b.id !== id);
+        data.banners = data.banners.filter(b => b.id !== id);
 
-        if (db.banners.length === initialLength) {
+        if (data.banners.length === initialLength) {
              return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Banner deleted successfully' }, { status: 200 });
 
     } catch (error) {

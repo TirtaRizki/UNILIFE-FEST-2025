@@ -7,7 +7,8 @@ import type { User } from '@/lib/types';
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json();
-        const users = db.users;
+        const data = db.read();
+        const users = data.users;
         
         const foundUser = users.find(user => user.email === email && user.password === password);
 

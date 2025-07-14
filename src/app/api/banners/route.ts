@@ -6,7 +6,8 @@ import type { Banner } from '@/lib/types';
 // GET /api/banners
 export async function GET() {
     try {
-        return NextResponse.json(db.banners);
+        const data = db.read();
+        return NextResponse.json(data.banners);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching banners', error }, { status: 500 });
     }
@@ -16,22 +17,23 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const bannerData: Banner = await request.json();
-        const banners = db.banners;
+        const data = db.read();
         let savedBanner: Banner;
 
         if (bannerData.id) { // Update
-            const index = banners.findIndex(b => b.id === bannerData.id);
+            const index = data.banners.findIndex(b => b.id === bannerData.id);
             if (index !== -1) {
-                banners[index] = bannerData;
+                data.banners[index] = bannerData;
                 savedBanner = bannerData;
             } else {
                 return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
             }
         } else { // Create
             savedBanner = { ...bannerData, id: `BNR${Date.now()}` };
-            banners.push(savedBanner);
+            data.banners.push(savedBanner);
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Banner saved successfully', banner: savedBanner }, { status: 201 });
 
     } catch (error) {

@@ -6,14 +6,16 @@ import { db } from '@/lib/data';
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        const initialLength = db.committees.length;
+        const data = db.read();
+        const initialLength = data.committees.length;
         
-        db.committees = db.committees.filter(c => c.id !== id);
+        data.committees = data.committees.filter(c => c.id !== id);
 
-        if (db.committees.length === initialLength) {
+        if (data.committees.length === initialLength) {
              return NextResponse.json({ message: 'Committee member not found' }, { status: 404 });
         }
-
+        
+        db.write(data);
         return NextResponse.json({ message: 'Committee member deleted successfully' }, { status: 200 });
 
     } catch (error) {
