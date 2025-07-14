@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
@@ -29,15 +30,15 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
                         <div className="absolute top-2 right-2">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm">
+                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>
                                         <MoreHorizontal className="h-4 w-4" />
                                         <span className="sr-only">Actions</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => onEdit(event)}>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete(event.id)}>Delete</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={(e) => {e.stopPropagation(); onEdit(event)}}>Edit</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => {e.stopPropagation(); onDelete(event.id)}}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -147,13 +148,14 @@ export default function EventGrid() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.length > 0 ? events.map((event) => (
-                    <EventCard 
-                        key={event.id} 
-                        event={event} 
-                        onEdit={handleEdit} 
-                        onDelete={handleDelete} 
-                        canManage={canManage} 
-                    />
+                    <Link key={event.id} href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer" className="block">
+                        <EventCard 
+                            event={event} 
+                            onEdit={handleEdit} 
+                            onDelete={handleDelete} 
+                            canManage={canManage} 
+                        />
+                    </Link>
                 )) : (
                     <p>No events found. Add one to get started!</p>
                 )}

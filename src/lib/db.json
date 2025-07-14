@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "id": "USR001",
+      "name": "Admin User",
+      "email": "admin@unilifefest.com",
+      "role": "Admin",
+      "password": "unilifejaya123",
+      "phoneNumber": "081234567890"
+    },
+    {
+      "id": "USR002",
+      "name": "Panitia Event",
+      "email": "panitia2025@unilife.com",
+      "role": "Panitia",
+      "password": "lampungfest123",
+      "phoneNumber": "080987654321"
+    }
+  ],
+  "events": [],
+  "abouts": [],
+  "banners": [],
+  "committees": [],
+  "lineups": [],
+  "recaps": [],
+  "tickets": []
+}
