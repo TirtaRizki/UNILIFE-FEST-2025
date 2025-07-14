@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -23,62 +23,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Committee, User } from "@/lib/types";
 import { CommitteeForm } from './committee-form';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-
-// Helper functions to simulate database interaction with localStorage
-const getCommitteesFromStorage = (): Committee[] => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem('committees');
-    return stored ? JSON.parse(stored) : [];
-};
-
-const saveCommitteesToStorage = (committees: Omit<Committee, 'user'>[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('committees', JSON.stringify(committees));
-    window.dispatchEvent(new Event('storage'));
-};
-
-const getUsersFromStorage = (): User[] => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem('users');
-    return stored ? JSON.parse(stored) : [];
-};
 
 export default function CommitteeTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
     
     const [committees, setCommittees] = useState<Committee[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
+    const [allUsers, setAllUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const [committeesRes, usersRes] = await Promise.all([
+                fetch(`${apiUrl}/api/committee`),
+                fetch(`${apiUrl}/api/users`),
+            ]);
+            if (!committeesRes.ok || !usersRes.ok) throw new Error("Failed to fetch data");
+            
+            const committeesData = await committeesRes.json();
+            const usersData = await usersRes.json();
+
+            setCommittees(committeesData);
+            setAllUsers(usersData);
+
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch committee data.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const committeeData = getCommitteesFromStorage();
-        const userData = getUsersFromStorage();
-        setCommittees(committeeData);
-        setUsers(userData);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setCommittees(getCommitteesFromStorage());
-            setUsers(getUsersFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchData();
     }, []);
-
-    const committeesWithUsers = useMemo(() => {
-        const userMap = new Map(users.map(u => [u.id, u]));
-        return committees
-            .map(committee => ({
-                ...committee,
-                user: userMap.get(committee.userId),
-            }))
-            .filter((c): c is Committee & { user: User } => !!c.user);
-    }, [committees, users]);
 
     const handleAdd = () => {
         setSelectedCommittee(null);
@@ -91,32 +75,35 @@ export default function CommitteeTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentCommittees = getCommitteesFromStorage();
-        const updatedCommittees = currentCommittees.filter(c => c.id !== id);
-        saveCommitteesToStorage(updatedCommittees);
-        setCommittees(updatedCommittees);
+        try {
+            const response = await fetch(`${apiUrl}/api/committee/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete committee member");
+            toast({ title: "Success", description: "Committee member deleted successfully." });
+            fetchData();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete committee member.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (committeeData: Omit<Committee, 'user'>) => {
-        // Simulate an API call to save
-        const currentCommittees = getCommitteesFromStorage();
-        let updatedCommittees;
-
-        if (selectedCommittee && committeeData.id) {
-            updatedCommittees = currentCommittees.map(c => c.id === committeeData.id ? { ...c, ...committeeData } : c);
-        } else {
-            const newCommittee = { ...committeeData, id: `CMT${Date.now()}` };
-            updatedCommittees = [...currentCommittees, newCommittee];
+        try {
+            const response = await fetch(`${apiUrl}/api/committee`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(committeeData),
+            });
+            if (!response.ok) throw new Error("Failed to save committee member");
+            toast({ title: "Success", description: "Committee member saved successfully." });
+            setSheetOpen(false);
+            setSelectedCommittee(null);
+            fetchData();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save committee member.", variant: "destructive" });
         }
-        saveCommitteesToStorage(updatedCommittees);
-        setCommittees(updatedCommittees);
-        setSheetOpen(false);
-        setSelectedCommittee(null);
     }
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading committee members...</div>;
     }
 
     return (
@@ -149,7 +136,7 @@ export default function CommitteeTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {committeesWithUsers.map((committee) => (
+                                {committees.length > 0 ? committees.map((committee) => (
                                     <TableRow key={committee.id}>
                                         <TableCell className="font-medium">{committee.user.name}</TableCell>
                                         <TableCell>{committee.position}</TableCell>
@@ -174,7 +161,11 @@ export default function CommitteeTable() {
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center">No committee members found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
@@ -186,7 +177,7 @@ export default function CommitteeTable() {
                     onOpenChange={setSheetOpen}
                     committee={selectedCommittee}
                     onSave={handleSave}
-                    allUsers={users}
+                    allUsers={allUsers}
                     existingCommitteeUserIds={committees.map(c => c.userId)}
                 />
             )}

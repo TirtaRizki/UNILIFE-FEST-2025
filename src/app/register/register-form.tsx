@@ -28,6 +28,7 @@ const registerSchema = z.object({
 export function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -39,22 +40,8 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    const storedUsers = localStorage.getItem("users");
-    const users: User[] = storedUsers ? JSON.parse(storedUsers) : [];
-
-    const userExists = users.some(user => user.email === values.email);
-    if (userExists) {
-        toast({
-            title: "Registration Failed",
-            description: "A user with this email already exists.",
-            variant: "destructive"
-        });
-        return;
-    }
-
-    const newUser: User = {
-        id: `USR${Date.now()}`,
+  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    const newUser: Omit<User, 'id' | 'role'> & { role: "Member" } = {
         name: values.name,
         email: values.email,
         phoneNumber: values.phoneNumber,
@@ -62,16 +49,34 @@ export function RegisterForm() {
         password: values.password,
     };
 
-    const updatedUsers = [...users, newUser];
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-    window.dispatchEvent(new Event('storage'));
+    try {
+        const response = await fetch(`${apiUrl}/api/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser),
+        });
 
-    toast({
-        title: "Registration Successful",
-        description: "You can now log in with your credentials.",
-    });
+        const data = await response.json();
 
-    router.push("/");
+        if (!response.ok) {
+            throw new Error(data.message || "Registration failed");
+        }
+
+        toast({
+            title: "Registration Successful",
+            description: "You can now log in with your credentials.",
+        });
+
+        router.push("/");
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        toast({
+            title: "Registration Failed",
+            description: errorMessage,
+            variant: "destructive"
+        });
+    }
   };
 
   return (

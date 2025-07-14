@@ -11,19 +11,7 @@ import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-
-// Helper functions to simulate database interaction with localStorage
-const getRecapsFromStorage = (): Recap[] => {
-    if (typeof window === 'undefined') return [];
-    const storedRecaps = localStorage.getItem('recaps');
-    return storedRecaps ? JSON.parse(storedRecaps) : [];
-};
-
-const saveRecapsToStorage = (recaps: Recap[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('recaps', JSON.stringify(recaps));
-    window.dispatchEvent(new Event('storage'));
-};
+import { useToast } from '@/hooks/use-toast';
 
 const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdit: (recap: Recap) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     const getBadgeVariant = (status: Recap['status']) => {
@@ -41,7 +29,7 @@ const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdi
                     <Image
                         src={recap.imageUrl || "https://placehold.co/400x225.png"}
                         alt={recap.title}
-                        layout="fill"
+                        fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint="event recap concert"
                     />
@@ -84,18 +72,25 @@ export default function RecapGrid() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchRecaps = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/recap`);
+            if (!response.ok) throw new Error("Failed to fetch recaps");
+            const data = await response.json();
+            setRecaps(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch recaps.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getRecapsFromStorage();
-        setRecaps(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setRecaps(getRecapsFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchRecaps();
     }, []);
 
     const handleAdd = () => {
@@ -109,33 +104,35 @@ export default function RecapGrid() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentRecaps = getRecapsFromStorage();
-        const updatedRecaps = currentRecaps.filter(r => r.id !== id);
-        saveRecapsToStorage(updatedRecaps);
-        setRecaps(updatedRecaps);
+        try {
+            const response = await fetch(`${apiUrl}/api/recap/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete recap");
+            toast({ title: "Success", description: "Recap deleted successfully." });
+            fetchRecaps();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete recap.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (recapData: Recap) => {
-        // Simulate an API call to save
-        const currentRecaps = getRecapsFromStorage();
-        let updatedRecaps;
-
-        if (selectedRecap && recapData.id) {
-            updatedRecaps = currentRecaps.map(r => r.id === recapData.id ? recapData : r);
-        } else {
-            const newRecap = { ...recapData, id: `RCP${Date.now()}` };
-            updatedRecaps = [...currentRecaps, newRecap];
+        try {
+            const response = await fetch(`${apiUrl}/api/recap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(recapData),
+            });
+            if (!response.ok) throw new Error("Failed to save recap");
+            toast({ title: "Success", description: "Recap saved successfully." });
+            setSheetOpen(false);
+            setSelectedRecap(null);
+            fetchRecaps();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save recap.", variant: "destructive" });
         }
-        
-        saveRecapsToStorage(updatedRecaps);
-        setRecaps(updatedRecaps);
-        setSheetOpen(false);
-        setSelectedRecap(null);
     }
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading recaps...</div>;
     }
 
     return (
@@ -149,9 +146,11 @@ export default function RecapGrid() {
             } />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {recaps.map((recap) => (
+                 {recaps.length > 0 ? recaps.map((recap) => (
                     <RecapCard key={recap.id} recap={recap} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
-                ))}
+                )) : (
+                    <p>No recaps found. Add one to get started!</p>
+                )}
             </div>
             
             {canManage && (
@@ -165,4 +164,3 @@ export default function RecapGrid() {
         </>
     );
 }
-

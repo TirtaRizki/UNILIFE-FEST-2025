@@ -23,19 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Lineup } from "@/lib/types";
 import { LineupForm } from './lineup-form';
 import { useAuth } from '@/hooks/use-auth';
-
-// Helper functions to simulate database interaction with localStorage
-const getLineupsFromStorage = (): Lineup[] => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem('lineups');
-    return stored ? JSON.parse(stored) : [];
-};
-
-const saveLineupsToStorage = (lineups: Lineup[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('lineups', JSON.stringify(lineups));
-    window.dispatchEvent(new Event('storage'));
-};
+import { useToast } from '@/hooks/use-toast';
 
 export default function LineupTable() {
     const { hasRole } = useAuth();
@@ -44,18 +32,25 @@ export default function LineupTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchLineups = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/lineup`);
+            if (!response.ok) throw new Error("Failed to fetch lineups");
+            const data = await response.json();
+            setLineups(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch lineups.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getLineupsFromStorage();
-        setLineups(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setLineups(getLineupsFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchLineups();
     }, []);
 
     const handleAdd = () => {
@@ -69,33 +64,35 @@ export default function LineupTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentLineups = getLineupsFromStorage();
-        const updatedLineups = currentLineups.filter(l => l.id !== id);
-        saveLineupsToStorage(updatedLineups);
-        setLineups(updatedLineups);
+        try {
+            const response = await fetch(`${apiUrl}/api/lineup/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete lineup artist");
+            toast({ title: "Success", description: "Lineup artist deleted successfully." });
+            fetchLineups();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete lineup artist.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (lineupData: Lineup) => {
-        // Simulate an API call to save
-        const currentLineups = getLineupsFromStorage();
-        let updatedLineups;
-
-        if (selectedLineup && lineupData.id) {
-            updatedLineups = currentLineups.map(l => l.id === lineupData.id ? lineupData : l);
-        } else {
-            const newLineup = { ...lineupData, id: `LNP${Date.now()}` };
-            updatedLineups = [...currentLineups, newLineup];
+        try {
+            const response = await fetch(`${apiUrl}/api/lineup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lineupData),
+            });
+            if (!response.ok) throw new Error("Failed to save lineup artist");
+            toast({ title: "Success", description: "Lineup artist saved successfully." });
+            setSheetOpen(false);
+            setSelectedLineup(null);
+            fetchLineups();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save lineup artist.", variant: "destructive" });
         }
-        
-        saveLineupsToStorage(updatedLineups);
-        setLineups(updatedLineups);
-        setSheetOpen(false);
-        setSelectedLineup(null);
     }
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading lineups...</div>;
     }
 
     return (
@@ -128,7 +125,7 @@ export default function LineupTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {lineups.map((lineup) => (
+                                {lineups.length > 0 ? lineups.map((lineup) => (
                                     <TableRow key={lineup.id}>
                                         <TableCell className="font-medium">{lineup.artistName}</TableCell>
                                         <TableCell>{lineup.day}</TableCell>
@@ -151,7 +148,11 @@ export default function LineupTable() {
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                     <TableRow>
+                                        <TableCell colSpan={4} className="text-center">No lineup artists found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>

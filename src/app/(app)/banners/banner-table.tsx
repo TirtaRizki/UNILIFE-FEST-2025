@@ -24,20 +24,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Banner } from "@/lib/types";
 import { BannerForm } from './banner-form';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-
-// Helper functions to simulate database interaction with localStorage
-const getBannersFromStorage = (): Banner[] => {
-    if (typeof window === 'undefined') return [];
-    const storedBanners = localStorage.getItem('banners');
-    return storedBanners ? JSON.parse(storedBanners) : [];
-};
-
-const saveBannersToStorage = (banners: Banner[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('banners', JSON.stringify(banners));
-    window.dispatchEvent(new Event('storage'));
-};
 
 export default function BannerTable() {
     const { hasRole } = useAuth();
@@ -46,18 +34,25 @@ export default function BannerTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchBanners = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/banners`);
+            if (!response.ok) throw new Error("Failed to fetch banners");
+            const data = await response.json();
+            setBanners(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch banners.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getBannersFromStorage();
-        setBanners(data);
-        setIsLoading(false);
-        
-        const handleStorageChange = () => {
-            setBanners(getBannersFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchBanners();
     }, []);
 
     const handleAdd = () => {
@@ -71,43 +66,43 @@ export default function BannerTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentBanners = getBannersFromStorage();
-        const updatedBanners = currentBanners.filter(banner => banner.id !== id);
-        saveBannersToStorage(updatedBanners);
-        setBanners(updatedBanners);
+        try {
+            const response = await fetch(`${apiUrl}/api/banners/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete banner");
+            toast({ title: "Success", description: "Banner deleted successfully." });
+            fetchBanners();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete banner.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (bannerData: Banner) => {
-        // Simulate an API call to save
-        const currentBanners = getBannersFromStorage();
-        let updatedBanners;
-
-        if (selectedBanner && bannerData.id) {
-            updatedBanners = currentBanners.map(b => b.id === bannerData.id ? bannerData : b);
-        } else {
-            const newBanner = { ...bannerData, id: `BNR${Date.now()}` };
-            updatedBanners = [...currentBanners, newBanner];
+        try {
+            const response = await fetch(`${apiUrl}/api/banners`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bannerData),
+            });
+            if (!response.ok) throw new Error("Failed to save banner");
+            toast({ title: "Success", description: "Banner saved successfully." });
+            setSheetOpen(false);
+            setSelectedBanner(null);
+            fetchBanners();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save banner.", variant: "destructive" });
         }
-        saveBannersToStorage(updatedBanners);
-        setBanners(updatedBanners);
-        setSheetOpen(false);
-        setSelectedBanner(null);
-    }
+    };
     
     const getBadgeVariant = (status: Banner['status']) => {
         switch (status) {
-            case 'Active':
-                return 'default';
-            case 'Inactive':
-                return 'secondary';
-            default:
-                return 'outline';
+            case 'Active': return 'default';
+            case 'Inactive': return 'secondary';
+            default: return 'outline';
         }
     };
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading banners...</div>;
     }
 
     return (
@@ -140,7 +135,7 @@ export default function BannerTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {banners.map((banner) => (
+                                {banners.length > 0 ? banners.map((banner) => (
                                     <TableRow key={banner.id}>
                                         <TableCell>
                                             <Image 
@@ -174,7 +169,11 @@ export default function BannerTable() {
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center">No banners found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
@@ -191,4 +190,3 @@ export default function BannerTable() {
         </>
     );
 }
-

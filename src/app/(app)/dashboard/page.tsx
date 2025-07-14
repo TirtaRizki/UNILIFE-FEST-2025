@@ -6,7 +6,8 @@ import { Users, UserCheck, Calendar as CalendarIcon, Mic } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import type { Committee, User, Event, Lineup } from '@/lib/types';
+import type { User, Event } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 
 const Countdown = () => {
@@ -109,34 +110,42 @@ export default function DashboardPage() {
   const [activeEventsCount, setActiveEventsCount] = useState(0);
   const [lineupsCount, setLineupsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
   useEffect(() => {
-    // This effect runs only on the client side
-    const updateStateFromStorage = () => {
-        if (typeof window === 'undefined') return;
+    const fetchDashboardData = async () => {
+        setIsLoading(true);
+        try {
+            const [usersRes, committeesRes, eventsRes, lineupsRes] = await Promise.all([
+                fetch(`${apiUrl}/api/users`),
+                fetch(`${apiUrl}/api/committee`),
+                fetch(`${apiUrl}/api/events`),
+                fetch(`${apiUrl}/api/lineup`),
+            ]);
 
-        const storedCommittees = localStorage.getItem('committees');
-        setCommitteesCount(storedCommittees ? JSON.parse(storedCommittees).length : 0);
+            if (!usersRes.ok || !committeesRes.ok || !eventsRes.ok || !lineupsRes.ok) {
+                throw new Error('Failed to fetch dashboard data');
+            }
 
-        const storedUsers = localStorage.getItem('users');
-        setUsersCount(storedUsers ? JSON.parse(storedUsers).length : 0);
+            const users = await usersRes.json();
+            const committees = await committeesRes.json();
+            const events: Event[] = await eventsRes.json();
+            const lineups = await lineupsRes.json();
+            
+            setUsersCount(users.length);
+            setCommitteesCount(committees.length);
+            setActiveEventsCount(events.filter(e => e.status === "Upcoming").length);
+            setLineupsCount(lineups.length);
 
-        const storedEvents = localStorage.getItem('events');
-        const events: Event[] = storedEvents ? JSON.parse(storedEvents) : [];
-        setActiveEventsCount(events.filter(e => e.status === "Upcoming").length);
-
-        const storedLineups = localStorage.getItem('lineups');
-        setLineupsCount(storedLineups ? JSON.parse(storedLineups).length : 0);
-        
-        setIsLoading(false);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not load dashboard data.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
     };
     
-    updateStateFromStorage();
-
-    window.addEventListener('storage', updateStateFromStorage);
-    return () => {
-        window.removeEventListener('storage', updateStateFromStorage);
-    };
+    fetchDashboardData();
   }, []);
 
   return (

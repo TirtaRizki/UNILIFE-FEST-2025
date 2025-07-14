@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
@@ -20,7 +21,7 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
                     <Image
                         src={event.imageUrl || "https://placehold.co/400x300.png"}
                         alt={event.name}
-                        layout="fill"
+                        fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                         data-ai-hint="event concert festival"
                     />
@@ -65,38 +66,6 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
     );
 };
 
-// Helper functions to simulate database interaction with localStorage
-const getEventsFromStorage = (): Event[] => {
-    if (typeof window === 'undefined') return [];
-    const storedEvents = localStorage.getItem('events');
-    const events = storedEvents ? JSON.parse(storedEvents) : [];
-    // Rehydrate images from sessionStorage
-    return events.map((event: Event) => {
-        if (event.id) {
-            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
-            if (sessionImage) {
-                return { ...event, imageUrl: sessionImage };
-            }
-        }
-        return event;
-    });
-};
-
-const saveEventsToStorage = (events: Event[]) => {
-    if (typeof window === 'undefined') return;
-    const eventsForStorage = events.map(event => {
-        const { imageUrl, ...rest } = event;
-        // Only store image in sessionStorage if it's a data URL
-        if (imageUrl && !imageUrl.startsWith('http')) {
-            if (rest.id) sessionStorage.setItem(`event_image_${rest.id}`, imageUrl);
-            return { ...rest, imageUrl: `placeholder_for_${rest.id}` }; // Don't store large data in localStorage
-        }
-        return event; // Store http URLs directly
-    });
-    localStorage.setItem('events', JSON.stringify(eventsForStorage));
-    window.dispatchEvent(new Event('storage'));
-};
-
 export default function EventGrid() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
@@ -104,17 +73,25 @@ export default function EventGrid() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchEvents = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/events`);
+            if (!response.ok) throw new Error("Failed to fetch events");
+            const data = await response.json();
+            setEvents(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const data = getEventsFromStorage();
-        setEvents(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setEvents(getEventsFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchEvents();
     }, []);
 
     const handleAdd = () => {
@@ -128,34 +105,35 @@ export default function EventGrid() {
     };
     
     const handleDelete = async (id: string) => {
-        const currentEvents = getEventsFromStorage();
-        const updatedEvents = currentEvents.filter(event => event.id !== id);
-        saveEventsToStorage(updatedEvents);
-        setEvents(updatedEvents);
-        if (typeof window !== 'undefined') {
-            sessionStorage.removeItem(`event_image_${id}`);
+        try {
+            const response = await fetch(`${apiUrl}/api/events/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete event");
+            toast({ title: "Success", description: "Event deleted successfully." });
+            fetchEvents();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete event.", variant: "destructive" });
         }
     };
 
     const handleSave = async (eventData: Event) => {
-        const currentEvents = getEventsFromStorage();
-        let updatedEvents;
-
-        if (selectedEvent && eventData.id) {
-            updatedEvents = currentEvents.map(e => e.id === eventData.id ? eventData : e);
-        } else {
-            const newEvent = { ...eventData, id: `EVT${Date.now()}` };
-            updatedEvents = [...currentEvents, newEvent];
+        try {
+            const response = await fetch(`${apiUrl}/api/events`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(eventData),
+            });
+            if (!response.ok) throw new Error("Failed to save event");
+            toast({ title: "Success", description: "Event saved successfully." });
+            setSheetOpen(false);
+            setSelectedEvent(null);
+            fetchEvents();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save event.", variant: "destructive" });
         }
-        
-        saveEventsToStorage(updatedEvents);
-        setEvents(getEventsFromStorage()); // Re-fetch to get hydrated images
-        setSheetOpen(false);
-        setSelectedEvent(null);
-    }
+    };
     
     if (isLoading) {
-        return <div>Loading...</div>
+        return <div>Loading events...</div>
     }
 
     return (
@@ -169,7 +147,7 @@ export default function EventGrid() {
             } />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {events.map((event) => (
+                {events.length > 0 ? events.map((event) => (
                     <EventCard 
                         key={event.id} 
                         event={event} 
@@ -177,7 +155,9 @@ export default function EventGrid() {
                         onDelete={handleDelete} 
                         canManage={canManage} 
                     />
-                ))}
+                )) : (
+                    <p>No events found. Add one to get started!</p>
+                )}
             </div>
             
             {canManage && (
@@ -191,4 +171,3 @@ export default function EventGrid() {
         </>
     );
 }
-

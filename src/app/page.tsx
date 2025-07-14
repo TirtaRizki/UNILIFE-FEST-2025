@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from "@/hooks/use-toast";
 import type { User } from '@/lib/types';
-import { mockUsers } from '@/lib/data';
 
 const Logo = () => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -38,76 +37,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-  useEffect(() => {
-    const usersInStorage = localStorage.getItem('users');
-    let users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
-
-    const defaultUsers: User[] = [
-      {
-        id: 'USR001',
-        name: 'Admin User',
-        email: 'admin@unilifefest.com',
-        role: 'Admin',
-        password: 'unilifejaya123',
-        phoneNumber: '081234567890'
-      },
-      {
-        id: 'USR002',
-        name: 'Panitia Event',
-        email: 'panitia2025@unilife.com',
-        role: 'Panitia',
-        password: 'lampungfest123',
-        phoneNumber: '080987654321'
-      }
-    ];
-
-    let needsUpdate = false;
-    
-    const userMapById = new Map(users.map(u => [u.id, u]));
-
-    defaultUsers.forEach(defaultUser => {
-      if (!userMapById.has(defaultUser.id)) {
-        users.push(defaultUser);
-        needsUpdate = true;
-      }
-    });
-    
-    // This part of the logic was flawed. It was adding empty mockUsers.
-    // The default users logic above is sufficient.
-    // The mockUsers array is empty and should remain so, as users are added dynamically.
-
-    if (needsUpdate) {
-        localStorage.setItem('users', JSON.stringify(users));
-    }
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const usersInStorage = localStorage.getItem('users');
-    const users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
-    
-    const foundUser = users.find(user => user.email === email && user.password === password);
-    
-    if (foundUser) {
-        const userToStore: Omit<User, 'password'> = {
-            id: foundUser.id,
-            name: foundUser.name,
-            email: foundUser.email,
-            role: foundUser.role,
-            phoneNumber: foundUser.phoneNumber,
-        };
-        sessionStorage.setItem('loggedInUser', JSON.stringify(userToStore));
+    try {
+        const response = await fetch(`${apiUrl}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Login failed");
+        }
+        
+        const foundUser = data.user;
+
+        sessionStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+        window.dispatchEvent(new Event('storage')); // Notify auth hook
 
         toast({
             title: "Login Successful",
             description: `Welcome back, ${foundUser.name}!`,
         });
         router.push("/dashboard");
-    } else {
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
         toast({
             title: "Login Failed",
-            description: "Invalid email or password.",
+            description: errorMessage,
             variant: "destructive",
         });
     }

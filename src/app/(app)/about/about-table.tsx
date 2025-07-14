@@ -23,20 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { About } from "@/lib/types";
 import { AboutForm } from './about-form';
 import { useAuth } from '@/hooks/use-auth';
-
-// Helper functions to simulate database interaction with localStorage
-const getAboutsFromStorage = (): About[] => {
-    if (typeof window === 'undefined') return [];
-    const storedAbouts = localStorage.getItem('abouts');
-    return storedAbouts ? JSON.parse(storedAbouts) : [];
-};
-
-const saveAboutsToStorage = (abouts: About[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('abouts', JSON.stringify(abouts));
-    window.dispatchEvent(new Event('storage')); // Notify other tabs
-};
-
+import { useToast } from '@/hooks/use-toast';
 
 export default function AboutTable() {
     const { hasRole } = useAuth();
@@ -45,18 +32,25 @@ export default function AboutTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+    const fetchAbouts = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/about`);
+            if (!response.ok) throw new Error("Failed to fetch about content");
+            const data = await response.json();
+            setAbouts(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch about content.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getAboutsFromStorage();
-        setAbouts(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setAbouts(getAboutsFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchAbouts();
     }, []);
 
     const handleAdd = () => {
@@ -70,33 +64,35 @@ export default function AboutTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentAbouts = getAboutsFromStorage();
-        const updatedAbouts = currentAbouts.filter(about => about.id !== id);
-        saveAboutsToStorage(updatedAbouts);
-        setAbouts(updatedAbouts);
+        try {
+            const response = await fetch(`${apiUrl}/api/about/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete about content");
+            toast({ title: "Success", description: "About content deleted successfully." });
+            fetchAbouts();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete about content.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (aboutData: About) => {
-        // Simulate an API call to save
-        const currentAbouts = getAboutsFromStorage();
-        let updatedAbouts;
-
-        if (selectedAbout && aboutData.id) {
-            updatedAbouts = currentAbouts.map(a => a.id === aboutData.id ? aboutData : a);
-        } else {
-            const newAbout = { ...aboutData, id: `ABT${Date.now()}` };
-            updatedAbouts = [...currentAbouts, newAbout];
+        try {
+            const response = await fetch(`${apiUrl}/api/about`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(aboutData),
+            });
+            if (!response.ok) throw new Error("Failed to save about content");
+            toast({ title: "Success", description: "About content saved successfully." });
+            setSheetOpen(false);
+            setSelectedAbout(null);
+            fetchAbouts();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save about content.", variant: "destructive" });
         }
-        
-        saveAboutsToStorage(updatedAbouts);
-        setAbouts(updatedAbouts);
-        setSheetOpen(false);
-        setSelectedAbout(null);
     }
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading about content...</div>;
     }
 
     return (
@@ -128,7 +124,7 @@ export default function AboutTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {abouts.map((about) => (
+                                {abouts.length > 0 ? abouts.map((about) => (
                                     <TableRow key={about.id}>
                                         <TableCell className="font-medium">{about.title}</TableCell>
                                         <TableCell>{about.description}</TableCell>
@@ -150,7 +146,11 @@ export default function AboutTable() {
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={3} className="text-center">No about content found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>

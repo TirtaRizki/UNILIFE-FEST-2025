@@ -24,43 +24,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { User } from "@/lib/types";
 import { UserForm } from './user-form';
 import { useAuth } from '@/hooks/use-auth';
-
-// Helper functions to simulate database interaction with localStorage
-const getUsersFromStorage = (): User[] => {
-    if (typeof window === 'undefined') return [];
-    const storedUsers = localStorage.getItem('users');
-    return storedUsers ? JSON.parse(storedUsers) : [];
-};
-
-const saveUsersToStorage = (users: User[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('users', JSON.stringify(users));
-    window.dispatchEvent(new Event('storage'));
-};
-
+import { useToast } from '@/hooks/use-toast';
 
 export default function UserTable() {
     const { user: loggedInUser, hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<Omit<User, 'password'>[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
+    const fetchUsers = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${apiUrl}/api/users`);
+            if (!response.ok) throw new Error("Failed to fetch users");
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch users.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getUsersFromStorage();
-        setUsers(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setUsers(getUsersFromStorage());
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
+        fetchUsers();
     }, []);
 
     const handleAdd = () => {
@@ -68,66 +59,54 @@ export default function UserTable() {
         setSheetOpen(true);
     };
 
-    const handleEdit = (user: User) => {
-        setSelectedUser(user);
+    const handleEdit = (user: Omit<User, 'password'>) => {
+        setSelectedUser(user as User);
         setSheetOpen(true);
     };
     
     const handleDelete = async (id: string) => {
         if (id === loggedInUser?.id) {
-            alert("You cannot delete your own account.");
+            toast({ title: "Action Forbidden", description: "You cannot delete your own account.", variant: "destructive" });
             return;
         }
-        // Simulate an API call to delete
-        const currentUsers = getUsersFromStorage();
-        const updatedUsers = currentUsers.filter(u => u.id !== id);
-        saveUsersToStorage(updatedUsers);
-        setUsers(updatedUsers);
+        try {
+            const response = await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error("Failed to delete user");
+            toast({ title: "Success", description: "User deleted successfully." });
+            fetchUsers();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not delete user.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (userData: User) => {
-        // Simulate an API call to save
-        const currentUsers = getUsersFromStorage();
-        let updatedUsers;
-
-        if (selectedUser && userData.id) {
-            updatedUsers = currentUsers.map(u => {
-                if (u.id === userData.id) {
-                    const existingUser = { ...u };
-                    const updatedUser = { ...existingUser, ...userData };
-                    
-                    if (!userData.password) {
-                        updatedUser.password = existingUser.password;
-                    }
-                    return updatedUser;
-                }
-                return u;
+        try {
+            const response = await fetch(`${apiUrl}/api/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
             });
-        } else {
-            const newUser = { ...userData, id: `USR${Date.now()}` };
-            updatedUsers = [...currentUsers, newUser];
+            if (!response.ok) throw new Error("Failed to save user");
+            toast({ title: "Success", description: "User saved successfully." });
+            setSheetOpen(false);
+            setSelectedUser(null);
+            fetchUsers();
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save user.", variant: "destructive" });
         }
-        
-        saveUsersToStorage(updatedUsers);
-        setUsers(updatedUsers);
-        setSheetOpen(false);
-        setSelectedUser(null);
     }
     
     const getBadgeVariant = (role: User['role']) => {
         switch (role) {
-            case 'Admin':
-                return 'destructive';
+            case 'Admin': return 'destructive';
             case 'Member':
-            case 'Panitia':
-                return 'secondary';
-            default:
-                return 'outline';
+            case 'Panitia': return 'secondary';
+            default: return 'outline';
         }
     };
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading users...</div>;
     }
 
     return (
@@ -164,7 +143,7 @@ export default function UserTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {users.map((user) => (
+                                {users.length > 0 ? users.map((user) => (
                                     <TableRow key={user.id}>
                                         <TableCell className="font-medium">{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
@@ -191,7 +170,11 @@ export default function UserTable() {
                                         )}
                                         {canManage && user.role === 'Admin' && <TableCell></TableCell>}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center">No users found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
@@ -208,4 +191,3 @@ export default function UserTable() {
         </>
     );
 }
-
