@@ -24,25 +24,40 @@ import type { About } from "@/lib/types";
 import { AboutForm } from './about-form';
 import { useAuth } from '@/hooks/use-auth';
 
+// Helper functions to simulate database interaction with localStorage
+const getAboutsFromStorage = (): About[] => {
+    if (typeof window === 'undefined') return [];
+    const storedAbouts = localStorage.getItem('abouts');
+    return storedAbouts ? JSON.parse(storedAbouts) : [];
+};
+
+const saveAboutsToStorage = (abouts: About[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('abouts', JSON.stringify(abouts));
+    window.dispatchEvent(new Event('storage')); // Notify other tabs
+};
+
+
 export default function AboutTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
     const [abouts, setAbouts] = useState<About[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedAbouts = localStorage.getItem('abouts');
-        if (storedAbouts) {
-            setAbouts(JSON.parse(storedAbouts));
-        }
-    }, []);
+        // Simulate fetching data from a database
+        const data = getAboutsFromStorage();
+        setAbouts(data);
+        setIsLoading(false);
 
-    const updateAbouts = (updatedAbouts: About[]) => {
-        setAbouts(updatedAbouts);
-        localStorage.setItem('abouts', JSON.stringify(updatedAbouts));
-        window.dispatchEvent(new Event('storage'));
-    };
+        const handleStorageChange = () => {
+            setAbouts(getAboutsFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const handleAdd = () => {
         setSelectedAbout(null);
@@ -55,25 +70,38 @@ export default function AboutTable() {
     };
     
     const handleDelete = async (id: string) => {
-        const updatedAbouts = abouts.filter(about => about.id !== id);
-        updateAbouts(updatedAbouts);
+        // Simulate an API call to delete
+        const currentAbouts = getAboutsFromStorage();
+        const updatedAbouts = currentAbouts.filter(about => about.id !== id);
+        saveAboutsToStorage(updatedAbouts);
+        setAbouts(updatedAbouts);
     };
 
     const handleSave = async (aboutData: About) => {
+        // Simulate an API call to save
+        const currentAbouts = getAboutsFromStorage();
         let updatedAbouts;
+
         if (selectedAbout && aboutData.id) {
-            updatedAbouts = abouts.map(a => a.id === aboutData.id ? aboutData : a);
+            updatedAbouts = currentAbouts.map(a => a.id === aboutData.id ? aboutData : a);
         } else {
             const newAbout = { ...aboutData, id: `ABT${Date.now()}` };
-            updatedAbouts = [...abouts, newAbout];
+            updatedAbouts = [...currentAbouts, newAbout];
         }
-        updateAbouts(updatedAbouts);
+        
+        saveAboutsToStorage(updatedAbouts);
+        setAbouts(updatedAbouts);
         setSheetOpen(false);
+        setSelectedAbout(null);
     }
     
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <>
-            <PageHeader title="Kelola About" actions={
+            <PageHeader title="About" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah About

@@ -65,6 +65,37 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
     );
 };
 
+// Helper functions to simulate database interaction with localStorage
+const getEventsFromStorage = (): Event[] => {
+    if (typeof window === 'undefined') return [];
+    const storedEvents = localStorage.getItem('events');
+    const events = storedEvents ? JSON.parse(storedEvents) : [];
+    // Rehydrate images from sessionStorage
+    return events.map((event: Event) => {
+        if (event.id) {
+            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
+            if (sessionImage) {
+                return { ...event, imageUrl: sessionImage };
+            }
+        }
+        return event;
+    });
+};
+
+const saveEventsToStorage = (events: Event[]) => {
+    if (typeof window === 'undefined') return;
+    const eventsForStorage = events.map(event => {
+        const { imageUrl, ...rest } = event;
+        // Only store image in sessionStorage if it's a data URL
+        if (imageUrl && !imageUrl.startsWith('http')) {
+            if (rest.id) sessionStorage.setItem(`event_image_${rest.id}`, imageUrl);
+            return { ...rest, imageUrl: `placeholder_for_${rest.id}` }; // Don't store large data in localStorage
+        }
+        return event; // Store http URLs directly
+    });
+    localStorage.setItem('events', JSON.stringify(eventsForStorage));
+    window.dispatchEvent(new Event('storage'));
+};
 
 export default function EventGrid() {
     const { hasRole } = useAuth();
@@ -72,35 +103,19 @@ export default function EventGrid() {
     const [events, setEvents] = useState<Event[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedEvents = localStorage.getItem('events');
-        if (storedEvents) {
-            setEvents(JSON.parse(storedEvents));
-        }
+        const data = getEventsFromStorage();
+        setEvents(data);
+        setIsLoading(false);
+
+        const handleStorageChange = () => {
+            setEvents(getEventsFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
-
-    const updateEvents = (updatedEvents: Event[]) => {
-        setEvents(updatedEvents);
-        const eventsForStorage = updatedEvents.map(event => {
-            const { imageUrl, ...rest } = event;
-            // Only include imageUrl in localStorage if it's not a session-based blob URL
-            if (imageUrl && imageUrl.startsWith('http')) {
-                return event;
-            }
-             if (!imageUrl) {
-                return rest;
-            }
-            return rest;
-        });
-
-        try {
-            localStorage.setItem('events', JSON.stringify(eventsForStorage));
-        } catch (error) {
-            console.error("Failed to save events to localStorage:", error);
-        }
-        window.dispatchEvent(new Event('storage'));
-    };
 
     const handleAdd = () => {
         setSelectedEvent(null);
@@ -108,58 +123,44 @@ export default function EventGrid() {
     };
 
     const handleEdit = (event: Event) => {
-        let eventWithFullImage = { ...event };
-        if (event.id && !event.imageUrl?.startsWith('http')) {
-            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
-            if (sessionImage) {
-                eventWithFullImage.imageUrl = sessionImage;
-            }
-        }
-        setSelectedEvent(eventWithFullImage);
+        setSelectedEvent(event);
         setSheetOpen(true);
     };
     
     const handleDelete = async (id: string) => {
-        const updatedEvents = events.filter(event => event.id !== id);
-        updateEvents(updatedEvents);
-        sessionStorage.removeItem(`event_image_${id}`);
+        const currentEvents = getEventsFromStorage();
+        const updatedEvents = currentEvents.filter(event => event.id !== id);
+        saveEventsToStorage(updatedEvents);
+        setEvents(updatedEvents);
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(`event_image_${id}`);
+        }
     };
 
     const handleSave = async (eventData: Event) => {
-        if (eventData.imageUrl && !eventData.imageUrl.startsWith('http')) {
-            const eventId = eventData.id || `EVT${Date.now()}`;
-            eventData.id = eventId;
-            sessionStorage.setItem(`event_image_${eventId}`, eventData.imageUrl);
-            // Don't store the large data URI in the main list state that goes to localStorage
-            eventData.imageUrl = `placeholder_for_${eventId}`;
+        const currentEvents = getEventsFromStorage();
+        let updatedEvents;
+
+        if (selectedEvent && eventData.id) {
+            updatedEvents = currentEvents.map(e => e.id === eventData.id ? eventData : e);
+        } else {
+            const newEvent = { ...eventData, id: `EVT${Date.now()}` };
+            updatedEvents = [...currentEvents, newEvent];
         }
         
-        let updatedEvents;
-        if (selectedEvent && eventData.id) {
-            updatedEvents = events.map(e => e.id === eventData.id ? eventData : e);
-        } else {
-            updatedEvents = [...events, eventData];
-        }
-        updateEvents(updatedEvents);
+        saveEventsToStorage(updatedEvents);
+        setEvents(getEventsFromStorage()); // Re-fetch to get hydrated images
         setSheetOpen(false);
-    }
-
-    const getEventImageUrl = (event: Event) => {
-        if (event.imageUrl?.startsWith('http')) {
-            return event.imageUrl;
-        }
-        if (event.id) {
-            const sessionImage = sessionStorage.getItem(`event_image_${event.id}`);
-            if (sessionImage) {
-                return sessionImage;
-            }
-        }
-        return "https://placehold.co/400x300.png";
+        setSelectedEvent(null);
     }
     
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+
     return (
         <>
-            <PageHeader title="Kelola Post Event" actions={
+            <PageHeader title="Event" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Event
@@ -171,7 +172,7 @@ export default function EventGrid() {
                 {events.map((event) => (
                     <EventCard 
                         key={event.id} 
-                        event={{...event, imageUrl: getEventImageUrl(event)}} 
+                        event={event} 
                         onEdit={handleEdit} 
                         onDelete={handleDelete} 
                         canManage={canManage} 
@@ -190,3 +191,4 @@ export default function EventGrid() {
         </>
     );
 }
+

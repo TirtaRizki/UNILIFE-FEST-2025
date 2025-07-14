@@ -12,6 +12,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 
+// Helper functions to simulate database interaction with localStorage
+const getRecapsFromStorage = (): Recap[] => {
+    if (typeof window === 'undefined') return [];
+    const storedRecaps = localStorage.getItem('recaps');
+    return storedRecaps ? JSON.parse(storedRecaps) : [];
+};
+
+const saveRecapsToStorage = (recaps: Recap[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('recaps', JSON.stringify(recaps));
+    window.dispatchEvent(new Event('storage'));
+};
+
 const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdit: (recap: Recap) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     const getBadgeVariant = (status: Recap['status']) => {
         switch (status) {
@@ -70,19 +83,20 @@ export default function RecapGrid() {
     const [recaps, setRecaps] = useState<Recap[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedRecaps = localStorage.getItem('recaps');
-        if (storedRecaps) {
-            setRecaps(JSON.parse(storedRecaps));
-        }
-    }, []);
+        // Simulate fetching data from a database
+        const data = getRecapsFromStorage();
+        setRecaps(data);
+        setIsLoading(false);
 
-    const updateRecaps = (updatedRecaps: Recap[]) => {
-        setRecaps(updatedRecaps);
-        localStorage.setItem('recaps', JSON.stringify(updatedRecaps));
-        window.dispatchEvent(new Event('storage'));
-    };
+        const handleStorageChange = () => {
+            setRecaps(getRecapsFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const handleAdd = () => {
         setSelectedRecap(null);
@@ -95,25 +109,38 @@ export default function RecapGrid() {
     };
     
     const handleDelete = async (id: string) => {
-        const updatedRecaps = recaps.filter(r => r.id !== id);
-        updateRecaps(updatedRecaps);
+        // Simulate an API call to delete
+        const currentRecaps = getRecapsFromStorage();
+        const updatedRecaps = currentRecaps.filter(r => r.id !== id);
+        saveRecapsToStorage(updatedRecaps);
+        setRecaps(updatedRecaps);
     };
 
     const handleSave = async (recapData: Recap) => {
+        // Simulate an API call to save
+        const currentRecaps = getRecapsFromStorage();
         let updatedRecaps;
+
         if (selectedRecap && recapData.id) {
-            updatedRecaps = recaps.map(r => r.id === recapData.id ? recapData : r);
+            updatedRecaps = currentRecaps.map(r => r.id === recapData.id ? recapData : r);
         } else {
             const newRecap = { ...recapData, id: `RCP${Date.now()}` };
-            updatedRecaps = [...recaps, newRecap];
+            updatedRecaps = [...currentRecaps, newRecap];
         }
-        updateRecaps(updatedRecaps);
+        
+        saveRecapsToStorage(updatedRecaps);
+        setRecaps(updatedRecaps);
         setSheetOpen(false);
+        setSelectedRecap(null);
     }
     
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <>
-            <PageHeader title="Kelola Recap" actions={
+            <PageHeader title="Recap" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Recap
@@ -138,3 +165,4 @@ export default function RecapGrid() {
         </>
     );
 }
+

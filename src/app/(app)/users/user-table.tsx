@@ -25,24 +25,36 @@ import type { User } from "@/lib/types";
 import { UserForm } from './user-form';
 import { useAuth } from '@/hooks/use-auth';
 
+// Helper functions to simulate database interaction with localStorage
+const getUsersFromStorage = (): User[] => {
+    if (typeof window === 'undefined') return [];
+    const storedUsers = localStorage.getItem('users');
+    return storedUsers ? JSON.parse(storedUsers) : [];
+};
+
+const saveUsersToStorage = (users: User[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('users', JSON.stringify(users));
+    window.dispatchEvent(new Event('storage'));
+};
+
+
 export default function UserTable() {
     const { user: loggedInUser, hasRole } = useAuth();
-    const canManage = hasRole(['Admin', 'Panitia']);
+    const canManage = hasRole(['Admin']);
     const [users, setUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedUsers = localStorage.getItem('users');
-        if (storedUsers) {
-            setUsers(JSON.parse(storedUsers));
-        }
+        // Simulate fetching data from a database
+        const data = getUsersFromStorage();
+        setUsers(data);
+        setIsLoading(false);
 
         const handleStorageChange = () => {
-            const storedUsers = localStorage.getItem('users');
-            if (storedUsers) {
-                setUsers(JSON.parse(storedUsers));
-            }
+            setUsers(getUsersFromStorage());
         };
 
         window.addEventListener('storage', handleStorageChange);
@@ -50,12 +62,6 @@ export default function UserTable() {
             window.removeEventListener('storage', handleStorageChange);
         };
     }, []);
-
-    const updateUsers = (updatedUsers: User[]) => {
-        setUsers(updatedUsers);
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        window.dispatchEvent(new Event('storage'));
-    };
 
     const handleAdd = () => {
         setSelectedUser(null);
@@ -72,14 +78,20 @@ export default function UserTable() {
             alert("You cannot delete your own account.");
             return;
         }
-        const updatedUsers = users.filter(u => u.id !== id);
-        updateUsers(updatedUsers);
+        // Simulate an API call to delete
+        const currentUsers = getUsersFromStorage();
+        const updatedUsers = currentUsers.filter(u => u.id !== id);
+        saveUsersToStorage(updatedUsers);
+        setUsers(updatedUsers);
     };
 
     const handleSave = async (userData: User) => {
+        // Simulate an API call to save
+        const currentUsers = getUsersFromStorage();
         let updatedUsers;
+
         if (selectedUser && userData.id) {
-            updatedUsers = users.map(u => {
+            updatedUsers = currentUsers.map(u => {
                 if (u.id === userData.id) {
                     const existingUser = { ...u };
                     const updatedUser = { ...existingUser, ...userData };
@@ -93,10 +105,13 @@ export default function UserTable() {
             });
         } else {
             const newUser = { ...userData, id: `USR${Date.now()}` };
-            updatedUsers = [...users, newUser];
+            updatedUsers = [...currentUsers, newUser];
         }
-        updateUsers(updatedUsers);
+        
+        saveUsersToStorage(updatedUsers);
+        setUsers(updatedUsers);
         setSheetOpen(false);
+        setSelectedUser(null);
     }
     
     const getBadgeVariant = (role: User['role']) => {
@@ -110,11 +125,15 @@ export default function UserTable() {
                 return 'outline';
         }
     };
+    
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
             <PageHeader 
-                title="Kelola User" 
+                title="User" 
                 actions={
                     canManage && (
                         <Button onClick={handleAdd}>
@@ -189,3 +208,4 @@ export default function UserTable() {
         </>
     );
 }
+

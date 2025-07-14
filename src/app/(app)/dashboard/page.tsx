@@ -68,14 +68,14 @@ const Countdown = () => {
     );
 };
 
-const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string, value: string, icon: React.ElementType, isLoading: boolean }) => (
     <Card className="content-card p-4">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
             <Icon className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-2 pt-0">
-            <div className="text-2xl font-bold text-foreground">{value}</div>
+            {isLoading ? <div className="h-8 w-1/2 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold text-foreground">{value}</div>}
         </CardContent>
     </Card>
 );
@@ -103,30 +103,32 @@ const TiketinCta = () => (
 
 
 export default function DashboardPage() {
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [committees, setCommittees] = useState<Committee[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [lineups, setLineups] = useState<Lineup[]>([]);
-  const [isClient, setIsClient] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [committeesCount, setCommitteesCount] = useState(0);
+  const [usersCount, setUsersCount] = useState(0);
+  const [activeEventsCount, setActiveEventsCount] = useState(0);
+  const [lineupsCount, setLineupsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // This effect runs only on the client side
-    setIsClient(true);
-    setDate(new Date());
-
     const updateStateFromStorage = () => {
+        if (typeof window === 'undefined') return;
+
         const storedCommittees = localStorage.getItem('committees');
-        if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+        setCommitteesCount(storedCommittees ? JSON.parse(storedCommittees).length : 0);
 
         const storedUsers = localStorage.getItem('users');
-        if (storedUsers) setUsers(JSON.parse(storedUsers));
+        setUsersCount(storedUsers ? JSON.parse(storedUsers).length : 0);
 
         const storedEvents = localStorage.getItem('events');
-        if (storedEvents) setEvents(JSON.parse(storedEvents));
+        const events: Event[] = storedEvents ? JSON.parse(storedEvents) : [];
+        setActiveEventsCount(events.filter(e => e.status === "Upcoming").length);
 
         const storedLineups = localStorage.getItem('lineups');
-        if (storedLineups) setLineups(JSON.parse(storedLineups));
+        setLineupsCount(storedLineups ? JSON.parse(storedLineups).length : 0);
+        
+        setIsLoading(false);
     };
     
     updateStateFromStorage();
@@ -137,20 +139,13 @@ export default function DashboardPage() {
     };
   }, []);
 
-  if (!isClient) {
-    // Render a loading state or skeleton on the server and initial client render
-    return null;
-  }
-
-  const activeEventsCount = events.filter(e => e.status === "Upcoming").length;
-
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Panitia" value={String(committees.length)} icon={Users} />
-        <StatCard title="Peserta Terdaftar" value={String(users.length)} icon={UserCheck} />
-        <StatCard title="Event Aktif" value={String(activeEventsCount)} icon={CalendarIcon} />
-        <StatCard title="Lineup Artis" value={String(lineups.length)} icon={Mic} />
+        <StatCard title="Total Panitia" value={String(committeesCount)} icon={Users} isLoading={isLoading} />
+        <StatCard title="Peserta Terdaftar" value={String(usersCount)} icon={UserCheck} isLoading={isLoading} />
+        <StatCard title="Event Aktif" value={String(activeEventsCount)} icon={CalendarIcon} isLoading={isLoading} />
+        <StatCard title="Lineup Artis" value={String(lineupsCount)} icon={Mic} isLoading={isLoading} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
         <Card className="lg:col-span-3 content-card p-4 md:p-6">

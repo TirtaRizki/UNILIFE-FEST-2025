@@ -25,25 +25,39 @@ import type { Ticket } from "@/lib/types";
 import { TicketForm } from './ticket-form';
 import { useAuth } from '@/hooks/use-auth';
 
+// Helper functions to simulate database interaction with localStorage
+const getTicketsFromStorage = (): Ticket[] => {
+    if (typeof window === 'undefined') return [];
+    const storedTickets = localStorage.getItem('tickets');
+    return storedTickets ? JSON.parse(storedTickets) : [];
+};
+
+const saveTicketsToStorage = (tickets: Ticket[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('tickets', JSON.stringify(tickets));
+    window.dispatchEvent(new Event('storage'));
+};
+
 export default function TicketTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedTickets = localStorage.getItem('tickets');
-        if (storedTickets) {
-            setTickets(JSON.parse(storedTickets));
-        }
-    }, []);
+        // Simulate fetching data from a database
+        const data = getTicketsFromStorage();
+        setTickets(data);
+        setIsLoading(false);
 
-    const updateTickets = (updatedTickets: Ticket[]) => {
-        setTickets(updatedTickets);
-        localStorage.setItem('tickets', JSON.stringify(updatedTickets));
-        window.dispatchEvent(new Event('storage'));
-    };
+        const handleStorageChange = () => {
+            setTickets(getTicketsFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const handleAdd = () => {
         setSelectedTicket(null);
@@ -56,20 +70,29 @@ export default function TicketTable() {
     };
     
     const handleDelete = async (id: string) => {
-      const updatedTickets = tickets.filter(t => t.id !== id);
-      updateTickets(updatedTickets);
+        // Simulate an API call to delete
+        const currentTickets = getTicketsFromStorage();
+        const updatedTickets = currentTickets.filter(t => t.id !== id);
+        saveTicketsToStorage(updatedTickets);
+        setTickets(updatedTickets);
     };
 
     const handleSave = async (ticketData: Ticket) => {
+        // Simulate an API call to save
+        const currentTickets = getTicketsFromStorage();
         let updatedTickets;
+
         if (selectedTicket && ticketData.id) {
-            updatedTickets = tickets.map(t => t.id === ticketData.id ? ticketData : t);
+            updatedTickets = currentTickets.map(t => t.id === ticketData.id ? ticketData : t);
         } else {
             const newTicket = { ...ticketData, id: `TKT${Date.now()}` };
-            updatedTickets = [...tickets, newTicket];
+            updatedTickets = [...currentTickets, newTicket];
         }
-        updateTickets(updatedTickets);
+        
+        saveTicketsToStorage(updatedTickets);
+        setTickets(updatedTickets);
         setSheetOpen(false);
+        setSelectedTicket(null);
     }
     
     const getBadgeVariant = (status: Ticket['status']) => {
@@ -82,10 +105,14 @@ export default function TicketTable() {
                 return 'outline';
         }
     };
+    
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
-            <PageHeader title="Kelola Tiket" actions={
+            <PageHeader title="Tiket" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket

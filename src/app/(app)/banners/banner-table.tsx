@@ -26,28 +26,39 @@ import { BannerForm } from './banner-form';
 import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
 
+// Helper functions to simulate database interaction with localStorage
+const getBannersFromStorage = (): Banner[] => {
+    if (typeof window === 'undefined') return [];
+    const storedBanners = localStorage.getItem('banners');
+    return storedBanners ? JSON.parse(storedBanners) : [];
+};
+
+const saveBannersToStorage = (banners: Banner[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('banners', JSON.stringify(banners));
+    window.dispatchEvent(new Event('storage'));
+};
+
 export default function BannerTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
     const [banners, setBanners] = useState<Banner[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedBanners = localStorage.getItem('banners');
-        if (storedBanners) {
-            setBanners(JSON.parse(storedBanners));
-        } else {
-            // Initialize with empty array if nothing is in storage
-            setBanners([]);
-        }
+        // Simulate fetching data from a database
+        const data = getBannersFromStorage();
+        setBanners(data);
+        setIsLoading(false);
+        
+        const handleStorageChange = () => {
+            setBanners(getBannersFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
-
-    const updateBanners = (updatedBanners: Banner[]) => {
-        setBanners(updatedBanners);
-        localStorage.setItem('banners', JSON.stringify(updatedBanners));
-        window.dispatchEvent(new Event('storage'));
-    };
 
     const handleAdd = () => {
         setSelectedBanner(null);
@@ -60,20 +71,28 @@ export default function BannerTable() {
     };
     
     const handleDelete = async (id: string) => {
-        const updatedBanners = banners.filter(banner => banner.id !== id);
-        updateBanners(updatedBanners);
+        // Simulate an API call to delete
+        const currentBanners = getBannersFromStorage();
+        const updatedBanners = currentBanners.filter(banner => banner.id !== id);
+        saveBannersToStorage(updatedBanners);
+        setBanners(updatedBanners);
     };
 
     const handleSave = async (bannerData: Banner) => {
+        // Simulate an API call to save
+        const currentBanners = getBannersFromStorage();
         let updatedBanners;
+
         if (selectedBanner && bannerData.id) {
-            updatedBanners = banners.map(b => b.id === bannerData.id ? bannerData : b);
+            updatedBanners = currentBanners.map(b => b.id === bannerData.id ? bannerData : b);
         } else {
             const newBanner = { ...bannerData, id: `BNR${Date.now()}` };
-            updatedBanners = [...banners, newBanner];
+            updatedBanners = [...currentBanners, newBanner];
         }
-        updateBanners(updatedBanners);
+        saveBannersToStorage(updatedBanners);
+        setBanners(updatedBanners);
         setSheetOpen(false);
+        setSelectedBanner(null);
     }
     
     const getBadgeVariant = (status: Banner['status']) => {
@@ -86,10 +105,14 @@ export default function BannerTable() {
                 return 'outline';
         }
     };
+    
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
-            <PageHeader title="Kelola Banner" actions={
+            <PageHeader title="Banner" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Banner
@@ -168,3 +191,4 @@ export default function BannerTable() {
         </>
     );
 }
+

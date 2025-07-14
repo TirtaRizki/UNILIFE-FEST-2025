@@ -24,25 +24,39 @@ import type { Lineup } from "@/lib/types";
 import { LineupForm } from './lineup-form';
 import { useAuth } from '@/hooks/use-auth';
 
+// Helper functions to simulate database interaction with localStorage
+const getLineupsFromStorage = (): Lineup[] => {
+    if (typeof window === 'undefined') return [];
+    const stored = localStorage.getItem('lineups');
+    return stored ? JSON.parse(stored) : [];
+};
+
+const saveLineupsToStorage = (lineups: Lineup[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('lineups', JSON.stringify(lineups));
+    window.dispatchEvent(new Event('storage'));
+};
+
 export default function LineupTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
     const [lineups, setLineups] = useState<Lineup[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedLineups = localStorage.getItem('lineups');
-        if (storedLineups) {
-            setLineups(JSON.parse(storedLineups));
-        }
-    }, []);
+        // Simulate fetching data from a database
+        const data = getLineupsFromStorage();
+        setLineups(data);
+        setIsLoading(false);
 
-    const updateLineups = (updatedLineups: Lineup[]) => {
-        setLineups(updatedLineups);
-        localStorage.setItem('lineups', JSON.stringify(updatedLineups));
-        window.dispatchEvent(new Event('storage'));
-    };
+        const handleStorageChange = () => {
+            setLineups(getLineupsFromStorage());
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const handleAdd = () => {
         setSelectedLineup(null);
@@ -55,28 +69,38 @@ export default function LineupTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // This is where you'll add your database deletion logic
-        const updatedLineups = lineups.filter(l => l.id !== id);
-        updateLineups(updatedLineups);
+        // Simulate an API call to delete
+        const currentLineups = getLineupsFromStorage();
+        const updatedLineups = currentLineups.filter(l => l.id !== id);
+        saveLineupsToStorage(updatedLineups);
+        setLineups(updatedLineups);
     };
 
     const handleSave = async (lineupData: Lineup) => {
+        // Simulate an API call to save
+        const currentLineups = getLineupsFromStorage();
         let updatedLineups;
+
         if (selectedLineup && lineupData.id) {
-            // This is where you'll add your database update logic
-            updatedLineups = lineups.map(l => l.id === lineupData.id ? lineupData : l);
+            updatedLineups = currentLineups.map(l => l.id === lineupData.id ? lineupData : l);
         } else {
-            // This is where you'll add your database creation logic
-            const newLineup = { ...lineupData, id: `LNP${Date.now()}` }; // Replace with ID from DB
-            updatedLineups = [...lineups, newLineup];
+            const newLineup = { ...lineupData, id: `LNP${Date.now()}` };
+            updatedLineups = [...currentLineups, newLineup];
         }
-        updateLineups(updatedLineups);
+        
+        saveLineupsToStorage(updatedLineups);
+        setLineups(updatedLineups);
         setSheetOpen(false);
+        setSelectedLineup(null);
     }
     
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <>
-            <PageHeader title="Kelola Line Up" actions={
+            <PageHeader title="Line Up" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Artis
