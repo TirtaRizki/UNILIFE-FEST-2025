@@ -65,11 +65,15 @@ export default function LineupTable() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`/api/lineup/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete lineup artist");
+             if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete lineup artist");
+            }
             toast({ title: "Success", description: "Lineup artist deleted successfully." });
             fetchLineups();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete lineup artist.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -80,13 +84,17 @@ export default function LineupTable() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(lineupData),
             });
-            if (!response.ok) throw new Error("Failed to save lineup artist");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save lineup artist");
+            }
             toast({ title: "Success", description: "Lineup artist saved successfully." });
             setSheetOpen(false);
             setSelectedLineup(null);
             fetchLineups();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save lineup artist.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     }
     
@@ -149,7 +157,7 @@ export default function LineupTable() {
                                     </TableRow>
                                 )) : (
                                      <TableRow>
-                                        <TableCell colSpan={4} className="text-center">No lineup artists found.</TableCell>
+                                        <TableCell colSpan={canManage ? 4 : 3} className="text-center">No lineup artists found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>

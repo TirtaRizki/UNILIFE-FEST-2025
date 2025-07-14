@@ -29,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function TicketTable() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -69,11 +69,15 @@ export default function TicketTable() {
             const response = await fetch(`/api/tickets/${id}`, {
                 method: 'DELETE',
             });
-            if (!response.ok) throw new Error("Failed to delete ticket");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete ticket");
+            }
             toast({ title: "Success", description: "Ticket deleted successfully." });
             fetchTickets(); // Refresh data
         } catch (error) {
-             toast({ title: "Error", description: "Could not delete ticket.", variant: "destructive" });
+             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+             toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -84,13 +88,17 @@ export default function TicketTable() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
             });
-            if (!response.ok) throw new Error("Failed to save ticket");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save ticket");
+            }
             toast({ title: "Success", description: "Ticket saved successfully." });
             setSheetOpen(false);
             setSelectedTicket(null);
             fetchTickets(); // Refresh data
         } catch (error) {
-            toast({ title: "Error", description: "Could not save ticket.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     }
     
@@ -176,7 +184,7 @@ export default function TicketTable() {
                                     </TableRow>
                                 )) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center">No tickets found.</TableCell>
+                                        <TableCell colSpan={canManage ? 4 : 3} className="text-center">No tickets found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>

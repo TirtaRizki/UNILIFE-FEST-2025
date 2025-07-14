@@ -1,10 +1,16 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/data';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 // DELETE /api/events/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
+        const authUser = await getAuthenticatedUser();
+        if (!authUser || !['Admin', 'Panitia'].includes(authUser.role)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
+
         const id = params.id;
         const data = db.read();
         const initialLength = data.events.length;
@@ -19,6 +25,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         return NextResponse.json({ message: 'Event deleted successfully' }, { status: 200 });
 
     } catch (error) {
+        if (error instanceof Error && error.message === 'Unauthorized') {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
         return NextResponse.json({ message: 'Error deleting event', error }, { status: 500 });
     }
 }

@@ -11,7 +11,7 @@ import { AboutForm } from './about-form';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
-const AboutDisplay = ({ about, onEdit, onDelete }: { about: About, onEdit: (about: About) => void, onDelete: (id: string) => void }) => {
+const AboutDisplay = ({ about, onEdit, onDelete, canManage }: { about: About, onEdit: (about: About) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
         <Card className="content-card overflow-hidden">
             <div className="grid md:grid-cols-2">
@@ -22,10 +22,12 @@ const AboutDisplay = ({ about, onEdit, onDelete }: { about: About, onEdit: (abou
                     <CardContent className="p-0">
                         <p className="text-muted-foreground whitespace-pre-wrap">{about.description}</p>
                     </CardContent>
-                    <CardFooter className="p-0 pt-6 flex gap-2">
-                        <Button onClick={() => onEdit(about)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
-                        <Button variant="destructive" onClick={() => onDelete(about.id)}><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
-                    </CardFooter>
+                    {canManage && (
+                        <CardFooter className="p-0 pt-6 flex gap-2">
+                            <Button onClick={() => onEdit(about)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
+                            <Button variant="destructive" onClick={() => onDelete(about.id)}><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
+                        </CardFooter>
+                    )}
                 </div>
                 <div className="bg-muted/50 flex items-center justify-center p-8 md:p-12">
                     <Image 
@@ -42,19 +44,21 @@ const AboutDisplay = ({ about, onEdit, onDelete }: { about: About, onEdit: (abou
     )
 }
 
-const EmptyState = ({ onAdd }: { onAdd: () => void }) => {
+const EmptyState = ({ onAdd, canManage }: { onAdd: () => void, canManage: boolean }) => {
     return (
         <Card className="content-card flex items-center justify-center p-12">
             <div className="text-center">
                 <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-medium text-foreground">Konten 'About' Kosong</h3>
                 <p className="mt-1 text-sm text-muted-foreground">Anda belum menambahkan konten untuk halaman 'About'.</p>
-                <div className="mt-6">
-                    <Button onClick={onAdd}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Tambah Konten
-                    </Button>
-                </div>
+                {canManage && (
+                    <div className="mt-6">
+                        <Button onClick={onAdd}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Tambah Konten
+                        </Button>
+                    </div>
+                )}
             </div>
         </Card>
     )
@@ -62,7 +66,7 @@ const EmptyState = ({ onAdd }: { onAdd: () => void }) => {
 
 export default function AboutContent() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [abouts, setAbouts] = useState<About[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
@@ -100,11 +104,15 @@ export default function AboutContent() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`/api/about/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete about content");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete about content");
+            }
             toast({ title: "Success", description: "About content deleted successfully." });
             fetchAbouts();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete about content.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -115,13 +123,17 @@ export default function AboutContent() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(aboutData),
             });
-            if (!response.ok) throw new Error("Failed to save about content");
+             if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save about content");
+            }
             toast({ title: "Success", description: "About content saved successfully." });
             setSheetOpen(false);
             setSelectedAbout(null);
             fetchAbouts();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save about content.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     }
     
@@ -144,9 +156,9 @@ export default function AboutContent() {
             } />
 
             {mainAboutContent ? (
-                <AboutDisplay about={mainAboutContent} onEdit={handleEdit} onDelete={handleDelete} />
+                <AboutDisplay about={mainAboutContent} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
             ) : (
-                <EmptyState onAdd={handleAdd} />
+                <EmptyState onAdd={handleAdd} canManage={canManage} />
             )}
             
             {canManage && (

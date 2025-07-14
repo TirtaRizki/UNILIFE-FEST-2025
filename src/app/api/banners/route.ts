@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/data';
 import type { Banner } from '@/lib/types';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 // GET /api/banners
 export async function GET() {
@@ -16,6 +17,11 @@ export async function GET() {
 // POST /api/banners
 export async function POST(request: Request) {
     try {
+        const authUser = await getAuthenticatedUser();
+        if (!authUser || !['Admin', 'Panitia'].includes(authUser.role)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
+
         const bannerData: Banner = await request.json();
         const data = db.read();
         let savedBanner: Banner;
@@ -37,6 +43,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Banner saved successfully', banner: savedBanner }, { status: 201 });
 
     } catch (error) {
+        if (error instanceof Error && error.message === 'Unauthorized') {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
         return NextResponse.json({ message: 'Error saving banner', error }, { status: 500 });
     }
 }

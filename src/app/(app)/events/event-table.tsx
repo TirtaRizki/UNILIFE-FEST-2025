@@ -15,8 +15,8 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 
 const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
-    return (
-        <Card className="overflow-hidden content-card group flex flex-col">
+    const content = (
+        <Card className="overflow-hidden content-card group flex flex-col h-full">
             <CardHeader className="p-0">
                 <div className="relative w-full aspect-[4/3]">
                     <Image
@@ -30,15 +30,15 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
                         <div className="absolute top-2 right-2">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm" onClick={(e) => e.stopPropagation()}>
+                                    <Button size="icon" variant="secondary" className="rounded-full h-8 w-8 bg-white/80 backdrop-blur-sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                                         <MoreHorizontal className="h-4 w-4" />
                                         <span className="sr-only">Actions</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={(e) => {e.stopPropagation(); onEdit(event)}}>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => {e.stopPropagation(); onDelete(event.id)}}>Delete</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={(e) => {e.preventDefault(); e.stopPropagation(); onEdit(event)}}>Edit</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => {e.preventDefault(); e.stopPropagation(); onDelete(event.id)}}>Delete</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -64,6 +64,12 @@ const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdi
                 </div>
             </CardFooter>
         </Card>
+    );
+
+    return (
+         <Link href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer" className="block h-full">
+            {content}
+        </Link>
     );
 };
 
@@ -107,11 +113,15 @@ export default function EventGrid() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete event");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete event");
+            }
             toast({ title: "Success", description: "Event deleted successfully." });
             fetchEvents();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete event.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -122,13 +132,17 @@ export default function EventGrid() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventData),
             });
-            if (!response.ok) throw new Error("Failed to save event");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save event");
+            }
             toast({ title: "Success", description: "Event saved successfully." });
             setSheetOpen(false);
             setSelectedEvent(null);
             fetchEvents();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save event.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
     
@@ -148,16 +162,15 @@ export default function EventGrid() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.length > 0 ? events.map((event) => (
-                    <Link key={event.id} href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer" className="block">
-                        <EventCard 
-                            event={event} 
-                            onEdit={handleEdit} 
-                            onDelete={handleDelete} 
-                            canManage={canManage} 
-                        />
-                    </Link>
+                    <EventCard 
+                        key={event.id}
+                        event={event} 
+                        onEdit={handleEdit} 
+                        onDelete={handleDelete} 
+                        canManage={canManage} 
+                    />
                 )) : (
-                    <p>No events found. Add one to get started!</p>
+                    <p>No events found. {canManage && "Add one to get started!"}</p>
                 )}
             </div>
             

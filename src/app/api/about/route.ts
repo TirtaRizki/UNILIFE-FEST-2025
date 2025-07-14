@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/data';
 import type { About } from '@/lib/types';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 // GET /api/about
 export async function GET() {
@@ -16,6 +17,11 @@ export async function GET() {
 // POST /api/about
 export async function POST(request: Request) {
     try {
+        const authUser = await getAuthenticatedUser();
+        if (!authUser || !['Admin', 'Panitia'].includes(authUser.role)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
+
         const aboutData: About = await request.json();
         const data = db.read();
         let savedAbout: About;
@@ -37,6 +43,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'About content saved successfully', about: savedAbout }, { status: 201 });
 
     } catch (error) {
+        if (error instanceof Error && error.message === 'Unauthorized') {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
         return NextResponse.json({ message: 'Error saving about content', error }, { status: 500 });
     }
 }

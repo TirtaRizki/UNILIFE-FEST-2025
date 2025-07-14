@@ -67,7 +67,7 @@ const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdi
 
 export default function RecapGrid() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [recaps, setRecaps] = useState<Recap[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
@@ -105,11 +105,15 @@ export default function RecapGrid() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`/api/recap/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete recap");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete recap");
+            }
             toast({ title: "Success", description: "Recap deleted successfully." });
             fetchRecaps();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete recap.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -120,13 +124,17 @@ export default function RecapGrid() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(recapData),
             });
-            if (!response.ok) throw new Error("Failed to save recap");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save recap");
+            }
             toast({ title: "Success", description: "Recap saved successfully." });
             setSheetOpen(false);
             setSelectedRecap(null);
             fetchRecaps();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save recap.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     }
     
@@ -148,7 +156,7 @@ export default function RecapGrid() {
                  {recaps.length > 0 ? recaps.map((recap) => (
                     <RecapCard key={recap.id} recap={recap} onEdit={handleEdit} onDelete={handleDelete} canManage={canManage} />
                 )) : (
-                    <p>No recaps found. Add one to get started!</p>
+                    <p>No recaps found. {canManage && "Add one to get started!"}</p>
                 )}
             </div>
             

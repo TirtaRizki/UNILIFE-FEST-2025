@@ -29,7 +29,7 @@ import Image from 'next/image';
 
 export default function BannerTable() {
     const { hasRole } = useAuth();
-    const canManage = hasRole(['Admin']);
+    const canManage = hasRole(['Admin', 'Panitia']);
     const [banners, setBanners] = useState<Banner[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
@@ -67,11 +67,15 @@ export default function BannerTable() {
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`/api/banners/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete banner");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete banner");
+            }
             toast({ title: "Success", description: "Banner deleted successfully." });
             fetchBanners();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete banner.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -82,13 +86,17 @@ export default function BannerTable() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bannerData),
             });
-            if (!response.ok) throw new Error("Failed to save banner");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save banner");
+            }
             toast({ title: "Success", description: "Banner saved successfully." });
             setSheetOpen(false);
             setSelectedBanner(null);
             fetchBanners();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save banner.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
     
@@ -170,7 +178,7 @@ export default function BannerTable() {
                                     </TableRow>
                                 )) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center">No banners found.</TableCell>
+                                        <TableCell colSpan={canManage ? 4 : 3} className="text-center">No banners found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
