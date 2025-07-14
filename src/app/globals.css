@@ -4,89 +4,95 @@
 
 @layer base {
   :root {
-    --background-start-rgb: 219, 234, 254;
-    --background-end-rgb: 255, 255, 255;
-    --background: 230 79% 66%;
-    --foreground: 220 13% 9%;
+    --background: 240 10% 97.5%; /* Light Grey */
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 13% 9%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 198 70% 55%; /* Vibrant Blue */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 9% 96%;
-    --secondary-foreground: 220 13% 9%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 220 9% 96%;
-    --muted-foreground: 220 9% 45%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 220 9% 96%;
-    --accent-foreground: 220 13% 9%;
+    --accent: 28 100% 60%; /* Orange */
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 9% 91%;
-    --input: 220 9% 91%;
-    --ring: 221 83% 53%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 198 70% 55%;
 
     --radius: 0.8rem;
+    
+    /* Custom Theme Colors */
+    --theme-primary: 198 70% 55%; /* #29ABE2 */
+    --theme-background: 210 20% 96%; /* #F0F4F8 */
+    --theme-accent: 28 100% 60%; /* #FF9933 */
 
-    /* Sidebar specific variables */
+     /* Sidebar specific variables */
     --sidebar-background: 0 0% 100% / 0.95;
     --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary: 198 70% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 221 83% 53% / 0.1;
-    --sidebar-accent-foreground: 221 83% 53%;
-    --sidebar-border: 221 83% 53%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-accent: 198 70% 55% / 0.1;
+    --sidebar-accent-foreground: 198 70% 55%;
+    --sidebar-border: 198 70% 55%;
+    --sidebar-ring: 198 70% 55%;
   }
 
   .dark {
-    --background-start-rgb: 219, 234, 254;
-    --background-end-rgb: 255, 255, 255;
-    --background: 230 79% 66%;
-    --foreground: 220 13% 9%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 9%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 198 70% 55%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 220 9% 96%;
-    --secondary-foreground: 220 13% 9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 9% 96%;
-    --muted-foreground: 220 9% 45%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 220 9% 96%;
-    --accent-foreground: 220 13% 9%;
+    --accent: 28 100% 60%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 9% 91%;
-    --input: 220 9% 91%;
-    --ring: 221 83% 53%;
-    
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 198 70% 55%;
+
+    /* Custom Theme Colors */
+    --theme-primary: 198 70% 55%; /* #29ABE2 */
+    --theme-background: 210 20% 96%; /* #F0F4F8 */
+    --theme-accent: 28 100% 60%; /* #FF9933 */
+
     /* Dark Sidebar */
-    --sidebar-background: 0 0% 100% / 0.95;
-    --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-background: 222.2 84% 4.9% / 0.9;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 198 70% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 221 83% 53% / 0.1;
-    --sidebar-accent-foreground: 221 83% 53%;
-    --sidebar-border: 221 83% 53%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-accent: 198 70% 55% / 0.1;
+    --sidebar-accent-foreground: 198 70% 55%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 198 70% 55%;
   }
 }
 
@@ -102,7 +108,7 @@
   }
   .auth-layout {
     @apply min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fl4y9153t-75d.png?alt=media&token=8660a92f-c5c8-4796-9f87-251025a75968');
+    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fck07e8o2-e2d.png?alt=media&token=e9185496-c675-4089-a292-23f6e1f0e200');
   }
 }
 
