@@ -1,32 +1,19 @@
 
 import { NextResponse } from 'next/server';
-import type { Lineup } from '@/lib/types';
-
-const getLineups = (): Lineup[] => {
-    if (!global.lineups) {
-        global.lineups = [];
-    }
-    return global.lineups;
-};
-
-const saveLineups = (lineups: Lineup[]) => {
-    global.lineups = lineups;
-};
+import { db } from '@/lib/data';
 
 // DELETE /api/lineup/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        let lineups = getLineups();
-        const initialLength = lineups.length;
+        const initialLength = db.lineups.length;
         
-        lineups = lineups.filter(l => l.id !== id);
+        db.lineups = db.lineups.filter(l => l.id !== id);
 
-        if (lineups.length === initialLength) {
+        if (db.lineups.length === initialLength) {
              return NextResponse.json({ message: 'Lineup artist not found' }, { status: 404 });
         }
 
-        saveLineups(lineups);
         return NextResponse.json({ message: 'Lineup artist deleted successfully' }, { status: 200 });
 
     } catch (error) {

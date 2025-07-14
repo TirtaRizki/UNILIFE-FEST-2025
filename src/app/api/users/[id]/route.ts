@@ -1,32 +1,19 @@
 
 import { NextResponse } from 'next/server';
-import type { User } from '@/lib/types';
-
-const getFullUsers = (): User[] => {
-    if (!global.users) {
-        global.users = [];
-    }
-    return global.users;
-}
-
-const saveUsers = (users: User[]) => {
-    global.users = users;
-}
+import { db } from '@/lib/data';
 
 // DELETE /api/users/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        let users = getFullUsers();
-        const initialLength = users.length;
+        const initialLength = db.users.length;
         
-        users = users.filter(u => u.id !== id);
+        db.users = db.users.filter(u => u.id !== id);
 
-        if (users.length === initialLength) {
+        if (db.users.length === initialLength) {
              return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
-        saveUsers(users);
         return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
 
     } catch (error) {

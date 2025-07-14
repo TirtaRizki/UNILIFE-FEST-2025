@@ -1,25 +1,12 @@
 
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/data';
 import type { Event } from '@/lib/types';
-
-// In-memory store (simulates a database)
-if (!global.events) {
-    global.events = [];
-}
-
-const getEvents = (): Event[] => {
-    return global.events;
-};
-
-const saveEvents = (events: Event[]) => {
-    global.events = events;
-};
 
 // GET /api/events
 export async function GET() {
     try {
-        const events = getEvents();
-        return NextResponse.json(events);
+        return NextResponse.json(db.events);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching events', error }, { status: 500 });
     }
@@ -29,20 +16,22 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const eventData: Event = await request.json();
-        const events = getEvents();
-        
+        const events = db.events;
         let savedEvent: Event;
-        let updatedEvents;
 
         if (eventData.id) { // Update
-            updatedEvents = events.map(e => (e.id === eventData.id ? eventData : e));
-            savedEvent = eventData;
+             const index = events.findIndex(e => e.id === eventData.id);
+            if (index !== -1) {
+                events[index] = eventData;
+                savedEvent = eventData;
+            } else {
+                return NextResponse.json({ message: 'Event not found' }, { status: 404 });
+            }
         } else { // Create
             savedEvent = { ...eventData, id: `EVT${Date.now()}` };
-            updatedEvents = [...events, savedEvent];
+            events.push(savedEvent);
         }
 
-        saveEvents(updatedEvents);
         return NextResponse.json({ message: 'Event saved successfully', event: savedEvent }, { status: 201 });
 
     } catch (error) {

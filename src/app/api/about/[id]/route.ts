@@ -1,32 +1,19 @@
 
 import { NextResponse } from 'next/server';
-import type { About } from '@/lib/types';
-
-const getAbouts = (): About[] => {
-    if (!global.abouts) {
-        global.abouts = [];
-    }
-    return global.abouts;
-};
-
-const saveAbouts = (abouts: About[]) => {
-    global.abouts = abouts;
-};
+import { db } from '@/lib/data';
 
 // DELETE /api/about/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        let abouts = getAbouts();
-        const initialLength = abouts.length;
+        const initialLength = db.abouts.length;
         
-        abouts = abouts.filter(a => a.id !== id);
+        db.abouts = db.abouts.filter(a => a.id !== id);
 
-        if (abouts.length === initialLength) {
+        if (db.abouts.length === initialLength) {
              return NextResponse.json({ message: 'About content not found' }, { status: 404 });
         }
 
-        saveAbouts(abouts);
         return NextResponse.json({ message: 'About content deleted successfully' }, { status: 200 });
 
     } catch (error) {

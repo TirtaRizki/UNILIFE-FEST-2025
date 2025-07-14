@@ -1,32 +1,19 @@
 
 import { NextResponse } from 'next/server';
-import type { Banner } from '@/lib/types';
-
-const getBanners = (): Banner[] => {
-    if (!global.banners) {
-        global.banners = [];
-    }
-    return global.banners;
-};
-
-const saveBanners = (banners: Banner[]) => {
-    global.banners = banners;
-};
+import { db } from '@/lib/data';
 
 // DELETE /api/banners/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const id = params.id;
-        let banners = getBanners();
-        const initialLength = banners.length;
+        const initialLength = db.banners.length;
         
-        banners = banners.filter(b => b.id !== id);
+        db.banners = db.banners.filter(b => b.id !== id);
 
-        if (banners.length === initialLength) {
+        if (db.banners.length === initialLength) {
              return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
         }
 
-        saveBanners(banners);
         return NextResponse.json({ message: 'Banner deleted successfully' }, { status: 200 });
 
     } catch (error) {

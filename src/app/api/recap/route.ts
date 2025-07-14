@@ -1,25 +1,12 @@
 
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/data';
 import type { Recap } from '@/lib/types';
-
-// In-memory store (simulates a database)
-if (!global.recaps) {
-    global.recaps = [];
-}
-
-const getRecaps = (): Recap[] => {
-    return global.recaps;
-};
-
-const saveRecaps = (recaps: Recap[]) => {
-    global.recaps = recaps;
-};
 
 // GET /api/recap
 export async function GET() {
     try {
-        const recaps = getRecaps();
-        return NextResponse.json(recaps);
+        return NextResponse.json(db.recaps);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching recaps', error }, { status: 500 });
     }
@@ -29,20 +16,22 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const recapData: Recap = await request.json();
-        const recaps = getRecaps();
-        
+        const recaps = db.recaps;
         let savedRecap: Recap;
-        let updatedRecaps;
 
         if (recapData.id) { // Update
-            updatedRecaps = recaps.map(r => (r.id === recapData.id ? recapData : r));
-            savedRecap = recapData;
+            const index = recaps.findIndex(r => r.id === recapData.id);
+            if (index !== -1) {
+                recaps[index] = recapData;
+                savedRecap = recapData;
+            } else {
+                return NextResponse.json({ message: 'Recap not found' }, { status: 404 });
+            }
         } else { // Create
             savedRecap = { ...recapData, id: `RCP${Date.now()}` };
-            updatedRecaps = [...recaps, savedRecap];
+            recaps.push(savedRecap);
         }
 
-        saveRecaps(updatedRecaps);
         return NextResponse.json({ message: 'Recap saved successfully', recap: savedRecap }, { status: 201 });
 
     } catch (error) {

@@ -1,25 +1,12 @@
 
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/data';
 import type { Lineup } from '@/lib/types';
-
-// In-memory store (simulates a database)
-if (!global.lineups) {
-    global.lineups = [];
-}
-
-const getLineups = (): Lineup[] => {
-    return global.lineups;
-};
-
-const saveLineups = (lineups: Lineup[]) => {
-    global.lineups = lineups;
-};
 
 // GET /api/lineup
 export async function GET() {
     try {
-        const lineups = getLineups();
-        return NextResponse.json(lineups);
+        return NextResponse.json(db.lineups);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching lineups', error }, { status: 500 });
     }
@@ -29,20 +16,22 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const lineupData: Lineup = await request.json();
-        const lineups = getLineups();
-        
+        const lineups = db.lineups;
         let savedLineup: Lineup;
-        let updatedLineups;
 
         if (lineupData.id) { // Update
-            updatedLineups = lineups.map(l => (l.id === lineupData.id ? lineupData : l));
-            savedLineup = lineupData;
+            const index = lineups.findIndex(l => l.id === lineupData.id);
+            if (index !== -1) {
+                lineups[index] = lineupData;
+                savedLineup = lineupData;
+            } else {
+                return NextResponse.json({ message: 'Lineup artist not found' }, { status: 404 });
+            }
         } else { // Create
             savedLineup = { ...lineupData, id: `LNP${Date.now()}` };
-            updatedLineups = [...lineups, savedLineup];
+            lineups.push(savedLineup);
         }
 
-        saveLineups(updatedLineups);
         return NextResponse.json({ message: 'Lineup artist saved successfully', lineup: savedLineup }, { status: 201 });
 
     } catch (error) {

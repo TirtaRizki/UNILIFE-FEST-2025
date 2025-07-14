@@ -1,29 +1,12 @@
 
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/data';
 import type { Ticket } from '@/lib/types';
-
-// Helper functions to simulate database interaction with localStorage
-// In a real app, these would be replaced with database calls (e.g., Prisma, Drizzle, etc.)
-const getTicketsFromStorage = (): Ticket[] => {
-    // NOTE: localStorage is not available in Node.js runtime. 
-    // This is a simplified simulation. A real implementation would use a proper database.
-    // For this simulation to work, we'll rely on a temporary in-memory store.
-    // This will reset on every server restart.
-    if (!global.tickets) {
-        global.tickets = [];
-    }
-    return global.tickets;
-};
-
-const saveTicketsToStorage = (tickets: Ticket[]) => {
-    global.tickets = tickets;
-};
 
 // GET /api/tickets - Fetch all tickets
 export async function GET() {
     try {
-        const tickets = getTicketsFromStorage();
-        return NextResponse.json(tickets);
+        return NextResponse.json(db.tickets);
     } catch (error) {
         return NextResponse.json({ message: 'Error fetching tickets', error }, { status: 500 });
     }
@@ -33,21 +16,25 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const ticketData: Ticket = await request.json();
-        const tickets = getTicketsFromStorage();
-        
-        let updatedTickets;
+        const tickets = db.tickets;
+        let savedTicket: Ticket;
 
         if (ticketData.id) {
             // Update existing ticket
-            updatedTickets = tickets.map(t => t.id === ticketData.id ? ticketData : t);
+            const index = tickets.findIndex(t => t.id === ticketData.id);
+            if (index !== -1) {
+                tickets[index] = ticketData;
+                savedTicket = ticketData;
+            } else {
+                return NextResponse.json({ message: 'Ticket not found' }, { status: 404 });
+            }
         } else {
             // Create new ticket
-            const newTicket = { ...ticketData, id: `TKT${Date.now()}` };
-            updatedTickets = [...tickets, newTicket];
+            savedTicket = { ...ticketData, id: `TKT${Date.now()}` };
+            tickets.push(savedTicket);
         }
 
-        saveTicketsToStorage(updatedTickets);
-        return NextResponse.json({ message: 'Ticket saved successfully', ticket: ticketData.id ? ticketData : updatedTickets.find(t => t.id === newTicket.id) }, { status: 201 });
+        return NextResponse.json({ message: 'Ticket saved successfully', ticket: savedTicket }, { status: 201 });
 
     } catch (error) {
         return NextResponse.json({ message: 'Error saving ticket', error }, { status: 500 });
