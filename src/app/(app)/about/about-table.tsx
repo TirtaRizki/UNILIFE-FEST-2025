@@ -1,31 +1,66 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import Image from 'next/image';
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { PlusCircle, FileText, Edit, Trash2 } from "lucide-react";
 import PageHeader from "@/components/page-header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import type { About } from "@/lib/types";
 import { AboutForm } from './about-form';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
-export default function AboutTable() {
+const AboutDisplay = ({ about, onEdit, onDelete }: { about: About, onEdit: (about: About) => void, onDelete: (id: string) => void }) => {
+    return (
+        <Card className="content-card overflow-hidden">
+            <div className="grid md:grid-cols-2">
+                <div className="p-6 md:p-8 flex flex-col justify-center">
+                    <CardHeader className="p-0 mb-4">
+                        <CardTitle className="text-3xl font-headline font-bold text-primary">{about.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <p className="text-muted-foreground whitespace-pre-wrap">{about.description}</p>
+                    </CardContent>
+                    <CardFooter className="p-0 pt-6 flex gap-2">
+                        <Button onClick={() => onEdit(about)}><Edit className="mr-2 h-4 w-4" /> Edit</Button>
+                        <Button variant="destructive" onClick={() => onDelete(about.id)}><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
+                    </CardFooter>
+                </div>
+                <div className="bg-muted/50 flex items-center justify-center p-8 md:p-12">
+                    <Image 
+                        src="https://placehold.co/600x400.png"
+                        alt="About Us Illustration"
+                        width={600}
+                        height={400}
+                        className="rounded-lg object-cover"
+                        data-ai-hint="team collaboration abstract"
+                    />
+                </div>
+            </div>
+        </Card>
+    )
+}
+
+const EmptyState = ({ onAdd }: { onAdd: () => void }) => {
+    return (
+        <Card className="content-card flex items-center justify-center p-12">
+            <div className="text-center">
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium text-foreground">Konten 'About' Kosong</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Anda belum menambahkan konten untuk halaman 'About'.</p>
+                <div className="mt-6">
+                    <Button onClick={onAdd}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Tambah Konten
+                    </Button>
+                </div>
+            </div>
+        </Card>
+    )
+}
+
+export default function AboutContent() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin']);
     const [abouts, setAbouts] = useState<About[]>([]);
@@ -94,67 +129,26 @@ export default function AboutTable() {
         return <div>Loading about content...</div>;
     }
 
+    // We'll display the first "About" content found.
+    const mainAboutContent = abouts.length > 0 ? abouts[0] : null;
+
     return (
         <>
             <PageHeader title="About" actions={
-                canManage && (
+                // Hide add button if content already exists, only one 'About' is needed.
+                canManage && !mainAboutContent && (
                     <Button onClick={handleAdd}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah About
+                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Konten About
                     </Button>
                 )
             } />
-            <Card className="content-card">
-                <CardHeader>
-                    <CardTitle>Konten About</CardTitle>
-                    <CardDescription>Kelola konten halaman 'About' Anda.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    {canManage && (
-                                        <TableHead>
-                                            <span className="sr-only">Actions</span>
-                                        </TableHead>
-                                    )}
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {abouts.length > 0 ? abouts.map((about) => (
-                                    <TableRow key={about.id}>
-                                        <TableCell className="font-medium">{about.title}</TableCell>
-                                        <TableCell>{about.description}</TableCell>
-                                        {canManage && (
-                                            <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                            <span className="sr-only">Toggle menu</span>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleEdit(about)}>Edit</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(about.id)}>Delete</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        )}
-                                    </TableRow>
-                                )) : (
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-center">No about content found.</TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+
+            {mainAboutContent ? (
+                <AboutDisplay about={mainAboutContent} onEdit={handleEdit} onDelete={handleDelete} />
+            ) : (
+                <EmptyState onAdd={handleAdd} />
+            )}
+            
             {canManage && (
                 <AboutForm 
                     open={sheetOpen} 

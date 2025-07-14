@@ -91,7 +91,7 @@ export function AboutForm({ open, onOpenChange, about, onSave }: AboutFormProps)
                 <FormItem>
                   <FormLabel>Deskripsi</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Deskripsi lengkap..." {...field} />
+                    <Textarea placeholder="Deskripsi lengkap..." {...field} rows={10} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

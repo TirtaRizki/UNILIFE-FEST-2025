@@ -1,5 +1,5 @@
-import AboutTable from "./about-table";
+import AboutContent from "./about-table";
 
 export default function AboutPage() {
-    return <AboutTable />;
+    return <AboutContent />;
 }
