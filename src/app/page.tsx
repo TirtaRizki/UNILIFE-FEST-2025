@@ -73,12 +73,9 @@ export default function LoginPage() {
       }
     });
     
-    const existingEmails = new Set(users.map(u => u.email));
-    const newMockUsers = mockUsers.filter(mu => !existingEmails.has(mu.email));
-    if (newMockUsers.length > 0) {
-        users = [...users, ...newMockUsers];
-        needsUpdate = true;
-    }
+    // This part of the logic was flawed. It was adding empty mockUsers.
+    // The default users logic above is sufficient.
+    // The mockUsers array is empty and should remain so, as users are added dynamically.
 
     if (needsUpdate) {
         localStorage.setItem('users', JSON.stringify(users));
@@ -90,9 +87,9 @@ export default function LoginPage() {
     const usersInStorage = localStorage.getItem('users');
     const users: User[] = usersInStorage ? JSON.parse(usersInStorage) : [];
     
-    const foundUser = users.find(user => user.email === email);
+    const foundUser = users.find(user => user.email === email && user.password === password);
     
-    if (foundUser && foundUser.password === password) {
+    if (foundUser) {
         const userToStore: Omit<User, 'password'> = {
             id: foundUser.id,
             name: foundUser.name,
