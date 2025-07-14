@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'UNILIFE Dashboard',
-  description: 'Manage your events with ease.',
+  title: 'UNILIFE FEST - Back To School',
+  description: 'UNILIFE LAMPUNG FEST 2025',
 };
 
 export default function RootLayout({

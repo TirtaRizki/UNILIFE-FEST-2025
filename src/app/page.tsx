@@ -121,7 +121,7 @@ export default function LoginPage() {
                 <Logo />
             </div>
           <CardTitle className="text-2xl font-bold text-center text-foreground">Welcome Back</CardTitle>
-          <CardDescription className="text-center text-muted-foreground">Enter your credentials to access your account</CardDescription>
+          <CardDescription className="text-center text-muted-foreground">UNILIFE LAMPUNG FEST 2025 - Back to School</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
