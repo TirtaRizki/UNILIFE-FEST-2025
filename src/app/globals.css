@@ -100,6 +100,10 @@
   .glass-card {
       @apply bg-white/90 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg;
   }
+  .auth-layout {
+    @apply min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
+    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fl4y9153t-75d.png?alt=media&token=8660a92f-c5c8-4796-9f87-251025a75968');
+  }
 }
 
 @layer components {
