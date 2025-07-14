@@ -24,8 +24,9 @@ export type Banner = {
 
 export type Committee = {
     id:string;
-    name: string;
+    userId: string;
     position: string;
+    user?: User;
 };
 
 export type Lineup = {
@@ -56,4 +57,5 @@ export type User = {
     email: string;
     role: "Admin" | "Member" | "Panitia";
     password?: string;
+    phoneNumber?: string;
 };

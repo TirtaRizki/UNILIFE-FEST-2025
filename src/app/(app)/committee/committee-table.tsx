@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -20,37 +20,48 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Committee } from "@/lib/types";
+import type { Committee, User } from "@/lib/types";
 import { CommitteeForm } from './committee-form';
 import { useAuth } from '@/hooks/use-auth';
+import { Badge } from '@/components/ui/badge';
 
 export default function CommitteeTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
+    
     const [committees, setCommittees] = useState<Committee[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
 
     useEffect(() => {
-        const storedCommittees = localStorage.getItem('committees');
-        if (storedCommittees) {
-            setCommittees(JSON.parse(storedCommittees));
-        }
-        
-        const handleStorageChange = () => {
+        const fetchAndSetData = () => {
             const storedCommittees = localStorage.getItem('committees');
-            if (storedCommittees) {
-                setCommittees(JSON.parse(storedCommittees));
-            }
+            if (storedCommittees) setCommittees(JSON.parse(storedCommittees));
+            
+            const storedUsers = localStorage.getItem('users');
+            if (storedUsers) setUsers(JSON.parse(storedUsers));
         };
 
-        window.addEventListener('storage', handleStorageChange);
+        fetchAndSetData();
+        
+        window.addEventListener('storage', fetchAndSetData);
         return () => {
-            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('storage', fetchAndSetData);
         };
     }, []);
 
-    const updateCommittees = (updatedCommittees: Committee[]) => {
+    const committeesWithUsers = useMemo(() => {
+        const userMap = new Map(users.map(u => [u.id, u]));
+        return committees
+            .map(committee => ({
+                ...committee,
+                user: userMap.get(committee.userId),
+            }))
+            .filter(c => c.user); // Filter out committees where user might not exist
+    }, [committees, users]);
+
+    const updateCommittees = (updatedCommittees: Omit<Committee, 'user'>[]) => {
         setCommittees(updatedCommittees);
         localStorage.setItem('committees', JSON.stringify(updatedCommittees));
         window.dispatchEvent(new Event('storage'));
@@ -67,19 +78,16 @@ export default function CommitteeTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // This is where you'll add your database deletion logic
         const updatedCommittees = committees.filter(c => c.id !== id);
         updateCommittees(updatedCommittees);
     };
 
-    const handleSave = async (committeeData: Committee) => {
+    const handleSave = async (committeeData: Omit<Committee, 'user'>) => {
         let updatedCommittees;
         if (selectedCommittee && committeeData.id) {
-            // This is where you'll add your database update logic
-            updatedCommittees = committees.map(c => c.id === committeeData.id ? committeeData : c);
+            updatedCommittees = committees.map(c => c.id === committeeData.id ? { ...c, ...committeeData } : c);
         } else {
-            // This is where you'll add your database creation logic
-            const newCommittee = { ...committeeData, id: `CMT${Date.now()}` }; // Replace with ID from DB
+            const newCommittee = { ...committeeData, id: `CMT${Date.now()}` };
             updatedCommittees = [...committees, newCommittee];
         }
         updateCommittees(updatedCommittees);
@@ -88,7 +96,7 @@ export default function CommitteeTable() {
     
     return (
         <>
-            <PageHeader title="Kelola Panitia" actions={
+            <PageHeader title="Panitia" actions={
                 canManage && (
                     <Button onClick={handleAdd}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Tambah Panitia
@@ -105,8 +113,9 @@ export default function CommitteeTable() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Position</TableHead>
+                                    <TableHead>Nama</TableHead>
+                                    <TableHead>Posisi</TableHead>
+                                    <TableHead>Role</TableHead>
                                     {canManage && (
                                         <TableHead>
                                             <span className="sr-only">Actions</span>
@@ -115,10 +124,13 @@ export default function CommitteeTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {committees.map((committee) => (
+                                {committeesWithUsers.map((committee) => (
                                     <TableRow key={committee.id}>
-                                        <TableCell className="font-medium">{committee.name}</TableCell>
+                                        <TableCell className="font-medium">{committee.user?.name}</TableCell>
                                         <TableCell>{committee.position}</TableCell>
+                                        <TableCell>
+                                            {committee.user?.role && <Badge variant="secondary">{committee.user.role}</Badge>}
+                                        </TableCell>
                                         {canManage && (
                                             <TableCell>
                                                 <DropdownMenu>
@@ -149,6 +161,8 @@ export default function CommitteeTable() {
                     onOpenChange={setSheetOpen}
                     committee={selectedCommittee}
                     onSave={handleSave}
+                    allUsers={users}
+                    existingCommitteeUserIds={committees.map(c => c.userId)}
                 />
             )}
         </>
