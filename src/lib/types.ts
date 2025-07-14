@@ -33,7 +33,7 @@ export type Lineup = {
     id: string;
     artistName: string;
     day: string;
-    time: string;
+    date: string;
 };
 
 export type Recap = {
