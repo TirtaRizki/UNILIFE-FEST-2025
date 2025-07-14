@@ -1,6 +1,7 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -18,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, ExternalLink } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Ticket } from "@/lib/types";
@@ -111,11 +112,19 @@ export default function TicketTable() {
     return (
         <>
             <PageHeader title="Tiket" actions={
-                canManage && (
-                    <Button onClick={handleAdd}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket
-                    </Button>
-                )
+                <>
+                    <Link href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Beli Tiket
+                        </Button>
+                    </Link>
+                    {canManage && (
+                        <Button onClick={handleAdd}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Tambah Tiket
+                        </Button>
+                    )}
+                </>
             } />
             <Card className="content-card">
                 <CardHeader>
