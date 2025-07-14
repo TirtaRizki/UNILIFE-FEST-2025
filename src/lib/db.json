@@ -26,7 +26,13 @@
     }
   ],
   "events": [],
-  "abouts": [],
+  "abouts": [
+    {
+      "title": "UNILIFE -Back to School",
+      "description": "UniLife adalah sebuah inisiatif kreatif yang lahir dari semangat anak muda untuk menciptakan ruang berkumpul yang seru, positif, dan penuh inspirasi.\n\nDirancang oleh dan untuk remaja, UniLife menghadirkan event musik yang menggabungkan semangat kekinian, tren throwback, eksplorasi fashion, dan dunia konten digital.\n\nKami ingin membangun komunitas kreatif yang tidak hanya menikmati musik, tetapi juga mengekspresikan diri dan membentuk koneksi yang bermakna.",
+      "id": "ABT1752507545821"
+    }
+  ],
   "banners": [],
   "committees": [],
   "lineups": [],

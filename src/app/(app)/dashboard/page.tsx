@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, UserCheck, Calendar as CalendarIcon, Mic } from "lucide-react";
+import { Users, UserCheck, Calendar as CalendarIcon, Mic, Music } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -145,7 +145,7 @@ export default function DashboardPage() {
     };
     
     fetchDashboardData();
-  }, []);
+  }, [toast]);
 
   return (
     <>
@@ -169,6 +169,27 @@ export default function DashboardPage() {
         </Card>
       </div>
       <TiketinCta />
+      <Card className="content-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Music className="h-6 w-6 text-primary" />
+            <CardTitle>UNILIFE Official Playlist</CardTitle>
+          </div>
+          <CardDescription>Get in the mood with our official event playlist on Spotify.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <iframe 
+            style={{ borderRadius: "12px" }} 
+            src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator" 
+            width="100%" 
+            height="352" 
+            frameBorder="0" 
+            allowFullScreen={true}
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+            loading="lazy">
+          </iframe>
+        </CardContent>
+      </Card>
     </>
   );
 }
