@@ -15,6 +15,14 @@
       "role": "Panitia",
       "password": "lampungfest123",
       "phoneNumber": "080987654321"
+    },
+    {
+      "name": "Alexander",
+      "email": "123@example.com",
+      "phoneNumber": "081212121212",
+      "role": "Member",
+      "password": "12341234",
+      "id": "USR1752502956319"
     }
   ],
   "events": [],
