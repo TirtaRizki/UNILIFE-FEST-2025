@@ -24,19 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Ticket } from "@/lib/types";
 import { TicketForm } from './ticket-form';
 import { useAuth } from '@/hooks/use-auth';
-
-// Helper functions to simulate database interaction with localStorage
-const getTicketsFromStorage = (): Ticket[] => {
-    if (typeof window === 'undefined') return [];
-    const storedTickets = localStorage.getItem('tickets');
-    return storedTickets ? JSON.parse(storedTickets) : [];
-};
-
-const saveTicketsToStorage = (tickets: Ticket[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('tickets', JSON.stringify(tickets));
-    window.dispatchEvent(new Event('storage'));
-};
+import { useToast } from '@/hooks/use-toast';
 
 export default function TicketTable() {
     const { hasRole } = useAuth();
@@ -45,18 +33,24 @@ export default function TicketTable() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+
+    const fetchTickets = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/tickets');
+            if (!response.ok) throw new Error("Failed to fetch tickets");
+            const data = await response.json();
+            setTickets(data);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not fetch tickets.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Simulate fetching data from a database
-        const data = getTicketsFromStorage();
-        setTickets(data);
-        setIsLoading(false);
-
-        const handleStorageChange = () => {
-            setTickets(getTicketsFromStorage());
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchTickets();
     }, []);
 
     const handleAdd = () => {
@@ -70,29 +64,33 @@ export default function TicketTable() {
     };
     
     const handleDelete = async (id: string) => {
-        // Simulate an API call to delete
-        const currentTickets = getTicketsFromStorage();
-        const updatedTickets = currentTickets.filter(t => t.id !== id);
-        saveTicketsToStorage(updatedTickets);
-        setTickets(updatedTickets);
+        try {
+            const response = await fetch(`/api/tickets/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) throw new Error("Failed to delete ticket");
+            toast({ title: "Success", description: "Ticket deleted successfully." });
+            fetchTickets(); // Refresh data
+        } catch (error) {
+             toast({ title: "Error", description: "Could not delete ticket.", variant: "destructive" });
+        }
     };
 
     const handleSave = async (ticketData: Ticket) => {
-        // Simulate an API call to save
-        const currentTickets = getTicketsFromStorage();
-        let updatedTickets;
-
-        if (selectedTicket && ticketData.id) {
-            updatedTickets = currentTickets.map(t => t.id === ticketData.id ? ticketData : t);
-        } else {
-            const newTicket = { ...ticketData, id: `TKT${Date.now()}` };
-            updatedTickets = [...currentTickets, newTicket];
+        try {
+            const response = await fetch('/api/tickets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ticketData),
+            });
+            if (!response.ok) throw new Error("Failed to save ticket");
+            toast({ title: "Success", description: "Ticket saved successfully." });
+            setSheetOpen(false);
+            setSelectedTicket(null);
+            fetchTickets(); // Refresh data
+        } catch (error) {
+            toast({ title: "Error", description: "Could not save ticket.", variant: "destructive" });
         }
-        
-        saveTicketsToStorage(updatedTickets);
-        setTickets(updatedTickets);
-        setSheetOpen(false);
-        setSelectedTicket(null);
     }
     
     const getBadgeVariant = (status: Ticket['status']) => {
@@ -107,7 +105,7 @@ export default function TicketTable() {
     };
     
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading tickets...</div>;
     }
 
     return (
@@ -140,7 +138,7 @@ export default function TicketTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {tickets.map((ticket) => (
+                                {tickets.length > 0 ? tickets.map((ticket) => (
                                     <TableRow key={ticket.id}>
                                         <TableCell className="font-medium">{ticket.type}</TableCell>
                                         <TableCell>
@@ -167,7 +165,11 @@ export default function TicketTable() {
                                             </TableCell>
                                         )}
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center">No tickets found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
