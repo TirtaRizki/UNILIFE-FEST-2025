@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { MainSidebar } from "@/components/main-sidebar";
+import { MainSidebar, navItems } from "@/components/main-sidebar";
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings } from "lucide-react";
-import { navItems } from "@/components/main-sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
 function AppHeader() {
@@ -21,9 +20,11 @@ function AppHeader() {
   const getPageTitle = () => {
     const currentNavItem = navItems.find((item) => {
         if (item.href === "/dashboard") return pathname === item.href;
-        if (item.href === "/profile") return pathname === item.href;
-        if (item.href === "/settings") return pathname === item.href;
-        return pathname.startsWith(item.href);
+        // Handle pages that might not be in the main nav like /profile or /settings
+        if (pathname.startsWith(item.href)) {
+          return true;
+        }
+        return false;
     });
     return currentNavItem ? currentNavItem.label : "Dashboard";
   };

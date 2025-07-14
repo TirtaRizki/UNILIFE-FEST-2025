@@ -27,6 +27,7 @@ import {
   User,
   Settings,
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const Logo = () => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -48,25 +49,29 @@ const Logo = () => {
 };
 
 export const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/users", icon: UserCog, label: "Kelola User" },
-  { href: "/committee", icon: Users, label: "Kelola Panitia"},
-  { href: "/events", icon: CalendarIcon, label: "Kelola Event" },
-  { href: "/lineup", icon: Mic, label: "Kelola Line Up" },
-  { href: "/tickets", icon: Ticket, label: "Kelola Tiket" },
-  { href: "/banners", icon: ImageIcon, label: "Kelola Banner" },
-  { href: "/recap", icon: BookOpen, label: "Kelola Recap" },
-  { href: "/about", icon: Info, label: "Kelola About" },
-  { href: "/profile", icon: User, label: "Profile" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/users", icon: UserCog, label: "User", roles: ['Admin'] },
+  { href: "/committee", icon: Users, label: "Panitia", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/events", icon: CalendarIcon, label: "Event", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/lineup", icon: Mic, label: "Line Up", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/tickets", icon: Ticket, label: "Tiket", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/banners", icon: ImageIcon, label: "Banner", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/recap", icon: BookOpen, label: "Recap", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/about", icon: Info, label: "About", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/profile", icon: User, label: "Profile", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/settings", icon: Settings, label: "Settings", roles: ['Admin', 'Panitia', 'Member'] },
 ];
 
 export function MainSidebar() {
     const pathname = usePathname();
+    const { hasRole } = useAuth();
+
     const isActive = (path: string) => {
         if (path === "/dashboard") return pathname === path;
         return pathname.startsWith(path);
     };
+
+    const visibleNavItems = navItems.filter(item => hasRole(item.roles));
 
     return (
         <Sidebar>
@@ -77,7 +82,7 @@ export function MainSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
-                    {navItems.map((item) => (
+                    {visibleNavItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
                             <SidebarMenuButton 
                                 asChild 
