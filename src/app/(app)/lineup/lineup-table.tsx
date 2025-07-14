@@ -33,12 +33,11 @@ export default function LineupTable() {
     const [selectedLineup, setSelectedLineup] = useState<Lineup | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchLineups = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/lineup`);
+            const response = await fetch(`/api/lineup`);
             if (!response.ok) throw new Error("Failed to fetch lineups");
             const data = await response.json();
             setLineups(data);
@@ -65,7 +64,7 @@ export default function LineupTable() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/lineup/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/lineup/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete lineup artist");
             toast({ title: "Success", description: "Lineup artist deleted successfully." });
             fetchLineups();
@@ -76,7 +75,7 @@ export default function LineupTable() {
 
     const handleSave = async (lineupData: Lineup) => {
         try {
-            const response = await fetch(`${apiUrl}/api/lineup`, {
+            const response = await fetch(`/api/lineup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(lineupData),

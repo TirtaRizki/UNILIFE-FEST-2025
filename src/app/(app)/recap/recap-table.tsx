@@ -73,12 +73,11 @@ export default function RecapGrid() {
     const [selectedRecap, setSelectedRecap] = useState<Recap | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchRecaps = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/recap`);
+            const response = await fetch(`/api/recap`);
             if (!response.ok) throw new Error("Failed to fetch recaps");
             const data = await response.json();
             setRecaps(data);
@@ -105,7 +104,7 @@ export default function RecapGrid() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/recap/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/recap/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete recap");
             toast({ title: "Success", description: "Recap deleted successfully." });
             fetchRecaps();
@@ -116,7 +115,7 @@ export default function RecapGrid() {
 
     const handleSave = async (recapData: Recap) => {
         try {
-            const response = await fetch(`${apiUrl}/api/recap`, {
+            const response = await fetch(`/api/recap`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(recapData),

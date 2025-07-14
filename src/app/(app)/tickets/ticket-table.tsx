@@ -34,12 +34,11 @@ export default function TicketTable() {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchTickets = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/tickets`);
+            const response = await fetch(`/api/tickets`);
             if (!response.ok) throw new Error("Failed to fetch tickets");
             const data = await response.json();
             setTickets(data);
@@ -66,7 +65,7 @@ export default function TicketTable() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/tickets/${id}`, {
+            const response = await fetch(`/api/tickets/${id}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error("Failed to delete ticket");
@@ -79,7 +78,7 @@ export default function TicketTable() {
 
     const handleSave = async (ticketData: Ticket) => {
         try {
-            const response = await fetch(`${apiUrl}/api/tickets`, {
+            const response = await fetch(`/api/tickets`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),

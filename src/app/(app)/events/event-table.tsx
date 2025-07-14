@@ -74,12 +74,11 @@ export default function EventGrid() {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchEvents = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/events`);
+            const response = await fetch(`/api/events`);
             if (!response.ok) throw new Error("Failed to fetch events");
             const data = await response.json();
             setEvents(data);
@@ -106,7 +105,7 @@ export default function EventGrid() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/events/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete event");
             toast({ title: "Success", description: "Event deleted successfully." });
             fetchEvents();
@@ -117,7 +116,7 @@ export default function EventGrid() {
 
     const handleSave = async (eventData: Event) => {
         try {
-            const response = await fetch(`${apiUrl}/api/events`, {
+            const response = await fetch(`/api/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(eventData),

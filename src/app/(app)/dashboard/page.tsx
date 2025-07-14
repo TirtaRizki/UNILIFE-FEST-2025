@@ -111,17 +111,16 @@ export default function DashboardPage() {
   const [lineupsCount, setLineupsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
         setIsLoading(true);
         try {
             const [usersRes, committeesRes, eventsRes, lineupsRes] = await Promise.all([
-                fetch(`${apiUrl}/api/users`),
-                fetch(`${apiUrl}/api/committee`),
-                fetch(`${apiUrl}/api/events`),
-                fetch(`${apiUrl}/api/lineup`),
+                fetch(`/api/users`),
+                fetch(`/api/committee`),
+                fetch(`/api/events`),
+                fetch(`/api/lineup`),
             ]);
 
             if (!usersRes.ok || !committeesRes.ok || !eventsRes.ok || !lineupsRes.ok) {

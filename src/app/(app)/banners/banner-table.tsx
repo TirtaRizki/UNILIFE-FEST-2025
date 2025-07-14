@@ -35,12 +35,11 @@ export default function BannerTable() {
     const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchBanners = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/banners`);
+            const response = await fetch(`/api/banners`);
             if (!response.ok) throw new Error("Failed to fetch banners");
             const data = await response.json();
             setBanners(data);
@@ -67,7 +66,7 @@ export default function BannerTable() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/banners/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/banners/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete banner");
             toast({ title: "Success", description: "Banner deleted successfully." });
             fetchBanners();
@@ -78,7 +77,7 @@ export default function BannerTable() {
 
     const handleSave = async (bannerData: Banner) => {
         try {
-            const response = await fetch(`${apiUrl}/api/banners`, {
+            const response = await fetch(`/api/banners`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bannerData),

@@ -34,12 +34,11 @@ export default function UserTable() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/users`);
+            const response = await fetch(`/api/users`);
             if (!response.ok) throw new Error("Failed to fetch users");
             const data = await response.json();
             setUsers(data);
@@ -70,7 +69,7 @@ export default function UserTable() {
             return;
         }
         try {
-            const response = await fetch(`${apiUrl}/api/users/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete user");
             toast({ title: "Success", description: "User deleted successfully." });
             fetchUsers();
@@ -81,7 +80,7 @@ export default function UserTable() {
 
     const handleSave = async (userData: User) => {
         try {
-            const response = await fetch(`${apiUrl}/api/users`, {
+            const response = await fetch(`/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),

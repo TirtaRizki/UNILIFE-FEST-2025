@@ -33,12 +33,11 @@ export default function AboutTable() {
     const [selectedAbout, setSelectedAbout] = useState<About | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchAbouts = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/api/about`);
+            const response = await fetch(`/api/about`);
             if (!response.ok) throw new Error("Failed to fetch about content");
             const data = await response.json();
             setAbouts(data);
@@ -65,7 +64,7 @@ export default function AboutTable() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/about/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/about/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete about content");
             toast({ title: "Success", description: "About content deleted successfully." });
             fetchAbouts();
@@ -76,7 +75,7 @@ export default function AboutTable() {
 
     const handleSave = async (aboutData: About) => {
         try {
-            const response = await fetch(`${apiUrl}/api/about`, {
+            const response = await fetch(`/api/about`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(aboutData),

@@ -28,7 +28,6 @@ const registerSchema = z.object({
 export function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -50,7 +49,7 @@ export function RegisterForm() {
     };
 
     try {
-        const response = await fetch(`${apiUrl}/api/users`, {
+        const response = await fetch(`/api/users`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newUser),

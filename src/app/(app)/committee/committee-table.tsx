@@ -36,14 +36,13 @@ export default function CommitteeTable() {
     const [selectedCommittee, setSelectedCommittee] = useState<Committee | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const fetchData = async () => {
         setIsLoading(true);
         try {
             const [committeesRes, usersRes] = await Promise.all([
-                fetch(`${apiUrl}/api/committee`),
-                fetch(`${apiUrl}/api/users`),
+                fetch(`/api/committee`),
+                fetch(`/api/users`),
             ]);
             if (!committeesRes.ok || !usersRes.ok) throw new Error("Failed to fetch data");
             
@@ -76,7 +75,7 @@ export default function CommitteeTable() {
     
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`${apiUrl}/api/committee/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/committee/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error("Failed to delete committee member");
             toast({ title: "Success", description: "Committee member deleted successfully." });
             fetchData();
@@ -87,7 +86,7 @@ export default function CommitteeTable() {
 
     const handleSave = async (committeeData: Omit<Committee, 'user'>) => {
         try {
-            const response = await fetch(`${apiUrl}/api/committee`, {
+            const response = await fetch(`/api/committee`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(committeeData),
