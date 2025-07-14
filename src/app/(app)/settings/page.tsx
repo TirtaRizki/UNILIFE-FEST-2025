@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
+import { useTheme } from "next-themes";
+import { Moon, Sun } from 'lucide-react';
 
 export default function SettingsPage() {
     const { hasRole } = useAuth();
@@ -18,8 +20,11 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const [logoUrl, setLogoUrl] = useState('');
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const { theme, setTheme } = useTheme();
+     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         const storedLogo = localStorage.getItem('appLogo');
         if (storedLogo) {
             setLogoUrl(storedLogo);
@@ -55,6 +60,11 @@ export default function SettingsPage() {
             description: "Logo aplikasi telah berhasil diganti.",
         });
     };
+
+    if (!isMounted) {
+        return null;
+    }
+
 
     return (
         <>
@@ -113,6 +123,32 @@ export default function SettingsPage() {
                         </CardContent>
                     </Card>
                 )}
+
+                <Card className="content-card">
+                    <CardHeader>
+                        <CardTitle>Appearance</CardTitle>
+                        <CardDescription>Sesuaikan tampilan aplikasi.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="dark-mode" className="text-base">Dark Mode</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Aktifkan untuk beralih ke tema gelap.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Sun className="h-5 w-5" />
+                                <Switch
+                                    id="dark-mode"
+                                    checked={theme === 'dark'}
+                                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                                />
+                                <Moon className="h-5 w-5" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card className="content-card">
                     <CardHeader>

@@ -21,7 +21,7 @@ function AppHeader() {
     const currentNavItem = navItems.find((item) => {
         if (item.href === "/dashboard") return pathname === item.href;
         // Handle pages that might not be in the main nav like /profile or /settings
-        if (pathname.startsWith(item.href)) {
+        if (pathname.startsWith(item.href) && item.href !== "/") {
           return true;
         }
         return false;
@@ -35,7 +35,7 @@ function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-black/10 bg-white/80 backdrop-blur-lg px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-lg px-4 sm:px-6">
       <div className="flex items-center gap-2">
           {isMobile && <SidebarTrigger className="text-foreground"/>}
           <h1 className="text-xl font-semibold text-foreground sm:text-2xl">{getPageTitle()}</h1>
@@ -46,7 +46,7 @@ function AppHeader() {
             variant="ghost"
             className="relative h-10 w-10 rounded-full"
           >
-            <Avatar className="h-10 w-10 border-2 border-white/50">
+            <Avatar className="h-10 w-10 border-2 border-primary/50">
               <AvatarImage data-ai-hint="person user" src="https://placehold.co/40x40.png" alt={user?.name || 'User'} />
               <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
