@@ -105,6 +105,14 @@
   .dark .auth-layout {
     background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fck07q0vj-b02.png?alt=media&token=c138f4a1-0268-450f-90e8-132d03a1d95c');
   }
+
+  .landing-page-body {
+    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe3e0c0-f8f4a7c1-2d70-4911-92b0-9e651f6dd2b2.png?alt=media&token=42557a53-b27e-4029-9e8c-572f44005118');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
 }
 
 @layer components {

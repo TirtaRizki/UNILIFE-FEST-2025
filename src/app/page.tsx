@@ -11,7 +11,7 @@ import DashboardSection from '@/components/landing/dashboard-section';
 
 export default function LandingPage() {
   return (
-    <div className="bg-[#0A0A0A] text-white font-body">
+    <div className="landing-page-body text-white font-body">
       <PublicHeader />
       <main>
         <HeroSection />
