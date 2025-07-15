@@ -12,8 +12,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 
 const Logo = () => {
-    const logoUrl = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclxsn2j1b00001y9zaa6n2w09%2Fimages%2Fcoe93b0j-ciki-cinta.png?alt=media&token=c27e04f6-ef77-4b7b-8ff0-d13c19b027c6";
-    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
+    const logoUrl = "/images/unilife_logo.png";
+    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" priority />;
 };
 
 export default function LoginPage() {
