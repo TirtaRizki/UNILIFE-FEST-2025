@@ -1,51 +1,38 @@
-"use client";
-import { useState, useEffect } from 'react';
+"use server";
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import type { About } from '@/lib/types';
-import { Skeleton } from '../ui/skeleton';
+import { collection, getDocs, limit, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const AboutSection = () => {
-    const [about, setAbout] = useState<About | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+const fetchAbout = async (): Promise<About | null> => {
+    try {
+        const aboutsCollection = collection(db, 'abouts');
+        // We only ever need one "About" document
+        const q = query(aboutsCollection, limit(1));
+        const snapshot = await getDocs(q);
 
-    useEffect(() => {
-        const fetchAbout = async () => {
-            try {
-                const res = await fetch('/api/about');
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-                if (data.length > 0) {
-                    setAbout(data[0]);
-                }
-            } catch (error) {
-                console.error("Could not fetch about content:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchAbout();
-    }, []);
+        if (snapshot.empty) {
+            console.log("No about document found.");
+            return null;
+        }
+        
+        const doc = snapshot.docs[0];
+        return { id: doc.id, ...doc.data() } as About;
 
-    if (isLoading) {
-        return (
-            <section id="about" className="py-20 md:py-32 bg-background/5">
-                <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <Skeleton className="h-12 w-3/4 mb-4" />
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-5/6 mb-4" />
-                        <Skeleton className="h-10 w-32" />
-                    </div>
-                    <Skeleton className="w-full aspect-square rounded-lg" />
-                </div>
-            </section>
-        );
+    } catch (error) {
+        console.error("Could not fetch about content:", error);
+        // In case of error, return null to not render the section
+        return null;
     }
+};
+
+
+const AboutSection = async () => {
+    const about = await fetchAbout();
     
     if (!about) {
-        return null; // Don't render the section if there's no content
+        return null; // Don't render the section if there's no content or an error occurs
     }
 
     return (

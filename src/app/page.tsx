@@ -1,6 +1,3 @@
-
-"use client";
-
 import React from 'react';
 import PublicHeader from '@/components/landing/public-header';
 import HeroSection from '@/components/landing/hero-section';

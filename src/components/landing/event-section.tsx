@@ -1,14 +1,15 @@
-"use client";
+"use server";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { Calendar, MapPin } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import type { Event } from '@/lib/types';
-import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
     <Card 
@@ -50,50 +51,20 @@ const EventCard = ({ event, index }: { event: Event, index: number }) => (
     </Card>
 );
 
-const EventSection = () => {
-    const [events, setEvents] = useState<Event[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const res = await fetch('/api/events');
-                if (!res.ok) throw new Error('Failed to fetch events');
-                const data: Event[] = await res.json();
-                setEvents(data.filter(e => e.status === 'Upcoming'));
-            } catch (error) {
-                console.error("Failed to fetch events:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchEvents();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <section id="events" className="py-20 md:py-32">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Events</h2>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[...Array(3)].map((_, i) => (
-                           <Card key={i} className="bg-card/5 border-border/20 rounded-xl overflow-hidden">
-                               <Skeleton className="w-full aspect-[4/3]" />
-                               <CardContent className="p-6">
-                                   <Skeleton className="h-6 w-3/4 mb-4" />
-                                   <Skeleton className="h-4 w-full mb-2" />
-                                   <Skeleton className="h-4 w-5/6" />
-                               </CardContent>
-                               <CardFooter className="p-6 pt-0">
-                                   <Skeleton className="h-10 w-full" />
-                               </CardFooter>
-                           </Card>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        )
+const fetchUpcomingEvents = async (): Promise<Event[]> => {
+    try {
+        const eventsCollection = collection(db, 'events');
+        const q = query(eventsCollection, where("status", "==", "Upcoming"));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+    } catch (error) {
+        console.error("Failed to fetch events:", error);
+        return [];
     }
+};
+
+const EventSection = async () => {
+    const events = await fetchUpcomingEvents();
 
     if (events.length === 0) {
         return null;

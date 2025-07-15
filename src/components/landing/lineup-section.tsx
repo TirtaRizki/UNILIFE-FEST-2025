@@ -1,10 +1,11 @@
-"use client";
+"use server";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { format } from 'date-fns';
 import { Calendar, Music } from 'lucide-react';
 import type { Lineup } from '@/lib/types';
-import { Skeleton } from '../ui/skeleton';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     <div className="text-center p-4">
@@ -16,44 +17,20 @@ const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     </div>
 );
 
-const LineupSection = () => {
-    const [lineups, setLineups] = useState<Lineup[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchLineups = async () => {
-            try {
-                const res = await fetch('/api/lineup');
-                if (!res.ok) throw new Error('Failed to fetch lineups');
-                const data: Lineup[] = await res.json();
-                data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                setLineups(data);
-            } catch (error) {
-                console.error("Failed to fetch lineups:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchLineups();
-    }, []);
-
-    if (isLoading) {
-        return (
-             <section id="lineup" className="py-20 md:py-32 bg-background/5">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Guest Star Line Up</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {[...Array(8)].map((_, i) => (
-                             <div key={i} className="text-center p-4">
-                                <Skeleton className="h-8 w-3/4 mx-auto mb-2" />
-                                <Skeleton className="h-4 w-1/2 mx-auto" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        )
+const fetchLineups = async (): Promise<Lineup[]> => {
+    try {
+        const lineupsCollection = collection(db, 'lineups');
+        const q = query(lineupsCollection, orderBy("date", "asc"));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Lineup));
+    } catch (error) {
+        console.error("Failed to fetch lineups:", error);
+        return [];
     }
+};
+
+const LineupSection = async () => {
+    const lineups = await fetchLineups();
 
     if (lineups.length === 0) {
         return null;

@@ -1,45 +1,27 @@
+"use server";
 
-"use client";
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import type { Banner } from "@/lib/types";
-import { Skeleton } from '../ui/skeleton';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const BannerSection = () => {
-    const [banners, setBanners] = useState<Banner[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchBanners = async () => {
-            try {
-                const res = await fetch('/api/banners');
-                if (!res.ok) {
-                    console.error("API Error: Failed to fetch banners with status", res.status);
-                    // Don't throw an error, just gracefully handle it by setting an empty array.
-                    setBanners([]); 
-                    return;
-                }
-                const data: Banner[] = await res.json();
-                setBanners(data.filter(b => b.status === 'Active'));
-            } catch (error) {
-                console.error("Failed to fetch banners:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchBanners();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="container mx-auto px-4 py-12">
-                <Skeleton className="h-[250px] w-full rounded-lg" />
-            </div>
-        );
+const fetchActiveBanners = async (): Promise<Banner[]> => {
+    try {
+        const bannersCollection = collection(db, 'banners');
+        const q = query(bannersCollection, where("status", "==", "Active"));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Banner));
+    } catch (error) {
+        console.error("Failed to fetch banners:", error);
+        return [];
     }
-    
+};
+
+const BannerSection = async () => {
+    const banners = await fetchActiveBanners();
+
     if (banners.length === 0) {
         return null; // Don't render the section if there are no active banners
     }
@@ -70,4 +52,3 @@ const BannerSection = () => {
 };
 
 export default BannerSection;
-

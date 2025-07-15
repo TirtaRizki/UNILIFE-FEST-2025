@@ -1,10 +1,11 @@
-"use client";
+"use server";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { Card, CardContent } from "@/components/ui/card";
 import type { Recap } from "@/lib/types";
-import { Skeleton } from '../ui/skeleton';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 
 const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     <div 
@@ -26,39 +27,20 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     </div>
 );
 
-
-const RecapSection = () => {
-    const [recaps, setRecaps] = useState<Recap[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchRecaps = async () => {
-            try {
-                const res = await fetch('/api/recap');
-                if (!res.ok) throw new Error('Failed to fetch recaps');
-                const data: Recap[] = await res.json();
-                setRecaps(data.filter(r => r.status === 'Published'));
-            } catch (error) {
-                console.error("Failed to fetch recaps:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchRecaps();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <section id="recap" className="py-20 md:py-32">
-                <div className="container mx-auto px-4">
-                     <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square rounded-lg" />)}
-                     </div>
-                </div>
-            </section>
-        );
+const fetchPublishedRecaps = async (): Promise<Recap[]> => {
+    try {
+        const recapsCollection = collection(db, 'recaps');
+        const q = query(recapsCollection, where("status", "==", "Published"));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Recap));
+    } catch (error) {
+        console.error("Failed to fetch recaps:", error);
+        return [];
     }
+};
+
+const RecapSection = async () => {
+    const recaps = await fetchPublishedRecaps();
     
     if (recaps.length === 0) {
         return null;
