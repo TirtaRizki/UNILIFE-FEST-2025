@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
 import type { About } from '@/lib/types';
-import { getAuthenticatedUser } from '@/lib/auth';
 
 const aboutsCollection = collection(db, 'abouts');
 
@@ -22,11 +21,6 @@ export async function GET() {
 // POST /api/about
 export async function POST(request: Request) {
     try {
-        const authUser = await getAuthenticatedUser();
-        if (!authUser || !['Admin', 'Panitia'].includes(authUser.role)) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
-        }
-
         const aboutData: About = await request.json();
         let savedAbout: About;
 
@@ -44,9 +38,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'About content saved successfully', about: savedAbout }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message.includes('Unauthorized')) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
-        }
         console.error("Error saving about content:", error);
         return NextResponse.json({ message: 'Error saving about content', error }, { status: 500 });
     }

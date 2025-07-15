@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Ticket } from '@/lib/types';
-import { getAuthenticatedUser } from '@/lib/auth';
 
 const ticketsCollection = collection(db, 'tickets');
 
@@ -22,11 +21,6 @@ export async function GET() {
 // POST /api/tickets - Create a new ticket or update an existing one
 export async function POST(request: Request) {
     try {
-        const authUser = await getAuthenticatedUser();
-        if (!authUser || !['Admin', 'Panitia'].includes(authUser.role)) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
-        }
-
         const ticketData: Ticket = await request.json();
         let savedTicket: Ticket;
 
@@ -46,9 +40,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Ticket saved successfully', ticket: savedTicket }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message.includes('Unauthorized')) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
-        }
         console.error("Error saving ticket:", error);
         return NextResponse.json({ message: 'Error saving ticket', error }, { status: 500 });
     }

@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, updateDoc, query, where } from 'firebase/firestore';
 import type { User } from '@/lib/types';
-import { getAuthenticatedUser } from '@/lib/auth';
 
 const usersCollection = collection(db, 'users');
 
@@ -27,11 +26,6 @@ export async function GET() {
 // POST /api/users
 export async function POST(request: Request) {
     try {
-        const authUser = await getAuthenticatedUser(request);
-        if (!authUser || authUser.role !== 'Admin') {
-            return NextResponse.json({ message: 'Unauthorized: Admins only' }, { status: 403 });
-        }
-
         const userData: User = await request.json();
         let savedUser: User;
         const { id, ...data } = userData;
@@ -58,9 +52,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'User saved successfully', user: userToReturn }, { status: 201 });
     } catch (error) {
         console.error("Error saving user:", error);
-        if (error instanceof Error && error.message.includes('Unauthorized')) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
-        }
         return NextResponse.json({ message: 'Error saving user', error: (error as Error).message }, { status: 500 });
     }
 }
