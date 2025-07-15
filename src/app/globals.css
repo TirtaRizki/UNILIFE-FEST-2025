@@ -5,88 +5,88 @@
 
 @layer base {
   :root {
-    --background: 195 53% 90%; /* Light Teal/Cyan */
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
+ 
+    --card: 210 40% 98%;
     --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
+ 
+    --popover: 210 40% 98%;
     --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 205 79% 46%; /* Sea Blue */
+ 
+    --primary: 198 93% 54%;
     --primary-foreground: 210 40% 98%;
-
+ 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
+ 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 130 60% 55%; /* Light Grass Green */
-    --accent-foreground: 24 9.8% 10%;
-
+ 
+    --accent: 30 94% 60%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 205 79% 46%; /* Sea Blue */
-
+    --ring: 222.2 84% 4.9%;
+ 
     --radius: 0.8rem;
-    
-    /* Sidebar specific variables */
-    --sidebar-background: 0 0% 100% / 0.95;
-    --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 205 79% 46%; /* Sea Blue */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 205 79% 46% / 0.1;
-    --sidebar-accent-foreground: 205 79% 46%;
-    --sidebar-border: 205 79% 46%;
-    --sidebar-ring: 205 79% 46%;
-  }
 
+    /* Sidebar specific variables */
+    --sidebar-background: 224 71.4% 4.1% / 0.95;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 198 93% 54%; 
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 198 93% 54% / 0.1;
+    --sidebar-accent-foreground: 198 93% 54%;
+    --sidebar-border: 215 27.9% 16.9%;
+    --sidebar-ring: 198 93% 54%;
+  }
+ 
   .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
-
+ 
     --card: 224 71.4% 4.1%;
     --card-foreground: 210 20% 98%;
-
+ 
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-
-    --primary: 205 79% 56%; /* Sea Blue */
+ 
+    --primary: 198 93% 54%;
     --primary-foreground: 210 20% 98%;
-
+ 
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
-
+ 
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
-
-    --accent: 130 60% 55%; /* Light Grass Green */
+ 
+    --accent: 30 94% 60%;
     --accent-foreground: 210 20% 98%;
-
+ 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
-
+ 
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 205 79% 56%;
+    --ring: 198 93% 54%;
 
     /* Dark Sidebar */
     --sidebar-background: 224 71.4% 4.1% / 0.9;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 205 79% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 205 79% 56% / 0.1;
-    --sidebar-accent-foreground: 205 79% 56%;
+    --sidebar-primary: 198 93% 54%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 198 93% 54% / 0.1;
+    --sidebar-accent-foreground: 198 93% 54%;
     --sidebar-border: 215 27.9% 16.9%;
-    --sidebar-ring: 205 79% 56%;
+    --sidebar-ring: 198 93% 54%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
@@ -99,15 +99,15 @@
   }
    .auth-layout {
     @apply min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fck07q0vj-b02.png?alt=media&token=c138f4a1-0268-450f-90e8-132d03a1d95c');
+    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1');
   }
 
   .dark .auth-layout {
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclvg2511400001y6w371b695e%2Fimages%2Fck07q0vj-b02.png?alt=media&token=c138f4a1-0268-450f-90e8-132d03a1d95c');
+    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1');
   }
 
   .landing-page-body {
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe3e0c0-f8f4a7c1-2d70-4911-92b0-9e651f6dd2b2.png?alt=media&token=42557a53-b27e-4029-9e8c-572f44005118');
+    background-color: hsl(var(--background));
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
