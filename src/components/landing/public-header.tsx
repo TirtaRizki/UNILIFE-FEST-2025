@@ -57,7 +57,7 @@ const PublicHeader = () => {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-20">
                         <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
-                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoh46dln-unilife.png?alt=media&token=b71c0ef4-6447-4fec-8877-33633ab0a7d9" alt="Unilife Logo" width={120} height={32} className="object-contain" />
+                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcohyc9m9-Unilife_Logo.png?alt=media&token=70f80877-90c2-4043-a65c-619fded5169a" alt="Unilife Logo" width={120} height={32} className="object-contain" />
                         </Link>
 
                         <nav className="hidden md:flex items-center space-x-8">
@@ -113,7 +113,7 @@ const PublicHeader = () => {
                 <div className="h-full flex flex-col bg-gradient-to-b from-blue-400/20 to-cyan-400/20 backdrop-blur-xl border-l border-white/10">
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
                          <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
-                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoh46dln-unilife.png?alt=media&token=b71c0ef4-6447-4fec-8877-33633ab0a7d9" alt="Unilife Logo" width={100} height={28} className="object-contain" />
+                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcohyc9m9-Unilife_Logo.png?alt=media&token=70f80877-90c2-4043-a65c-619fded5169a" alt="Unilife Logo" width={100} height={28} className="object-contain" />
                         </Link>
                         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                             <X className="h-6 w-6 text-white" />
