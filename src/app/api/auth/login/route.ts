@@ -6,8 +6,8 @@ import type { User } from '@/lib/types';
 
 // Hardcoded default users
 const defaultUsers = [
-    { email: 'admin@unilifefest.com', password: 'unilifejaya123', role: 'Admin', name: 'Super Admin' },
-    { email: 'panitia2025@unilife.com', password: 'lampungfest123', role: 'Panitia', name: 'Panitia 2025' }
+    { email: 'admin@unilifefest.com', password: 'unilifejaya123', role: 'Admin', name: 'Super Admin', phoneNumber: '08001234567' },
+    { email: 'panitia2025@unilife.com', password: 'lampungfest123', role: 'Panitia', name: 'Panitia 2025', phoneNumber: '08119876543' }
 ];
 
 // POST /api/auth/login
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
                     name: userData.name,
                     email: userData.email,
                     role: userData.role as "Admin" | "Panitia",
+                    phoneNumber: userData.phoneNumber,
                 };
                 
                 return NextResponse.json({ message: 'Login successful, default user created.', user: userToReturn });
