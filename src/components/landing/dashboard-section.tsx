@@ -59,7 +59,7 @@ export default function DashboardSection() {
                             </div>
                         </div>
                         <Countdown 
-                            targetDate="2025-07-21T19:00:00" 
+                            targetDate="2025-07-16T01:54:00" 
                             title="War Tiket Dimulai" 
                             showButtonOnEnd={true}
                             buttonText="Beli Tiket Sekarang"
