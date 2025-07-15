@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Music } from "lucide-react";
@@ -31,7 +31,11 @@ const TiketinCta = () => (
 
 
 export default function DashboardSection() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const [date, setDate] = useState<Date | undefined>(undefined);
+
+    useEffect(() => {
+        setDate(new Date());
+    }, []);
 
     return (
         <section id="dashboard-info" className="py-20 md:py-32 bg-background/5">
