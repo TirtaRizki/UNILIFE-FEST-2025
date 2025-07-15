@@ -49,10 +49,10 @@ const AboutSection = () => {
     }
 
     return (
-        <section id="about" className="py-20 md:py-32 bg-background/5 backdrop-blur-sm">
+        <section id="about" className="py-20 md:py-32 bg-background/5 backdrop-blur-sm overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
-                    <div className="text-center md:text-left">
+                    <div className="text-center md:text-left animate-fade-up">
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
                         <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
@@ -61,7 +61,7 @@ const AboutSection = () => {
                             </a>
                         </Button>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center animate-fade-up" style={{animationDelay: '0.2s'}}>
                          <Image
                             src="https://placehold.co/600x600.png"
                             alt="About Unilife Fest"

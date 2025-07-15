@@ -10,8 +10,11 @@ import type { Event } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 
-const EventCard = ({ event }: { event: Event }) => (
-    <Card className="bg-card/5 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
+const EventCard = ({ event, index }: { event: Event, index: number }) => (
+    <Card 
+        className="bg-card/5 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full animate-fade-up"
+        style={{animationDelay: `${index * 0.15}s`}}
+    >
         <CardHeader className="p-0">
             <div className="relative w-full aspect-[4/3]">
                 <Image
@@ -97,12 +100,12 @@ const EventSection = () => {
     }
 
     return (
-        <section id="events" className="py-20 md:py-32">
+        <section id="events" className="py-20 md:py-32 overflow-hidden">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Upcoming Events</h2>
+                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12 animate-fade-up">Upcoming Events</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {events.map((event) => (
-                        <EventCard key={event.id} event={event} />
+                    {events.map((event, index) => (
+                        <EventCard key={event.id} event={event} index={index} />
                     ))}
                 </div>
             </div>

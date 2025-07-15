@@ -6,8 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Recap } from "@/lib/types";
 import { Skeleton } from '../ui/skeleton';
 
-const RecapCard = ({ recap }: { recap: Recap }) => (
-    <div className="group relative aspect-square overflow-hidden rounded-lg shadow-lg">
+const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
+    <div 
+        className="group relative aspect-square overflow-hidden rounded-lg shadow-lg animate-fade-up"
+        style={{animationDelay: `${index * 0.15}s`}}
+    >
         <Image
             src={recap.imageUrl || "https://placehold.co/500x500.png"}
             alt={recap.title}
@@ -62,12 +65,12 @@ const RecapSection = () => {
     }
 
     return (
-        <section id="recap" className="py-20 md:py-32">
+        <section id="recap" className="py-20 md:py-32 overflow-hidden">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
+                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12 animate-fade-up">Recap Aftermovie</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {recaps.map((recap) => (
-                        <RecapCard key={recap.id} recap={recap} />
+                    {recaps.map((recap, index) => (
+                        <RecapCard key={recap.id} recap={recap} index={index} />
                     ))}
                 </div>
             </div>
