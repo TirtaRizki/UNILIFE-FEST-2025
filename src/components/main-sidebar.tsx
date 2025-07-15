@@ -30,22 +30,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const Logo = () => {
-    const [logoUrl, setLogoUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        const handleStorageChange = () => {
-            const storedLogo = localStorage.getItem('appLogo');
-            setLogoUrl(storedLogo);
-        };
-        handleStorageChange(); // Initial load
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    const defaultLogo = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504";
-    const finalLogoUrl = logoUrl || defaultLogo;
-
-    return <Image src={finalLogoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
+    const logoUrl = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504";
+    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
 };
 
 export const navItems = [

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa';
+import { FaInstagram } from 'react-icons/fa';
 import Link from 'next/link';
 
 const PublicFooter = () => {
