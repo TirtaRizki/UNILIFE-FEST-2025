@@ -4,15 +4,8 @@ import React, { useState, useEffect } from 'react';
 
 const Countdown = ({ targetDate, title }: { targetDate: string, title: string }) => {
     const calculateTimeLeft = () => {
-        const eventDate = new Date(targetDate);
-        const difference = +eventDate - +new Date();
-        
-        let timeLeft = {
-            days: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0
-        };
+        const difference = +new Date(targetDate) - +new Date();
+        let timeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
         if (difference > 0) {
             timeLeft = {
@@ -25,11 +18,13 @@ const Countdown = ({ targetDate, title }: { targetDate: string, title: string })
         return timeLeft;
     };
 
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
+        setTimeLeft(calculateTimeLeft());
+
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
         }, 1000);
