@@ -30,7 +30,7 @@ const PublicFooter = () => {
         <div className="flex flex-col items-center text-center">
             {/* Logo and Tagline */}
             <Link href="/" className="inline-block mb-4">
-                <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclxsn2j1b00001y9zaa6n2w09%2Fimages%2Fcoe93b0j-ciki-cinta.png?alt=media&token=c27e04f6-ef77-4b7b-8ff0-d13c19b027c6" alt="Unilife Logo" width={150} height={40} className="object-contain" />
+                <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoh46dln-unilife.png?alt=media&token=b71c0ef4-6447-4fec-8877-33633ab0a7d9" alt="Unilife Logo" width={150} height={40} className="object-contain" />
             </Link>
             <p className="text-sm max-w-md text-gray-400 mb-6">
                 The most anticipated event in Lampung, combining music, art, and creativity. Back to School!
