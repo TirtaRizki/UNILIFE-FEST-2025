@@ -30,8 +30,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const Logo = () => {
-    const logoUrl = "/images/unilife_logo.png";
-    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
+    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
 };
 
 export const navItems = [
