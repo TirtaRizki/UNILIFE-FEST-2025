@@ -26,16 +26,30 @@ const PublicHeader = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+      if (mobileMenuOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+      return () => {
+        document.body.style.overflow = 'auto';
+      }
+    }, [mobileMenuOpen]);
+
     const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         e.preventDefault();
-        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+        const targetElement = document.querySelector(href);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
         setMobileMenuOpen(false);
     };
 
     return (
         <header className={cn(
             "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-            scrolled ? "bg-black/80 backdrop-blur-sm shadow-lg" : "bg-transparent"
+            scrolled || mobileMenuOpen ? "bg-black/80 backdrop-blur-sm shadow-lg" : "bg-transparent"
         )}>
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-20">
@@ -72,32 +86,60 @@ const PublicHeader = () => {
                 </div>
             </div>
 
+            {/* Mobile Menu Overlay */}
+            <div
+                className={cn(
+                    "fixed inset-0 z-40 bg-black/50 transition-opacity md:hidden",
+                    mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
+                onClick={() => setMobileMenuOpen(false)}
+            />
+
             {/* Mobile Menu */}
             <div className={cn(
-                "fixed inset-0 z-50 bg-black/95 backdrop-blur-lg transform transition-transform md:hidden",
+                "fixed top-0 right-0 h-full w-4/5 max-w-sm z-50 bg-black/90 backdrop-blur-lg transform transition-transform duration-300 ease-in-out md:hidden",
                 mobileMenuOpen ? "translate-x-0" : "translate-x-full"
             )}>
-                <div className="flex justify-end p-4">
+                <div className="flex justify-end p-4 border-b border-white/10">
                      <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                         <X className="h-6 w-6 text-white" />
                     </Button>
                 </div>
-                <nav className="flex flex-col items-center justify-center h-full space-y-8">
-                     {navLinks.map((link) => (
-                        <Link key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-2xl font-bold text-white hover:text-primary transition-colors">
+                <nav className="flex flex-col p-8 space-y-4">
+                     {navLinks.map((link, index) => (
+                        <Link 
+                          key={link.name} 
+                          href={link.href} 
+                          onClick={(e) => handleLinkClick(e, link.href)} 
+                          className="text-xl font-bold text-white hover:text-primary transition-all duration-300 transform"
+                          style={{
+                              transitionDelay: `${index * 50}ms`,
+                              opacity: mobileMenuOpen ? 1 : 0,
+                              transform: mobileMenuOpen ? 'translateY(0)' : 'translateY(10px)',
+                          }}
+                        >
                             {link.name}
                         </Link>
                     ))}
-                     <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold mt-8">
-                        <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
-                            Get Ticket
-                        </a>
-                    </Button>
-                    <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold">
-                        <Link href="/login">
-                            Admin Login
-                        </Link>
-                    </Button>
+                    <div 
+                      className="pt-8 flex flex-col space-y-4 transition-all duration-300"
+                      style={{
+                          transitionDelay: `${navLinks.length * 50}ms`,
+                          opacity: mobileMenuOpen ? 1 : 0,
+                          transform: mobileMenuOpen ? 'translateY(0)' : 'translateY(10px)',
+                      }}
+                    >
+                      <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold w-full">
+                          <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                              Get Ticket
+                          </a>
+                      </Button>
+                      <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold w-full">
+                          <Link href="/login">
+                              Admin Login
+                          </Link>
+                      </Button>
+                    </div>
                 </nav>
             </div>
         </header>
