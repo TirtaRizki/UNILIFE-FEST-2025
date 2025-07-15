@@ -47,10 +47,12 @@ const TiketinCta = () => (
 
 export default function DashboardPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [committeesCount, setCommitteesCount] = useState(0);
-  const [usersCount, setUsersCount] = useState(0);
-  const [activeEventsCount, setActiveEventsCount] = useState(0);
-  const [lineupsCount, setLineupsCount] = useState(0);
+  const [stats, setStats] = useState({
+      committeesCount: 0,
+      usersCount: 0,
+      activeEventsCount: 0,
+      lineupsCount: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -58,27 +60,12 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
         setIsLoading(true);
         try {
-            const [usersRes, committeesRes, eventsRes, lineupsRes] = await Promise.all([
-                fetch(`/api/users`),
-                fetch(`/api/committee`),
-                fetch(`/api/events`),
-                fetch(`/api/lineup`),
-            ]);
-
-            if (!usersRes.ok || !committeesRes.ok || !eventsRes.ok || !lineupsRes.ok) {
-                throw new Error('Failed to fetch dashboard data');
+            const response = await fetch('/api/stats');
+            if (!response.ok) {
+                throw new Error('Failed to fetch dashboard stats');
             }
-
-            const users = await usersRes.json();
-            const committees = await committeesRes.json();
-            const events: Event[] = await eventsRes.json();
-            const lineups = await lineupsRes.json();
-            
-            setUsersCount(users.length);
-            setCommitteesCount(committees.length);
-            setActiveEventsCount(events.filter(e => e.status === "Upcoming").length);
-            setLineupsCount(lineups.length);
-
+            const data = await response.json();
+            setStats(data);
         } catch (error) {
             toast({ title: "Error", description: "Could not load dashboard data.", variant: "destructive" });
         } finally {
@@ -92,10 +79,10 @@ export default function DashboardPage() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Panitia" value={String(committeesCount)} icon={Users} isLoading={isLoading} />
-        <StatCard title="Peserta Terdaftar" value={String(usersCount)} icon={UserCheck} isLoading={isLoading} />
-        <StatCard title="Event Aktif" value={String(activeEventsCount)} icon={CalendarIcon} isLoading={isLoading} />
-        <StatCard title="Lineup Artis" value={String(lineupsCount)} icon={Mic} isLoading={isLoading} />
+        <StatCard title="Total Panitia" value={String(stats.committeesCount)} icon={Users} isLoading={isLoading} />
+        <StatCard title="Peserta Terdaftar" value={String(stats.usersCount)} icon={UserCheck} isLoading={isLoading} />
+        <StatCard title="Event Aktif" value={String(stats.activeEventsCount)} icon={CalendarIcon} isLoading={isLoading} />
+        <StatCard title="Lineup Artis" value={String(stats.lineupsCount)} icon={Mic} isLoading={isLoading} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
         <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center justify-center">
