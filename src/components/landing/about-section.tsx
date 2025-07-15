@@ -43,7 +43,7 @@ const AboutSection = async () => {
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
                         <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                            <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                            <a href="#dashboard-info">
                                 Get Your Ticket
                             </a>
                         </Button>

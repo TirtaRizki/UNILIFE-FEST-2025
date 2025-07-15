@@ -5,7 +5,7 @@ import { FaInstagram } from 'react-icons/fa';
 const HeroSection = () => {
   return (
     <section id="home" className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1')"}} data-ai-hint="cartoon characters festival"></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('/images/unilife_logo.png')"}} data-ai-hint="cartoon characters festival"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         
         <div className="relative z-10 px-4 flex flex-col items-center">
@@ -18,7 +18,7 @@ const HeroSection = () => {
             <p className="text-lg md:text-xl mb-4 animate-fade-up" style={{animationDelay: '0.6s'}}>30-31 Agustus 2025</p>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 animate-fade-up" style={{animationDelay: '0.8s'}}>PKOR, Bandar Lampung</p>
             <Button size="lg" className="h-14 px-10 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 transition-transform duration-300 hover:scale-105 animate-fade-up" style={{animationDelay: '1s'}} asChild>
-                <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                <a href="#dashboard-info">
                     Get Ticket
                 </a>
             </Button>

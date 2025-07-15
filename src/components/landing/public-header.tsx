@@ -70,7 +70,7 @@ const PublicHeader = () => {
 
                         <div className="hidden md:flex items-center gap-2">
                             <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                                <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                                <a href="#dashboard-info" onClick={(e) => handleLinkClick(e, '#dashboard-info')}>
                                     Get Ticket
                                 </a>
                             </Button>
@@ -83,7 +83,7 @@ const PublicHeader = () => {
 
                         <div className="md:hidden flex items-center gap-2">
                              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                                <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                                <a href="#dashboard-info" onClick={(e) => handleLinkClick(e, '#dashboard-info')}>
                                     <Ticket className="h-4 w-4 mr-2"/>
                                     Get Ticket
                                 </a>
@@ -152,7 +152,7 @@ const PublicHeader = () => {
                       }}
                     >
                       <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold w-full">
-                          <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                          <a href="#dashboard-info" onClick={(e) => handleLinkClick(e, '#dashboard-info')}>
                               Get Ticket
                           </a>
                       </Button>
