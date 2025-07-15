@@ -57,7 +57,7 @@ const PublicHeader = () => {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-20">
                         <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
-                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504" alt="Unilife Logo" width={120} height={32} className="object-contain" />
+                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclxsn2j1b00001y9zaa6n2w09%2Fimages%2Fcokrwxkj-logo-unilife.png?alt=media&token=e93a7b53-094d-4458-971c-4231b1406e22" alt="Unilife Logo" width={120} height={32} className="object-contain" />
                         </Link>
 
                         <nav className="hidden md:flex items-center space-x-8">
@@ -82,10 +82,10 @@ const PublicHeader = () => {
                         </div>
 
                         <div className="md:hidden flex items-center gap-2">
-                            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                             <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
                                 <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
                                     <Ticket className="h-4 w-4 mr-2"/>
-                                    Ticket
+                                    Get Ticket
                                 </a>
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
@@ -113,7 +113,7 @@ const PublicHeader = () => {
                 <div className="h-full flex flex-col bg-gradient-to-b from-blue-400/20 to-cyan-400/20 backdrop-blur-xl border-l border-white/10">
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
                          <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
-                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504" alt="Unilife Logo" width={100} height={28} className="object-contain" />
+                            <Image src="https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclxsn2j1b00001y9zaa6n2w09%2Fimages%2Fcokrwxkj-logo-unilife.png?alt=media&token=e93a7b53-094d-4458-971c-4231b1406e22" alt="Unilife Logo" width={100} height={28} className="object-contain" />
                         </Link>
                         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                             <X className="h-6 w-6 text-white" />

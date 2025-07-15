@@ -30,7 +30,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const Logo = () => {
-    const logoUrl = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504";
+    const logoUrl = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclxsn2j1b00001y9zaa6n2w09%2Fimages%2Fcokrwxkj-logo-unilife.png?alt=media&token=e93a7b53-094d-4458-971c-4231b1406e22";
     return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
 };
 
