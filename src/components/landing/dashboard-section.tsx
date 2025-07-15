@@ -36,9 +36,13 @@ export default function DashboardSection() {
 
     useEffect(() => {
         setIsClient(true);
-        // We set the date here to avoid hydration mismatch
-        setDate(new Date());
     }, []);
+    
+    useEffect(() => {
+        if(isClient) {
+            setDate(new Date());
+        }
+    }, [isClient]);
 
     return (
         <section id="dashboard-info" className="py-20 md:py-32 bg-background/5">
@@ -79,7 +83,7 @@ export default function DashboardSection() {
                                 style={{ borderRadius: "12px" }} 
                                 src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator&theme=0"
                                 width="100%" 
-                                height="352" 
+                                height="152" 
                                 frameBorder="0" 
                                 allowFullScreen={true}
                                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 

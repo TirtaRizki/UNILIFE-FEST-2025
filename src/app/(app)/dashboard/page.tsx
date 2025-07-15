@@ -60,8 +60,15 @@ export default function DashboardPage() {
   useEffect(() => {
     // Set date only on the client-side to avoid hydration mismatch
     setIsClient(true);
-    setDate(new Date());
+  }, []);
 
+   useEffect(() => {
+    if (isClient) {
+        setDate(new Date());
+    }
+  }, [isClient]);
+
+  useEffect(() => {
     const fetchDashboardData = async () => {
         setIsLoading(true);
         try {
@@ -125,7 +132,7 @@ export default function DashboardPage() {
                 style={{ borderRadius: "12px" }} 
                 src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator&theme=0" 
                 width="100%" 
-                height="352" 
+                height="152" 
                 frameBorder="0" 
                 allowFullScreen={true}
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
