@@ -35,7 +35,14 @@
   ],
   "banners": [],
   "committees": [],
-  "lineups": [],
+  "lineups": [
+    {
+      "artistName": "Payung Teduh",
+      "day": "Sabtu",
+      "date": "2025-08-30",
+      "id": "LNP1752508287241"
+    }
+  ],
   "recaps": [],
   "tickets": []
 }

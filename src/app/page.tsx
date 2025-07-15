@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from "@/hooks/use-toast";
 import type { User } from '@/lib/types';
 
@@ -38,7 +37,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
         const response = await fetch(`/api/auth/login`, {
@@ -74,6 +73,22 @@ export default function LoginPage() {
     }
   };
 
+  const handleMemberEntry = () => {
+      const memberUser: Omit<User, 'password'> = {
+        id: `MEMBER${Date.now()}`,
+        name: 'Guest Member',
+        email: 'member@unilifefest.com',
+        role: 'Member'
+      };
+      sessionStorage.setItem('loggedInUser', JSON.stringify(memberUser));
+      window.dispatchEvent(new Event('storage'));
+      toast({
+        title: "Welcome!",
+        description: "You have entered as a guest.",
+      });
+      router.push('/dashboard');
+  };
+
   return (
     <div className="auth-layout px-4">
       <Card className="w-full max-w-md rounded-2xl border-white/20 bg-white/95 p-4 shadow-2xl backdrop-blur-lg sm:p-8">
@@ -81,17 +96,17 @@ export default function LoginPage() {
             <div className="flex items-center justify-center mb-4 h-10">
                 <Logo />
             </div>
-          <CardTitle className="text-2xl font-bold text-center text-foreground">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-foreground">Admin & Panitia Login</CardTitle>
           <CardDescription className="text-center text-muted-foreground">UNILIFE LAMPUNG FEST 2025 - Back to School</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4">
+          <form onSubmit={handleAdminLogin} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="admin@unilifefest.com"
                 required
                 className="bg-white"
                 value={email}
@@ -110,27 +125,28 @@ export default function LoginPage() {
                 placeholder="••••••••"
               />
             </div>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                    <Checkbox id="remember-me" />
-                    <Label htmlFor="remember-me" className="text-sm font-normal">Remember me</Label>
-                </div>
-                <Link href="/forgot-password" className="ml-auto inline-block text-sm text-primary hover:underline" prefetch={false}>
-                  Forgot your password?
-                </Link>
-            </div>
+            
             <Button type="submit" className="w-full text-base font-semibold mt-2">
                 Login
             </Button>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="underline">
-                Sign up
-              </Link>
-            </div>
           </form>
+
+            <div className="my-6 flex items-center">
+                <div className="flex-grow border-t border-muted-foreground/20"></div>
+                <span className="mx-4 flex-shrink text-xs uppercase text-muted-foreground">Or</span>
+                <div className="flex-grow border-t border-muted-foreground/20"></div>
+            </div>
+
+            <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-2">User tidak perlu mendaftar</p>
+                <Button onClick={handleMemberEntry} className="w-full text-base font-semibold" variant="outline">
+                    Klik Disini Untuk Masuk
+                </Button>
+            </div>
+
         </CardContent>
       </Card>
     </div>
   );
 }
+
