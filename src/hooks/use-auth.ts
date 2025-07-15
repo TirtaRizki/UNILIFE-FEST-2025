@@ -16,7 +16,13 @@ export function useAuth() {
             const userJson = sessionStorage.getItem('loggedInUser');
             if (userJson) {
                 try {
-                    setUser(JSON.parse(userJson));
+                    const parsedUser = JSON.parse(userJson);
+                    // We only care about Admin and Panitia for the CMS now
+                    if (['Admin', 'Panitia'].includes(parsedUser.role)) {
+                         setUser(parsedUser);
+                    } else {
+                         setUser(null);
+                    }
                 } catch (e) {
                     console.error("Failed to parse user from sessionStorage", e);
                     setUser(null);
@@ -37,9 +43,15 @@ export function useAuth() {
             }
         };
 
+        const handleSessionChange = () => {
+            updateUserFromStorage();
+        };
+
         window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('session', handleSessionChange);
         return () => {
             window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('session', handleSessionChange);
         };
     }, [updateUserFromStorage]);
 

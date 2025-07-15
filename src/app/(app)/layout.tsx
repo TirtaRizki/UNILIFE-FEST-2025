@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 
 function AppHeader() {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ function AppHeader() {
   
   const handleLogout = () => {
     sessionStorage.removeItem('loggedInUser');
-    router.push('/');
+    router.push('/login');
   };
 
   return (
@@ -91,6 +92,19 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { isClient, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isClient && !user) {
+        router.push('/login');
+    }
+  }, [isClient, user, router]);
+
+  if (!user && isClient) {
+      return null; // or a loading spinner
+  }
+  
   return (
     <SidebarProvider>
         <MainSidebar />

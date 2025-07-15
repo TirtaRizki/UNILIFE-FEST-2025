@@ -1,7 +1,6 @@
-
 "use client"
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
@@ -49,29 +48,39 @@ const Logo = () => {
 };
 
 export const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", roles: ['Admin', 'Panitia'] },
   { href: "/users", icon: UserCog, label: "User", roles: ['Admin'] },
-  { href: "/committee", icon: Users, label: "Panitia", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/events", icon: CalendarIcon, label: "Event", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/lineup", icon: Mic, label: "Line Up", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/tickets", icon: Ticket, label: "Tiket", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/banners", icon: ImageIcon, label: "Banner", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/recap", icon: BookOpen, label: "Recap", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/about", icon: Info, label: "About", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/profile", icon: User, label: "Profile", roles: ['Admin', 'Panitia', 'Member'] },
-  { href: "/settings", icon: Settings, label: "Settings", roles: ['Admin', 'Panitia', 'Member'] },
+  { href: "/committee", icon: Users, label: "Panitia", roles: ['Admin', 'Panitia'] },
+  { href: "/events", icon: CalendarIcon, label: "Event", roles: ['Admin', 'Panitia'] },
+  { href: "/lineup", icon: Mic, label: "Line Up", roles: ['Admin', 'Panitia'] },
+  { href: "/tickets", icon: Ticket, label: "Tiket", roles: ['Admin', 'Panitia'] },
+  { href: "/banners", icon: ImageIcon, label: "Banner", roles: ['Admin', 'Panitia'] },
+  { href: "/recap", icon: BookOpen, label: "Recap", roles: ['Admin', 'Panitia'] },
+  { href: "/about", icon: Info, label: "About", roles: ['Admin', 'Panitia'] },
+  { href: "/profile", icon: User, label: "Profile", roles: ['Admin', 'Panitia'] },
+  { href: "/settings", icon: Settings, label: "Settings", roles: ['Admin', 'Panitia'] },
 ];
 
 export function MainSidebar() {
     const pathname = usePathname();
-    const { hasRole } = useAuth();
+    const router = useRouter();
+    const { hasRole, user } = useAuth();
 
     const isActive = (path: string) => {
         if (path === "/dashboard") return pathname === path;
         return pathname.startsWith(path);
     };
 
+    const handleLogout = () => {
+      sessionStorage.removeItem('loggedInUser');
+      router.push('/login');
+    };
+
     const visibleNavItems = navItems.filter(item => hasRole(item.roles));
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <Sidebar>
@@ -102,11 +111,9 @@ export function MainSidebar() {
             <SidebarFooter>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="justify-start" variant="ghost">
-                    <Link href="/">
+                  <SidebarMenuButton onClick={handleLogout} className="justify-start" variant="ghost">
                       <LogOut className="h-5 w-5"/>
                       <span className="text-base font-medium">Logout</span>
-                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
