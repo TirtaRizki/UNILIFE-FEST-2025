@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -59,7 +58,7 @@ export default function DashboardSection() {
                             </div>
                         </div>
                         <Countdown 
-                            targetDate="2025-07-16T01:54:00" 
+                            targetDate="2025-07-21T19:00:00" 
                             title="War Tiket Dimulai" 
                             showButtonOnEnd={true}
                             buttonText="Beli Tiket Sekarang"
