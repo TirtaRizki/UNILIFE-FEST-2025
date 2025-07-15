@@ -55,9 +55,11 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     // Set date only on the client-side to avoid hydration mismatch
+    setIsClient(true);
     setDate(new Date());
 
     const fetchDashboardData = async () => {
@@ -90,15 +92,22 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
         <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center justify-center">
           <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
-          <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
+          <Countdown 
+            targetDate="2025-07-21T19:00:00" 
+            title="War Tiket Dimulai" 
+            showButtonOnEnd={true}
+            buttonText="Beli Tiket Sekarang"
+          />
         </Card>
         <Card className="lg:col-span-2 content-card flex justify-center items-center p-2">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md"
-          />
+           {isClient && (
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                className="rounded-md"
+              />
+            )}
         </Card>
       </div>
       <TiketinCta />

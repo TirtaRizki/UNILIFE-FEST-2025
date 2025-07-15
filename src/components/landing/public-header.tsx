@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Ticket } from 'lucide-react';
 
 const navLinks = [
     { name: 'Home', href: '#home' },
@@ -81,7 +81,13 @@ const PublicHeader = () => {
                             </Button>
                         </div>
 
-                        <div className="md:hidden">
+                        <div className="md:hidden flex items-center gap-2">
+                            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                                <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                                    <Ticket className="h-4 w-4 mr-2"/>
+                                    Ticket
+                                </a>
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
                                 <Menu className="h-6 w-6 text-white" />
                             </Button>

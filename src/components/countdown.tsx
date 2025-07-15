@@ -1,28 +1,47 @@
 
 "use client";
 import React, { useState, useEffect } from 'react';
+import { Button } from './ui/button';
+import { Ticket } from 'lucide-react';
+import Link from 'next/link';
 
-const Countdown = ({ targetDate, title }: { targetDate: string, title: string }) => {
-    const calculateTimeLeft = () => {
-        const difference = +new Date(targetDate) - +new Date();
-        let timeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+type CountdownProps = {
+    targetDate: string;
+    title: string;
+    showButtonOnEnd?: boolean;
+    buttonText?: string;
+};
 
-        if (difference > 0) {
-            timeLeft = {
-                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                minutes: Math.floor((difference / 1000 / 60) % 60),
-                seconds: Math.floor((difference / 1000) % 60)
-            };
-        }
-        return timeLeft;
-    };
-
-    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "Get Ticket" }: CountdownProps) => {
+    const [timeLeft, setTimeLeft] = useState({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        isOver: false
+    });
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
+        
+        const calculateTimeLeft = () => {
+            const difference = +new Date(targetDate) - +new Date();
+            let newTimeLeft = { days: 0, hours: 0, minutes: 0, seconds: 0, isOver: true };
+
+            if (difference > 0) {
+                newTimeLeft = {
+                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((difference / 1000 / 60) % 60),
+                    seconds: Math.floor((difference / 1000) % 60),
+                    isOver: false,
+                };
+            }
+            return newTimeLeft;
+        };
+        
+        // Set initial time left
         setTimeLeft(calculateTimeLeft());
 
         const timer = setInterval(() => {
@@ -42,6 +61,19 @@ const Countdown = ({ targetDate, title }: { targetDate: string, title: string })
             <div className="text-xs uppercase opacity-80">{label}</div>
         </div>
     );
+
+    if (isClient && timeLeft.isOver && showButtonOnEnd) {
+        return (
+            <div className="text-center w-full">
+                <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground dark:text-primary-foreground mb-4">{title}</h2>
+                <Button size="lg" className="w-full max-w-xs animate-pulse" asChild>
+                    <Link href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                        <Ticket className="mr-2 h-5 w-5"/> {buttonText}
+                    </Link>
+                </Button>
+            </div>
+        );
+    }
     
     return (
         <div className="text-center">

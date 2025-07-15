@@ -35,8 +35,9 @@ export default function DashboardSection() {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        setDate(new Date());
         setIsClient(true);
+        // We set the date here to avoid hydration mismatch
+        setDate(new Date());
     }, []);
 
     return (
@@ -45,7 +46,12 @@ export default function DashboardSection() {
                 <div className="grid gap-8 grid-cols-1 lg:grid-cols-5">
                     <Card className="lg:col-span-3 bg-card/5 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl">
                         <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
-                        <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
+                        <Countdown 
+                            targetDate="2025-07-21T19:00:00" 
+                            title="War Tiket Dimulai" 
+                            showButtonOnEnd={true}
+                            buttonText="Beli Tiket Sekarang"
+                        />
                     </Card>
                     <Card className="lg:col-span-2 bg-card/5 border-border/20 flex justify-center items-center p-2 rounded-xl">
                         {isClient && (
