@@ -1,15 +1,20 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { getAuthenticatedUser } from '@/lib/auth';
+
+const eventsCollection = collection(db, 'events');
 
 // GET /api/events
 export async function GET() {
     try {
-        const data = db.read();
-        return NextResponse.json(data.events);
+        const snapshot = await getDocs(eventsCollection);
+        const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Event[];
+        return NextResponse.json(events);
     } catch (error) {
+        console.error("Error fetching events:", error);
         return NextResponse.json({ message: 'Error fetching events', error }, { status: 500 });
     }
 }
@@ -23,29 +28,26 @@ export async function POST(request: Request) {
         }
 
         const eventData: Event = await request.json();
-        const data = db.read();
         let savedEvent: Event;
 
         if (eventData.id) { // Update
-             const index = data.events.findIndex(e => e.id === eventData.id);
-            if (index !== -1) {
-                data.events[index] = eventData;
-                savedEvent = eventData;
-            } else {
-                return NextResponse.json({ message: 'Event not found' }, { status: 404 });
-            }
+            const eventDoc = doc(db, "events", eventData.id);
+            const { id, ...dataToUpdate } = eventData;
+            await updateDoc(eventDoc, dataToUpdate);
+            savedEvent = eventData;
         } else { // Create
-            savedEvent = { ...eventData, id: `EVT${Date.now()}` };
-            data.events.push(savedEvent);
+            const { id, ...dataToAdd } = eventData;
+            const docRef = await addDoc(eventsCollection, dataToAdd);
+            savedEvent = { ...eventData, id: docRef.id };
         }
         
-        db.write(data);
         return NextResponse.json({ message: 'Event saved successfully', event: savedEvent }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error saving event:", error);
         return NextResponse.json({ message: 'Error saving event', error }, { status: 500 });
     }
 }

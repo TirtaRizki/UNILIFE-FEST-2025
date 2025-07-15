@@ -1,15 +1,20 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Lineup } from '@/lib/types';
 import { getAuthenticatedUser } from '@/lib/auth';
+
+const lineupsCollection = collection(db, 'lineups');
 
 // GET /api/lineup
 export async function GET() {
     try {
-        const data = db.read();
-        return NextResponse.json(data.lineups);
+        const snapshot = await getDocs(lineupsCollection);
+        const lineups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
+        return NextResponse.json(lineups);
     } catch (error) {
+        console.error("Error fetching lineups:", error);
         return NextResponse.json({ message: 'Error fetching lineups', error }, { status: 500 });
     }
 }
@@ -23,29 +28,26 @@ export async function POST(request: Request) {
         }
 
         const lineupData: Lineup = await request.json();
-        const data = db.read();
         let savedLineup: Lineup;
 
         if (lineupData.id) { // Update
-            const index = data.lineups.findIndex(l => l.id === lineupData.id);
-            if (index !== -1) {
-                data.lineups[index] = lineupData;
-                savedLineup = lineupData;
-            } else {
-                return NextResponse.json({ message: 'Lineup artist not found' }, { status: 404 });
-            }
+            const lineupDoc = doc(db, "lineups", lineupData.id);
+            const { id, ...dataToUpdate } = lineupData;
+            await updateDoc(lineupDoc, dataToUpdate);
+            savedLineup = lineupData;
         } else { // Create
-            savedLineup = { ...lineupData, id: `LNP${Date.now()}` };
-            data.lineups.push(savedLineup);
+            const { id, ...dataToAdd } = lineupData;
+            const docRef = await addDoc(lineupsCollection, dataToAdd);
+            savedLineup = { ...lineupData, id: docRef.id };
         }
         
-        db.write(data);
         return NextResponse.json({ message: 'Lineup artist saved successfully', lineup: savedLineup }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error saving lineup:", error);
         return NextResponse.json({ message: 'Error saving lineup artist', error }, { status: 500 });
     }
 }

@@ -1,15 +1,20 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
 import type { About } from '@/lib/types';
 import { getAuthenticatedUser } from '@/lib/auth';
+
+const aboutsCollection = collection(db, 'abouts');
 
 // GET /api/about
 export async function GET() {
     try {
-        const data = db.read();
-        return NextResponse.json(data.abouts);
+        const snapshot = await getDocs(aboutsCollection);
+        const abouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as About[];
+        return NextResponse.json(abouts);
     } catch (error) {
+        console.error("Error fetching abouts:", error);
         return NextResponse.json({ message: 'Error fetching about content', error }, { status: 500 });
     }
 }
@@ -23,29 +28,26 @@ export async function POST(request: Request) {
         }
 
         const aboutData: About = await request.json();
-        const data = db.read();
         let savedAbout: About;
 
         if (aboutData.id) { // Update
-            const index = data.abouts.findIndex(a => a.id === aboutData.id);
-            if (index !== -1) {
-                data.abouts[index] = aboutData;
-                savedAbout = aboutData;
-            } else {
-                return NextResponse.json({ message: 'About content not found' }, { status: 404 });
-            }
+            const aboutDoc = doc(db, "abouts", aboutData.id);
+            const { id, ...dataToUpdate } = aboutData;
+            await updateDoc(aboutDoc, dataToUpdate);
+            savedAbout = aboutData;
         } else { // Create
-            savedAbout = { ...aboutData, id: `ABT${Date.now()}` };
-            data.abouts.push(savedAbout);
+            const { id, ...dataToAdd } = aboutData;
+            const docRef = await addDoc(aboutsCollection, dataToAdd);
+            savedAbout = { ...aboutData, id: docRef.id };
         }
 
-        db.write(data);
         return NextResponse.json({ message: 'About content saved successfully', about: savedAbout }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error saving about content:", error);
         return NextResponse.json({ message: 'Error saving about content', error }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { doc, deleteDoc, getDoc } from 'firebase/firestore';
 import { getAuthenticatedUser } from '@/lib/auth';
 
 // DELETE /api/events/{id}
@@ -12,22 +13,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
 
         const id = params.id;
-        const data = db.read();
-        const initialLength = data.events.length;
-        
-        data.events = data.events.filter(e => e.id !== id);
+        const eventDoc = doc(db, "events", id);
 
-        if (data.events.length === initialLength) {
+        const docSnap = await getDoc(eventDoc);
+        if (!docSnap.exists()) {
              return NextResponse.json({ message: 'Event not found' }, { status: 404 });
         }
         
-        db.write(data);
+        await deleteDoc(eventDoc);
         return NextResponse.json({ message: 'Event deleted successfully' }, { status: 200 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error deleting event:", error);
         return NextResponse.json({ message: 'Error deleting event', error }, { status: 500 });
     }
 }

@@ -1,15 +1,20 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Banner } from '@/lib/types';
 import { getAuthenticatedUser } from '@/lib/auth';
+
+const bannersCollection = collection(db, 'banners');
 
 // GET /api/banners
 export async function GET() {
     try {
-        const data = db.read();
-        return NextResponse.json(data.banners);
+        const snapshot = await getDocs(bannersCollection);
+        const banners = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
+        return NextResponse.json(banners);
     } catch (error) {
+        console.error("Error fetching banners:", error);
         return NextResponse.json({ message: 'Error fetching banners', error }, { status: 500 });
     }
 }
@@ -23,29 +28,26 @@ export async function POST(request: Request) {
         }
 
         const bannerData: Banner = await request.json();
-        const data = db.read();
         let savedBanner: Banner;
 
         if (bannerData.id) { // Update
-            const index = data.banners.findIndex(b => b.id === bannerData.id);
-            if (index !== -1) {
-                data.banners[index] = bannerData;
-                savedBanner = bannerData;
-            } else {
-                return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
-            }
+            const bannerDoc = doc(db, "banners", bannerData.id);
+            const { id, ...dataToUpdate } = bannerData;
+            await updateDoc(bannerDoc, dataToUpdate);
+            savedBanner = bannerData;
         } else { // Create
-            savedBanner = { ...bannerData, id: `BNR${Date.now()}` };
-            data.banners.push(savedBanner);
+            const { id, ...dataToAdd } = bannerData;
+            const docRef = await addDoc(bannersCollection, dataToAdd);
+            savedBanner = { ...bannerData, id: docRef.id };
         }
         
-        db.write(data);
         return NextResponse.json({ message: 'Banner saved successfully', banner: savedBanner }, { status: 201 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error saving banner:", error);
         return NextResponse.json({ message: 'Error saving banner', error }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { doc, deleteDoc, getDoc } from "firebase/firestore";
 import { getAuthenticatedUser } from '@/lib/auth';
 
 // DELETE /api/banners/{id}
@@ -12,22 +13,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
 
         const id = params.id;
-        const data = db.read();
-        const initialLength = data.banners.length;
+        const bannerDoc = doc(db, "banners", id);
         
-        data.banners = data.banners.filter(b => b.id !== id);
-
-        if (data.banners.length === initialLength) {
+        const docSnap = await getDoc(bannerDoc);
+        if (!docSnap.exists()) {
              return NextResponse.json({ message: 'Banner not found' }, { status: 404 });
         }
         
-        db.write(data);
+        await deleteDoc(bannerDoc);
         return NextResponse.json({ message: 'Banner deleted successfully' }, { status: 200 });
 
     } catch (error) {
-        if (error instanceof Error && error.message === 'Unauthorized') {
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
+        console.error("Error deleting banner:", error);
         return NextResponse.json({ message: 'Error deleting banner', error }, { status: 500 });
     }
 }

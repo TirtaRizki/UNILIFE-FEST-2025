@@ -1,28 +1,37 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
-import type { User } from '@/lib/types';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 // POST /api/auth/login
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json();
-        const data = db.read();
-        const users = data.users;
         
-        const foundUser = users.find(user => 
-            user.email === email && 
-            user.password === password &&
-            (user.role === 'Admin' || user.role === 'Panitia')
+        const usersCollection = collection(db, 'users');
+        const q = query(usersCollection, 
+            where("email", "==", email),
+            where("password", "==", password)
         );
+        
+        const querySnapshot = await getDocs(q);
 
-        if (foundUser) {
+        if (querySnapshot.empty) {
+            return NextResponse.json({ message: 'Invalid credentials or not an Admin/Panitia account.' }, { status: 401 });
+        }
+        
+        const userDoc = querySnapshot.docs[0];
+        const foundUser = { id: userDoc.id, ...userDoc.data() };
+
+        if (foundUser.role === 'Admin' || foundUser.role === 'Panitia') {
             const { password, ...userToReturn } = foundUser;
             return NextResponse.json({ message: 'Login successful', user: userToReturn });
         } else {
             return NextResponse.json({ message: 'Invalid credentials or not an Admin/Panitia account.' }, { status: 401 });
         }
+        
     } catch (error) {
+        console.error("Login error:", error);
         return NextResponse.json({ message: 'An internal server error occurred', error }, { status: 500 });
     }
 }

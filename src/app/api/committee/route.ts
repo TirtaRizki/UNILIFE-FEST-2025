@@ -1,26 +1,28 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, addDoc, updateDoc, getDoc } from 'firebase/firestore';
 import type { Committee, User } from '@/lib/types';
-
 
 // GET /api/committee
 export async function GET() {
     try {
-        const data = db.read();
-        const committees = data.committees;
-        const users = data.users;
-        const userMap = new Map(users.map(u => [u.id, u]));
+        const committeeSnapshot = await getDocs(collection(db, 'committees'));
+        const committees = committeeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Omit<Committee, 'user'>[];
         
-        const populatedCommittees = committees
-            .map(committee => ({
-                ...committee,
-                user: userMap.get(committee.userId),
-            }))
-            .filter((c): c is Committee & { user: User } => !!c.user);
-
+        const populatedCommittees = await Promise.all(
+            committees.map(async (committee) => {
+                if (!committee.userId) return { ...committee, user: undefined };
+                const userDocRef = doc(db, "users", committee.userId);
+                const userDoc = await getDoc(userDocRef);
+                const user = userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as User : undefined;
+                return { ...committee, user };
+            })
+        );
+        
         return NextResponse.json(populatedCommittees);
     } catch (error) {
+        console.error("Error fetching committees:", error);
         return NextResponse.json({ message: 'Error fetching committees', error }, { status: 500 });
     }
 }
@@ -29,26 +31,23 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const committeeData: Omit<Committee, 'user'> = await request.json();
-        const data = db.read();
         let savedCommittee: Omit<Committee, 'user'>;
 
         if (committeeData.id) { // Update
-            const index = data.committees.findIndex(c => c.id === committeeData.id);
-            if (index !== -1) {
-                data.committees[index] = committeeData;
-                savedCommittee = committeeData;
-            } else {
-                 return NextResponse.json({ message: 'Committee member not found' }, { status: 404 });
-            }
+            const committeeDoc = doc(db, "committees", committeeData.id);
+            const { id, ...dataToUpdate } = committeeData;
+            await updateDoc(committeeDoc, dataToUpdate);
+            savedCommittee = committeeData;
         } else { // Create
-            savedCommittee = { ...committeeData, id: `CMT${Date.now()}` };
-            data.committees.push(savedCommittee);
+            const { id, ...dataToAdd } = committeeData;
+            const docRef = await addDoc(collection(db, 'committees'), dataToAdd);
+            savedCommittee = { ...committeeData, id: docRef.id };
         }
         
-        db.write(data);
         return NextResponse.json({ message: 'Committee member saved successfully', committee: savedCommittee }, { status: 201 });
 
     } catch (error) {
+        console.error("Error saving committee member:", error);
         return NextResponse.json({ message: 'Error saving committee member', error }, { status: 500 });
     }
 }
