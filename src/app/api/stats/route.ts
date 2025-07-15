@@ -1,7 +1,8 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getCountFromServer, query, where } from 'firebase/firestore';
+import { collection, getCountFromServer, getDocs, query, where } from 'firebase/firestore';
+import type { Event } from '@/lib/types';
 
 // GET /api/stats
 export async function GET() {
@@ -11,27 +12,26 @@ export async function GET() {
         const eventsCollection = collection(db, 'events');
         const lineupsCollection = collection(db, 'lineups');
         
-        // Firestore requires an index for this query. If the index doesn't exist, this will fail.
-        // For now, we'll get the count of all events, then filter in memory, which is inefficient.
-        // A better long-term solution is to create the composite index in Firebase console.
-        const activeEventsQuery = query(eventsCollection, where("status", "==", "Upcoming"));
+        // Fetch all events and filter in memory to avoid needing a composite index for now.
+        // This is more robust for environments where the index might not be created.
+        const allEventsSnapshot = await getDocs(eventsCollection);
+        const allEvents = allEventsSnapshot.docs.map(doc => doc.data() as Event);
+        const activeEventsCount = allEvents.filter(event => event.status === 'Upcoming').length;
 
         const [
             usersSnapshot,
             committeesSnapshot,
-            activeEventsSnapshot,
             lineupsSnapshot,
         ] = await Promise.all([
             getCountFromServer(usersCollection),
             getCountFromServer(committeesCollection),
-            getCountFromServer(activeEventsQuery),
             getCountFromServer(lineupsCollection),
         ]);
         
         const stats = {
             usersCount: usersSnapshot.data().count,
             committeesCount: committeesSnapshot.data().count,
-            activeEventsCount: activeEventsSnapshot.data().count,
+            activeEventsCount: activeEventsCount, // Use the count filtered in-memory
             lineupsCount: lineupsSnapshot.data().count,
         };
 
