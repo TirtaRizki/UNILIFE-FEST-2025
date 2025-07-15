@@ -1,3 +1,4 @@
+
 "use client"
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -41,10 +42,10 @@ const Logo = () => {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    if (logoUrl) {
-        return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" />;
-    }
-    return <h1 className="text-3xl font-headline font-bold text-primary">UNILIFE</h1>;
+    const defaultLogo = "https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcn291m59-unilife-logo.png?alt=media&token=487d60df-520c-4390-ac92-421714fc7504";
+    const finalLogoUrl = logoUrl || defaultLogo;
+
+    return <Image src={finalLogoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" />;
 };
 
 export const navItems = [
