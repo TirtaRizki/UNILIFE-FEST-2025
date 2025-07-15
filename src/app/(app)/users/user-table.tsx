@@ -59,7 +59,10 @@ export default function UserTable() {
     };
 
     const handleEdit = (user: Omit<User, 'password'>) => {
-        setSelectedUser(user as User);
+        // Fetch full user data if needed, or assume we have enough.
+        // For editing, we might need the full user object.
+        // This cast is safe if the object structure is the same minus the password.
+        setSelectedUser(user as User); 
         setSheetOpen(true);
     };
     
@@ -70,11 +73,15 @@ export default function UserTable() {
         }
         try {
             const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error("Failed to delete user");
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.message || "Failed to delete user");
+            }
             toast({ title: "Success", description: "User deleted successfully." });
             fetchUsers();
         } catch (error) {
-            toast({ title: "Error", description: "Could not delete user.", variant: "destructive" });
+             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+             toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     };
 
@@ -85,13 +92,17 @@ export default function UserTable() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),
             });
-            if (!response.ok) throw new Error("Failed to save user");
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.message || "Failed to save user");
+            }
             toast({ title: "Success", description: "User saved successfully." });
             setSheetOpen(false);
             setSelectedUser(null);
             fetchUsers();
         } catch (error) {
-            toast({ title: "Error", description: "Could not save user.", variant: "destructive" });
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast({ title: "Error", description: errorMessage, variant: "destructive" });
         }
     }
     
@@ -146,7 +157,7 @@ export default function UserTable() {
                                     <TableRow key={user.id}>
                                         <TableCell className="font-medium">{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
-                                        <TableCell>{user.phoneNumber}</TableCell>
+                                        <TableCell>{user.phoneNumber || '-'}</TableCell>
                                         <TableCell>
                                             <Badge variant={getBadgeVariant(user.role)}>{user.role}</Badge>
                                         </TableCell>
@@ -154,7 +165,7 @@ export default function UserTable() {
                                             <TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost" disabled={user.role === 'Admin'}>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
                                                             <MoreHorizontal className="h-4 w-4" />
                                                             <span className="sr-only">Toggle menu</span>
                                                         </Button>
@@ -167,7 +178,7 @@ export default function UserTable() {
                                                 </DropdownMenu>
                                             </TableCell>
                                         )}
-                                        {canManage && user.role === 'Admin' && <TableCell></TableCell>}
+                                        {(!canManage || user.role === 'Admin') && <TableCell></TableCell>}
                                     </TableRow>
                                 )) : (
                                     <TableRow>

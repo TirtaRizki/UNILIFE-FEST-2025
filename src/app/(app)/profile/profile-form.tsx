@@ -32,112 +32,100 @@ const profileSchema = z.object({
 
 
 export function ProfileForm() {
-    const { user: authUser } = useAuth();
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const { user: authUser, setUser } = useAuth();
+    const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
-
-    useEffect(() => {
-        if (authUser) {
-            const usersInStorage = localStorage.getItem('users');
-            if (usersInStorage) {
-                const allUsers: User[] = JSON.parse(usersInStorage);
-                const fullUser = allUsers.find(u => u.id === authUser.id);
-                if(fullUser) {
-                    setCurrentUser(fullUser);
-                }
-            } else {
-                setCurrentUser(null);
-            }
-        } else {
-            setCurrentUser(null);
-        }
-    }, [authUser]);
 
     const form = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            name: "",
-            email: "",
-            phoneNumber: "",
+            id: authUser?.id || "",
+            name: authUser?.name || "",
+            email: authUser?.email || "",
+            phoneNumber: authUser?.phoneNumber || "",
             password: "",
             confirmPassword: "",
         },
     });
 
     useEffect(() => {
-        if (currentUser) {
+        if (authUser) {
             form.reset({
-                id: currentUser.id,
-                name: currentUser.name,
-                email: currentUser.email,
-                phoneNumber: currentUser.phoneNumber || "",
+                id: authUser.id,
+                name: authUser.name,
+                email: authUser.email,
+                phoneNumber: authUser.phoneNumber || "",
                 password: "",
                 confirmPassword: "",
             });
         }
-    }, [currentUser, form]);
+    }, [authUser, form]);
     
-    const onSubmit = (values: z.infer<typeof profileSchema>) => {
-        if (!currentUser) return;
+    const onSubmit = async (values: z.infer<typeof profileSchema>) => {
+        if (!authUser) return;
+        setIsSaving(true);
         
-        const usersInStorage = localStorage.getItem('users');
-        if (!usersInStorage) return;
+        try {
+            const userToUpdate: Partial<User> & { id: string } = {
+                id: authUser.id,
+                name: values.name,
+                email: values.email,
+                phoneNumber: values.phoneNumber,
+            };
 
-        let allUsers: User[] = JSON.parse(usersInStorage);
-        const updatedUsers = allUsers.map(u => {
-            if (u.id === currentUser.id) {
-                const updatedUser = {
-                    ...u,
-                    name: values.name,
-                    email: values.email,
-                    phoneNumber: values.phoneNumber,
-                };
-                if (values.password) {
-                    updatedUser.password = values.password;
-                }
-                return updatedUser;
+            if (values.password) {
+                userToUpdate.password = values.password;
             }
-            return u;
-        });
 
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        
-        const newlyUpdatedUser = updatedUsers.find(u => u.id === currentUser.id);
-        if (newlyUpdatedUser) {
-          setCurrentUser(newlyUpdatedUser);
-          
-          const userForSession: Omit<User, 'password'> = {
-              id: newlyUpdatedUser.id,
-              name: newlyUpdatedUser.name,
-              email: newlyUpdatedUser.email,
-              role: newlyUpdatedUser.role,
-              phoneNumber: newlyUpdatedUser.phoneNumber,
-          };
-          sessionStorage.setItem('loggedInUser', JSON.stringify(userForSession));
-          
-          window.dispatchEvent(new Event('storage'));
+            const response = await fetch(`/api/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userToUpdate),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Gagal memperbarui profil');
+            }
+            
+            // Update user in auth context and session storage
+            const updatedUserForAuth = result.user as Omit<User, 'password'>;
+            setUser(updatedUserForAuth);
+            sessionStorage.setItem('loggedInUser', JSON.stringify(updatedUserForAuth));
+            window.dispatchEvent(new Event('storage'));
+
+            toast({
+                title: "Profil Diperbarui",
+                description: "Informasi profil Anda telah berhasil disimpan.",
+            });
+            form.reset({ ...form.getValues(), password: '', confirmPassword: '' });
+
+        } catch (error) {
+            const err = error as Error;
+            toast({
+                title: "Error",
+                description: err.message,
+                variant: 'destructive'
+            });
+        } finally {
+            setIsSaving(false);
         }
-
-        toast({
-            title: "Profil Diperbarui",
-            description: "Informasi profil Anda telah berhasil disimpan.",
-        });
-        form.reset({ ...form.getValues(), password: '', confirmPassword: '' });
     };
 
-    if(!currentUser) return <div>Memuat profil...</div>
+    if(!authUser) return <div>Memuat profil...</div>
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="flex items-center gap-6">
                     <Avatar className="h-20 w-20 border-4 border-white/50 shadow-md">
-                        <AvatarImage src="https://placehold.co/80x80.png" alt={currentUser.name} data-ai-hint="person user"/>
-                        <AvatarFallback>{currentUser.name.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src="https://placehold.co/80x80.png" alt={authUser.name} data-ai-hint="person user"/>
+                        <AvatarFallback>{authUser.name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                        <h3 className="text-2xl font-bold">{currentUser.name}</h3>
-                        <p className="text-muted-foreground">{currentUser.email}</p>
+                        <h3 className="text-2xl font-bold">{authUser.name}</h3>
+                        <p className="text-muted-foreground">{authUser.email}</p>
                     </div>
                 </div>
 
@@ -211,7 +199,7 @@ export function ProfileForm() {
                 </div>
                 
                 <div className="flex justify-end">
-                    <Button type="submit">Simpan Perubahan</Button>
+                    <Button type="submit" disabled={isSaving}>{isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}</Button>
                 </div>
             </form>
         </Form>

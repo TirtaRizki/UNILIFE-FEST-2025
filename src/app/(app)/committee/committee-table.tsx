@@ -137,10 +137,10 @@ export default function CommitteeTable() {
                             <TableBody>
                                 {committees.length > 0 ? committees.map((committee) => (
                                     <TableRow key={committee.id}>
-                                        <TableCell className="font-medium">{committee.user.name}</TableCell>
+                                        <TableCell className="font-medium">{committee.user?.name || 'User not found'}</TableCell>
                                         <TableCell>{committee.position}</TableCell>
                                         <TableCell>
-                                            <Badge variant="secondary">{committee.user.role}</Badge>
+                                            {committee.user?.role ? <Badge variant="secondary">{committee.user.role}</Badge> : '-'}
                                         </TableCell>
                                         {canManage && (
                                             <TableCell>
