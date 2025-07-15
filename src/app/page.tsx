@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -9,6 +10,7 @@ import EventSection from '@/components/landing/event-section';
 import LineupSection from '@/components/landing/lineup-section';
 import RecapSection from '@/components/landing/recap-section';
 import PublicFooter from '@/components/landing/public-footer';
+import DashboardSection from '@/components/landing/dashboard-section';
 
 export default function LandingPage() {
   return (
@@ -16,6 +18,7 @@ export default function LandingPage() {
       <PublicHeader />
       <main>
         <HeroSection />
+        <DashboardSection />
         <BannerSection />
         <AboutSection />
         <EventSection />

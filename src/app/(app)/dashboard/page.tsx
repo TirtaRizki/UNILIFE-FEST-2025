@@ -8,66 +8,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import type { User, Event } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import Countdown from '@/components/countdown';
 
-
-const Countdown = ({ targetDate, title }: { targetDate: string, title: string }) => {
-    const calculateTimeLeft = () => {
-        const eventDate = new Date(targetDate);
-        const difference = +eventDate - +new Date();
-        
-        let timeLeft = {
-            days: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0
-        };
-
-        if (difference > 0) {
-            timeLeft = {
-                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                minutes: Math.floor((difference / 1000 / 60) % 60),
-                seconds: Math.floor((difference / 1000) % 60)
-            };
-        }
-        return timeLeft;
-    };
-
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-        const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 1000);
-        
-        return () => clearInterval(timer);
-    }, []);
-
-    const formatTime = (time: number) => {
-        return String(time).padStart(2, '0');
-    }
-    
-    const TimerUnit = ({ value, label }: { value: number, label: string }) => (
-        <div className="bg-gradient-to-br from-primary to-[#764ba2] text-white rounded-lg p-3 md:p-4 text-center min-w-[70px] md:min-w-[80px]">
-            <div className="text-2xl md:text-3xl font-bold">{isClient ? formatTime(value) : '00'}</div>
-            <div className="text-xs uppercase opacity-80">{label}</div>
-        </div>
-    );
-    
-    return (
-        <div className="text-center">
-            <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">{title}</h2>
-            <div className="flex justify-center items-center gap-2 md:gap-4">
-                <TimerUnit value={timeLeft.days} label="Days" />
-                <TimerUnit value={timeLeft.hours} label="Hours" />
-                <TimerUnit value={timeLeft.minutes} label="Minutes" />
-                <TimerUnit value={timeLeft.seconds} label="Seconds" />
-            </div>
-        </div>
-    );
-};
 
 const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string, value: string, icon: React.ElementType, isLoading: boolean }) => (
     <Card className="content-card p-4">
@@ -156,7 +98,7 @@ export default function DashboardPage() {
         <StatCard title="Lineup Artis" value={String(lineupsCount)} icon={Mic} isLoading={isLoading} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
-        <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center">
+        <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center justify-center">
           <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
           <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
         </Card>

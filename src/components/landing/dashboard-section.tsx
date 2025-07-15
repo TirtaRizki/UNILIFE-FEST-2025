@@ -1,0 +1,78 @@
+
+"use client";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Music } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import Countdown from '@/components/countdown';
+import { Button } from '@/components/ui/button';
+
+const TiketinCta = () => (
+    <Link href="https://mytiketin.com/" target="_blank" rel="noopener noreferrer" className="block group">
+        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-[#0a205a] via-[#0a4d9e] to-[#0a4d9e] transition-transform duration-300 group-hover:scale-[1.02]">
+            <div className="relative z-10">
+                <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4">
+                    Tinggal Klik, Tiketin Aja!
+                </h2>
+                <p className="max-w-xl mx-auto mb-6 text-white/80">
+                    Sekarang beli tiket hanya semudah klik, cari informasi tentang event kamu disini biar gak ketinggalan!
+                </p>
+                <Button 
+                    size="lg"
+                    className="bg-white/90 text-primary hover:bg-white font-semibold transition-all"
+                >
+                    Cari Event Sekarang
+                </Button>
+            </div>
+        </div>
+    </Link>
+);
+
+
+export default function DashboardSection() {
+    const [date, setDate] = useState<Date | undefined>(new Date());
+
+    return (
+        <section id="dashboard-info" className="py-20 md:py-32 bg-background/5">
+            <div className="container mx-auto px-4 grid gap-8">
+                <div className="grid gap-8 grid-cols-1 lg:grid-cols-5">
+                    <Card className="lg:col-span-3 bg-card/5 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl">
+                        <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
+                        <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
+                    </Card>
+                    <Card className="lg:col-span-2 bg-card/5 border-border/20 flex justify-center items-center p-2 rounded-xl">
+                        <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={setDate}
+                            className="rounded-md"
+                        />
+                    </Card>
+                </div>
+                <TiketinCta />
+                <Card className="bg-card/5 border-border/20 rounded-xl">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Music className="h-6 w-6 text-primary" />
+                            <CardTitle>UNILIFE Official Playlist</CardTitle>
+                        </div>
+                        <CardDescription>Get in the mood with our official event playlist on Spotify.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <iframe 
+                            style={{ borderRadius: "12px" }} 
+                            src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator&theme=0"
+                            width="100%" 
+                            height="352" 
+                            frameBorder="0" 
+                            allowFullScreen={true}
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                            loading="lazy">
+                        </iframe>
+                    </CardContent>
+                </Card>
+            </div>
+        </section>
+    );
+}
