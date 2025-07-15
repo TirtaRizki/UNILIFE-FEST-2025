@@ -10,29 +10,22 @@ const VisitorCounter = () => {
 
     useEffect(() => {
         const incrementVisitorCount = async () => {
+            setIsLoading(true);
             try {
                 // Only increment count if it hasn't been done this session
                 if (!sessionStorage.getItem('visitorCounted')) {
                     const response = await fetch('/api/visitors', { method: 'POST' });
                     const data = await response.json();
-                    setCount(data.count);
+                    if(data.count !== undefined) setCount(data.count);
                     sessionStorage.setItem('visitorCounted', 'true');
                 } else {
                     // If already counted, just fetch the current count
                     const response = await fetch('/api/visitors');
                     const data = await response.json();
-                    setCount(data.count);
+                    if(data.count !== undefined) setCount(data.count);
                 }
             } catch (error) {
                 console.error("Failed to update visitor count:", error);
-                // Fallback to fetching count if POST fails
-                try {
-                     const response = await fetch('/api/visitors');
-                    const data = await response.json();
-                    setCount(data.count);
-                } catch (fetchError) {
-                     console.error("Failed to fetch visitor count:", fetchError);
-                }
             } finally {
                 setIsLoading(false);
             }
