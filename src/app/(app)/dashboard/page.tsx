@@ -10,9 +10,9 @@ import type { User, Event } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 
-const Countdown = () => {
+const Countdown = ({ targetDate, title }: { targetDate: string, title: string }) => {
     const calculateTimeLeft = () => {
-        const eventDate = new Date("2025-08-30T00:00:00");
+        const eventDate = new Date(targetDate);
         const difference = +eventDate - +new Date();
         
         let timeLeft = {
@@ -58,7 +58,7 @@ const Countdown = () => {
     
     return (
         <div className="text-center">
-            <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">Start The Event</h2>
+            <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground mb-4">{title}</h2>
             <div className="flex justify-center items-center gap-2 md:gap-4">
                 <TimerUnit value={timeLeft.days} label="Days" />
                 <TimerUnit value={timeLeft.hours} label="Hours" />
@@ -156,8 +156,9 @@ export default function DashboardPage() {
         <StatCard title="Lineup Artis" value={String(lineupsCount)} icon={Mic} isLoading={isLoading} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
-        <Card className="lg:col-span-3 content-card p-4 md:p-6">
-          <Countdown />
+        <Card className="lg:col-span-3 content-card p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
+          <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
         </Card>
         <Card className="lg:col-span-2 content-card flex justify-center items-center p-2">
           <Calendar
