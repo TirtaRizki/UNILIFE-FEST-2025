@@ -8,6 +8,7 @@ import LineupSection from '@/components/landing/lineup-section';
 import RecapSection from '@/components/landing/recap-section';
 import PublicFooter from '@/components/landing/public-footer';
 import DashboardSection from '@/components/landing/dashboard-section';
+import BackToTopButton from '@/components/landing/back-to-top-button';
 
 export default function LandingPage() {
   return (
@@ -23,6 +24,7 @@ export default function LandingPage() {
         <RecapSection />
       </main>
       <PublicFooter />
+      <BackToTopButton />
     </div>
   );
 }

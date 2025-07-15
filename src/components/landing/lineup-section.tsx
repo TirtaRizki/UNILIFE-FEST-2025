@@ -37,7 +37,7 @@ const LineupSection = async () => {
     }
 
     return (
-        <section id="lineup" className="py-20 md:py-32 bg-background/5 backdrop-blur-sm">
+        <section id="lineup" className="py-20 md:py-32 bg-background/5 backdrop-blur-sm animate-fade-up">
             <div className="container mx-auto px-4">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Guest Star Line Up</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 max-w-4xl mx-auto">

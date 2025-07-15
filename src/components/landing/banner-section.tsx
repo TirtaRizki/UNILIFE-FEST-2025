@@ -27,7 +27,7 @@ const BannerSection = async () => {
     }
 
     return (
-        <section id="banners" className="container mx-auto px-4 py-12">
+        <section id="banners" className="container mx-auto px-4 py-12 animate-fade-up">
             <Carousel opts={{ loop: true, align: "start" }}>
                 <CarouselContent>
                     {banners.map((banner) => (

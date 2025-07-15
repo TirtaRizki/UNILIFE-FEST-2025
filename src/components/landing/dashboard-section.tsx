@@ -45,7 +45,7 @@ export default function DashboardSection() {
     }, [isClient]);
 
     return (
-        <section id="dashboard-info" className="py-20 md:py-32 bg-background/5">
+        <section id="dashboard-info" className="py-20 md:py-32 bg-background/5 animate-fade-up">
             <div className="container mx-auto px-4 grid gap-8">
                 <div className="grid gap-8 grid-cols-1 lg:grid-cols-5">
                     <Card className="lg:col-span-3 bg-card/5 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl">

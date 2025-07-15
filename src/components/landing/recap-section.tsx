@@ -47,9 +47,9 @@ const RecapSection = async () => {
     }
 
     return (
-        <section id="recap" className="py-20 md:py-32 overflow-hidden">
+        <section id="recap" className="py-20 md:py-32 overflow-hidden animate-fade-up">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12 animate-fade-up">Recap Aftermovie</h2>
+                <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {recaps.map((recap, index) => (
                         <RecapCard key={recap.id} recap={recap} index={index} />
