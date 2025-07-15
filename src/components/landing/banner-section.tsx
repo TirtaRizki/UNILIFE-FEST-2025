@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -14,7 +15,12 @@ const BannerSection = () => {
         const fetchBanners = async () => {
             try {
                 const res = await fetch('/api/banners');
-                if (!res.ok) throw new Error('Failed to fetch banners');
+                if (!res.ok) {
+                    console.error("API Error: Failed to fetch banners with status", res.status);
+                    // Don't throw an error, just gracefully handle it by setting an empty array.
+                    setBanners([]); 
+                    return;
+                }
                 const data: Banner[] = await res.json();
                 setBanners(data.filter(b => b.status === 'Active'));
             } catch (error) {
@@ -64,3 +70,4 @@ const BannerSection = () => {
 };
 
 export default BannerSection;
+
