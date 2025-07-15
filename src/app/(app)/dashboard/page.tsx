@@ -156,7 +156,7 @@ export default function DashboardPage() {
         <StatCard title="Lineup Artis" value={String(lineupsCount)} icon={Mic} isLoading={isLoading} />
       </div>
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
-        <Card className="lg:col-span-3 content-card p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center">
           <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
           <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
         </Card>
