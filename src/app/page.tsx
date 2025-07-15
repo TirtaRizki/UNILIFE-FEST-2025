@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
@@ -96,7 +96,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-center mb-4 h-10">
                 <Logo />
             </div>
-          <CardTitle className="text-2xl font-bold text-center text-foreground">Admin & Panitia Login</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-foreground">Login</CardTitle>
           <CardDescription className="text-center text-muted-foreground">UNILIFE LAMPUNG FEST 2025 - Back to School</CardDescription>
         </CardHeader>
         <CardContent>
@@ -145,8 +145,10 @@ export default function LoginPage() {
             </div>
 
         </CardContent>
+        <CardFooter className="pt-6">
+            <p className="w-full text-center text-xs text-muted-foreground">Powered by UNIYOUTH © 2025</p>
+        </CardFooter>
       </Card>
     </div>
   );
 }
-
