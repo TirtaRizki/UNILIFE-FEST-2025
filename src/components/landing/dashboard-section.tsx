@@ -60,16 +60,19 @@ export default function DashboardSection() {
                         <CardDescription>Get in the mood with our official event playlist on Spotify.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <iframe 
-                            style={{ borderRadius: "12px" }} 
-                            src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator&theme=0"
-                            width="100%" 
-                            height="352" 
-                            frameBorder="0" 
-                            allowFullScreen={true}
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                            loading="lazy">
-                        </iframe>
+                       <div className="rounded-xl overflow-hidden bg-gradient-to-br from-green-500/20 via-blue-500/20 to-purple-500/20 p-1">
+                            <iframe 
+                                style={{ borderRadius: "12px" }} 
+                                src="https://open.spotify.com/embed/playlist/7Gp1oke4hrLetCkoLy696N?utm_source=generator&theme=0"
+                                width="100%" 
+                                height="352" 
+                                frameBorder="0" 
+                                allowFullScreen={true}
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                                loading="lazy"
+                                className="mix-blend-luminosity">
+                            </iframe>
+                       </div>
                     </CardContent>
                 </Card>
             </div>
