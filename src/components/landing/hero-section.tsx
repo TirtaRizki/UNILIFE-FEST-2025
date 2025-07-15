@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa';
+import { FaInstagram } from 'react-icons/fa';
 
 const HeroSection = () => {
   return (
@@ -15,17 +15,15 @@ const HeroSection = () => {
             <h2 className="text-2xl md:text-4xl font-bold text-primary mb-8 font-headline">
                 Back To School
             </h2>
-            <p className="text-lg md:text-xl mb-4">December 20-22, 2025</p>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10">Lampung, Indonesia</p>
+            <p className="text-lg md:text-xl mb-4">30-31 Agustus 2025</p>
+            <p className="text-lg md:text-xl text-muted-foreground mb-10">PKOR, Bandar Lampung</p>
             <Button size="lg" className="h-14 px-10 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 transition-transform duration-300 hover:scale-105" asChild>
                 <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
                     Get Ticket
                 </a>
             </Button>
             <div className="flex space-x-6 mt-12">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><FaInstagram size={24} /></a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><FaTiktok size={24} /></a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><FaYoutube size={24} /></a>
+                <a href="https://www.instagram.com/unilife.festival?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><FaInstagram size={24} /></a>
             </div>
         </div>
     </section>
