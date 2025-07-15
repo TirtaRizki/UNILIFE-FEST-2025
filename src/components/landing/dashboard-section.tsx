@@ -32,9 +32,11 @@ const TiketinCta = () => (
 
 export default function DashboardSection() {
     const [date, setDate] = useState<Date | undefined>(undefined);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setDate(new Date());
+        setIsClient(true);
     }, []);
 
     return (
@@ -46,12 +48,14 @@ export default function DashboardSection() {
                         <Countdown targetDate="2025-07-21T19:00:00" title="War Tiket Dimulai" />
                     </Card>
                     <Card className="lg:col-span-2 bg-card/5 border-border/20 flex justify-center items-center p-2 rounded-xl">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={setDate}
-                            className="rounded-md"
-                        />
+                        {isClient && (
+                            <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={setDate}
+                                className="rounded-md"
+                            />
+                        )}
                     </Card>
                 </div>
                 <TiketinCta />
