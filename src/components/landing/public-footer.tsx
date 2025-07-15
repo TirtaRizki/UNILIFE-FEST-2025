@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const PublicFooter = () => {
   return (
-    <footer className="bg-gradient-to-r from-green-200 via-cyan-200 to-blue-300 py-12">
+    <footer className="bg-cyan-200 py-12">
       <div className="container mx-auto px-4 text-center text-gray-700">
         <div className="flex justify-center mb-6">
            <Link href="/">
