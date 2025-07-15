@@ -51,11 +51,16 @@ const PublicHeader = () => {
                         ))}
                     </nav>
 
-                    <div className="hidden md:block">
+                    <div className="hidden md:flex items-center gap-2">
                         <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                             <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
                                 Get Ticket
                             </a>
+                        </Button>
+                        <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold">
+                            <Link href="/login">
+                                Admin Login
+                            </Link>
                         </Button>
                     </div>
 
@@ -87,6 +92,11 @@ const PublicHeader = () => {
                         <a href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
                             Get Ticket
                         </a>
+                    </Button>
+                    <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold">
+                        <Link href="/login">
+                            Admin Login
+                        </Link>
                     </Button>
                 </nav>
             </div>

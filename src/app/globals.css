@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 240 10% 97.5%; /* Light Grey */
+    --background: 210 20% 96%; /* #F0F4F8 */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 198 70% 55%; /* Vibrant Blue */
+    --primary: 198 78% 52%; /* #29ABE2 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -22,7 +22,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 28 100% 60%; /* Orange */
+    --accent: 36 100% 60%; /* #FF9933 */
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,28 +30,23 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 198 70% 55%;
+    --ring: 198 78% 52%;
 
     --radius: 0.8rem;
     
-    /* Custom Theme Colors */
-    --theme-primary: 198 70% 55%; /* #29ABE2 */
-    --theme-background: 210 20% 96%; /* #F0F4F8 */
-    --theme-accent: 28 100% 60%; /* #FF9933 */
-
-     /* Sidebar specific variables */
+    /* Sidebar specific variables */
     --sidebar-background: 0 0% 100% / 0.95;
     --sidebar-foreground: 222 9% 34%;
-    --sidebar-primary: 198 70% 55%;
+    --sidebar-primary: 198 78% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 198 70% 55% / 0.1;
-    --sidebar-accent-foreground: 198 70% 55%;
-    --sidebar-border: 198 70% 55%;
-    --sidebar-ring: 198 70% 55%;
+    --sidebar-accent: 198 78% 52% / 0.1;
+    --sidebar-accent-foreground: 198 78% 52%;
+    --sidebar-border: 198 78% 52%;
+    --sidebar-ring: 198 78% 52%;
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
+    --background: 224 71.4% 4.1%; /* Darker blue/black */
     --foreground: 210 20% 98%;
 
     --card: 224 71.4% 4.1%;
@@ -60,7 +55,7 @@
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 198 70% 55%;
+    --primary: 198 78% 52%; /* #29ABE2 */
     --primary-foreground: 210 20% 98%;
 
     --secondary: 215 27.9% 16.9%;
@@ -69,7 +64,7 @@
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 28 100% 60%;
+    --accent: 36 100% 60%; /* #FF9933 */
     --accent-foreground: 210 20% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -77,22 +72,17 @@
 
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 198 70% 55%;
-
-    /* Custom Theme Colors */
-    --theme-primary: 198 70% 55%; /* #29ABE2 */
-    --theme-background: 210 20% 96%; /* #F0F4F8 */
-    --theme-accent: 28 100% 60%; /* #FF9933 */
+    --ring: 198 78% 52%;
 
     /* Dark Sidebar */
     --sidebar-background: 224 71.4% 4.1% / 0.9;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 198 70% 55%;
+    --sidebar-primary: 198 78% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 198 70% 55% / 0.1;
-    --sidebar-accent-foreground: 198 70% 55%;
+    --sidebar-accent: 198 78% 52% / 0.1;
+    --sidebar-accent-foreground: 198 78% 52%;
     --sidebar-border: 215 27.9% 16.9%;
-    --sidebar-ring: 198 70% 55%;
+    --sidebar-ring: 198 78% 52%;
   }
 }
 

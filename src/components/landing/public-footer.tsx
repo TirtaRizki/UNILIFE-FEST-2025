@@ -18,11 +18,6 @@ const PublicFooter = () => {
             <a href="#" className="hover:text-primary transition-colors"><FaYoutube size={24} /></a>
         </div>
         <p className="text-sm">&copy; {new Date().getFullYear()} UNIYOUTH. All rights reserved.</p>
-        <div className="mt-4 text-xs">
-            <Link href="/login" className="hover:text-primary transition-colors">
-                Admin & Panitia Login
-            </Link>
-        </div>
       </div>
     </footer>
   );
