@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, UserCheck, Calendar as CalendarIcon, Mic, Music } from "lucide-react";
+import { Users, UserCheck, Calendar as CalendarIcon, Mic, Music, Sparkles, Ticket } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -99,6 +99,14 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:gap-8 grid-cols-1 lg:grid-cols-5">
         <Card className="lg:col-span-3 content-card p-4 md:p-6 flex flex-col gap-8 items-center justify-center">
           <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
+          <div className="relative w-full max-w-sm flex items-center justify-center">
+            <div className="absolute inset-x-0 h-px bg-border"></div>
+            <div className="relative flex items-center gap-4 bg-background px-4">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <Ticket className="h-5 w-5 text-primary" />
+                <Music className="h-5 w-5 text-primary" />
+            </div>
+          </div>
           <Countdown 
             targetDate="2025-07-21T19:00:00" 
             title="War Tiket Dimulai" 

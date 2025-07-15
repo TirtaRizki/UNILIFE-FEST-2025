@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Music } from "lucide-react";
+import { Music, Sparkles, Ticket } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Countdown from '@/components/countdown';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,14 @@ export default function DashboardSection() {
                 <div className="grid gap-8 grid-cols-1 lg:grid-cols-5">
                     <Card className="lg:col-span-3 bg-card/5 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl">
                         <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
+                        <div className="relative w-full max-w-sm flex items-center justify-center">
+                            <div className="absolute inset-x-0 h-px bg-white/20"></div>
+                            <div className="relative flex items-center gap-4 bg-background/5 px-4 rounded-full">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                <Ticket className="h-5 w-5 text-primary" />
+                                <Music className="h-5 w-5 text-primary" />
+                            </div>
+                        </div>
                         <Countdown 
                             targetDate="2025-07-21T19:00:00" 
                             title="War Tiket Dimulai" 
