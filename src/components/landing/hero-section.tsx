@@ -5,7 +5,7 @@ import { FaInstagram } from 'react-icons/fa';
 const HeroSection = () => {
   return (
     <section id="home" className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('https://placehold.co/1920x1080.png')"}} data-ai-hint="concert stage lights"></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1')"}} data-ai-hint="cartoon characters festival"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         
         <div className="relative z-10 px-4 flex flex-col items-center">
