@@ -63,6 +63,7 @@ export default function DashboardSection() {
                             title="War Tiket Dimulai" 
                             showButtonOnEnd={true}
                             buttonText="Beli Tiket Sekarang"
+                            buttonLink="https://mytiketin.com/event/79"
                         />
                     </Card>
                     <Card className="lg:col-span-2 bg-card/5 border-border/20 flex justify-center items-center p-2 rounded-xl">

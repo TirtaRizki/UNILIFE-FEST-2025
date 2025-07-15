@@ -10,9 +10,10 @@ type CountdownProps = {
     title: string;
     showButtonOnEnd?: boolean;
     buttonText?: string;
+    buttonLink?: string;
 };
 
-const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "Get Ticket" }: CountdownProps) => {
+const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "Get Ticket", buttonLink = "#" }: CountdownProps) => {
     const [timeLeft, setTimeLeft] = useState({
         days: 0,
         hours: 0,
@@ -41,7 +42,6 @@ const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "G
             return newTimeLeft;
         };
         
-        // Set initial time left
         setTimeLeft(calculateTimeLeft());
 
         const timer = setInterval(() => {
@@ -67,7 +67,7 @@ const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "G
             <div className="text-center w-full">
                 <h2 className="text-lg font-semibold uppercase tracking-widest text-foreground dark:text-primary-foreground mb-4">{title}</h2>
                 <Button size="lg" className="w-full max-w-xs animate-pulse" asChild>
-                    <Link href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
+                    <Link href={buttonLink} target="_blank" rel="noopener noreferrer">
                         <Ticket className="mr-2 h-5 w-5"/> {buttonText}
                     </Link>
                 </Button>
