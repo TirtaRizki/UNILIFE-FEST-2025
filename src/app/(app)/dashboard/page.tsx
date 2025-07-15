@@ -46,7 +46,7 @@ const TiketinCta = () => (
 
 
 export default function DashboardPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [stats, setStats] = useState({
       committeesCount: 0,
       usersCount: 0,
@@ -57,6 +57,9 @@ export default function DashboardPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Set date only on the client-side to avoid hydration mismatch
+    setDate(new Date());
+
     const fetchDashboardData = async () => {
         setIsLoading(true);
         try {
