@@ -1,9 +1,11 @@
-
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { FaInstagram } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
 const HeroSection = () => {
   const { toast } = useToast();
@@ -20,9 +22,42 @@ const HeroSection = () => {
       });
   };
 
+  const slides = [
+    { src: '/images/ciki_cinta.png', alt: 'Introducing Ciki & Cinta', hint: 'cartoon characters festival' },
+    { src: '/images/unilife_bg.png', alt: 'Unilife Festival', hint: 'concert crowd illustration' }
+  ];
+
   return (
     <section id="home" className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('/images/unilife_bg.png')"}} data-ai-hint="cartoon characters festival"></div>
+        <Carousel 
+          className="absolute inset-0 w-full h-full"
+          plugins={[
+            Autoplay({
+              delay: 5000,
+              stopOnInteraction: false,
+            }),
+          ]}
+          opts={{
+            loop: true,
+          }}
+        >
+          <CarouselContent>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index}>
+                <div className="relative w-full h-screen">
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    fill
+                    className="object-cover bg-center animate-hero-bg-zoom"
+                    data-ai-hint={slide.hint}
+                    priority={index === 0}
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent"></div>
         
         <div className="relative z-10 px-4 flex flex-col items-center">
