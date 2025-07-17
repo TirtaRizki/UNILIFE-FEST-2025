@@ -8,6 +8,17 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, doc, getDoc, setDoc } from 'firebase/firestore';
 import type { About, Banner, Event, Lineup, Recap, BrandingSettings } from '@/lib/types';
 
+// Helper function to get the base URL for API calls
+// In production, this should be set to the public domain.
+const getBaseUrl = () => {
+    if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
+    }
+    // Fallback for local development
+    return 'http://localhost:9002';
+};
+
+
 // --- Branding Settings Service ---
 const BRANDING_DOC_ID = 'singleton';
 const brandingDocRef = doc(db, "branding", BRANDING_DOC_ID);
@@ -15,11 +26,13 @@ const brandingDocRef = doc(db, "branding", BRANDING_DOC_ID);
 export const getBrandingSettings = unstable_cache(
     async (): Promise<BrandingSettings | null> => {
         try {
-            const docSnap = await getDoc(brandingDocRef);
-            if (docSnap.exists()) {
-                return docSnap.data() as BrandingSettings;
+            const apiUrl = `${getBaseUrl()}/api/branding`;
+            const response = await fetch(apiUrl, { next: { tags: ['branding_settings_tag'] } });
+            if (!response.ok) {
+                 console.error(`Failed to fetch branding settings: ${response.status}`);
+                 return null;
             }
-            return null;
+            return response.json();
         } catch (error) {
             console.error("Error fetching branding settings:", error);
             return null;
@@ -46,13 +59,17 @@ export const saveBrandingSettings = async (settings: BrandingSettings) => {
 export const getAboutData = unstable_cache(
     async (): Promise<About | null> => {
         try {
-            const aboutsCollection = collection(db, 'abouts');
-            const snapshot = await getDocs(aboutsCollection);
-            const abouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as About[];
-            return abouts.length > 0 ? abouts[0] : null;
+             const apiUrl = `${getBaseUrl()}/api/about`;
+             const response = await fetch(apiUrl, { next: { tags: ['about_data'] }});
+             if (!response.ok) {
+                console.error(`Failed to fetch about data: ${response.status}`);
+                return null;
+             }
+             const data = await response.json();
+             // The API returns an array, but we only need the first item for the landing page
+             return data.length > 0 ? data[0] : null;
         } catch (error) {
             console.error("Error fetching about data:", error);
-            // In a production environment, you might want to log this to a service like Sentry
             return null;
         }
     },
@@ -68,9 +85,13 @@ export const getAboutData = unstable_cache(
 export const getBanners = unstable_cache(
     async (): Promise<Banner[]> => {
         try {
-            const bannersCollection = collection(db, 'banners');
-            const snapshot = await getDocs(bannersCollection);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
+            const apiUrl = `${getBaseUrl()}/api/banners`;
+            const response = await fetch(apiUrl, { next: { tags: ['banners'] }});
+             if (!response.ok) {
+                console.error(`Failed to fetch banners: ${response.status}`);
+                return [];
+             }
+            return response.json();
         } catch (error) {
             console.error("Error fetching banners:", error);
             return [];
@@ -87,9 +108,13 @@ export const getBanners = unstable_cache(
 export const getEvents = unstable_cache(
     async (): Promise<Event[]> => {
         try {
-            const eventsCollection = collection(db, 'events');
-            const snapshot = await getDocs(eventsCollection);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Event[];
+            const apiUrl = `${getBaseUrl()}/api/events`;
+            const response = await fetch(apiUrl, { next: { tags: ['events'] }});
+            if (!response.ok) {
+                console.error(`Failed to fetch events: ${response.status}`);
+                return [];
+            }
+            return response.json();
         } catch (error) {
             console.error("Error fetching events:", error);
             return [];
@@ -107,10 +132,16 @@ export const getEvents = unstable_cache(
 export const getLineups = unstable_cache(
     async (): Promise<Lineup[]> => {
         try {
-            const lineupsCollection = collection(db, 'lineups');
-            const q = query(lineupsCollection, orderBy("date", "asc"));
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
+            const apiUrl = `${getBaseUrl()}/api/lineup`;
+            const response = await fetch(apiUrl, { next: { tags: ['lineups'] }});
+             if (!response.ok) {
+                console.error(`Failed to fetch lineups: ${response.status}`);
+                return [];
+            }
+            const data = await response.json();
+            // Perform sorting here after fetching
+            data.sort((a: Lineup, b: Lineup) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            return data;
         } catch (error) {
             console.error("Error fetching lineups:", error);
             return [];
@@ -127,9 +158,13 @@ export const getLineups = unstable_cache(
 export const getRecaps = unstable_cache(
     async (): Promise<Recap[]> => {
         try {
-            const recapsCollection = collection(db, 'recaps');
-            const snapshot = await getDocs(recapsCollection);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Recap[];
+            const apiUrl = `${getBaseUrl()}/api/recap`;
+            const response = await fetch(apiUrl, { next: { tags: ['recaps'] }});
+            if (!response.ok) {
+                console.error(`Failed to fetch recaps: ${response.status}`);
+                return [];
+            }
+            return response.json();
         } catch (error) {
             console.error("Error fetching recaps:", error);
             return [];
