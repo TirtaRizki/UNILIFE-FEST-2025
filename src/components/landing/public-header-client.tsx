@@ -62,7 +62,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
         <>
             <header className={cn(
                 "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-                scrolled || mobileMenuOpen ? "bg-black/80 backdrop-blur-sm shadow-lg" : "bg-transparent"
+                scrolled || mobileMenuOpen ? "bg-background/80 backdrop-blur-sm shadow-lg" : "bg-transparent"
             )}>
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-20">
@@ -72,7 +72,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
 
                         <nav className="hidden md:flex items-center space-x-8">
                             {navLinks.map((link) => (
-                                <a key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base font-medium text-white hover:text-primary transition-colors">
+                                <a key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base font-medium text-foreground hover:text-primary transition-colors">
                                     {link.name}
                                 </a>
                             ))}
@@ -99,7 +99,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                                 </a>
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
-                                <Menu className="h-6 w-6 text-white" />
+                                <Menu className="h-6 w-6 text-foreground" />
                             </Button>
                         </div>
                     </div>
@@ -120,13 +120,13 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                     mobileMenuOpen ? "translate-x-0" : "translate-x-full"
                 )}
             >
-                <div className="h-full flex flex-col bg-gradient-to-b from-blue-400/20 to-cyan-400/20 backdrop-blur-xl border-l border-white/10">
-                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <div className="h-full flex flex-col bg-background/95 backdrop-blur-xl border-l border-white/10">
+                    <div className="flex items-center justify-between p-4 border-b border-border/10">
                          <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
                             <Image src={logoUrl} alt="Unilife Logo" width={100} height={28} className="object-contain" />
                         </Link>
                         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
-                            <X className="h-6 w-6 text-white" />
+                            <X className="h-6 w-6 text-foreground" />
                         </Button>
                     </div>
 
@@ -145,7 +145,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                                     <a 
                                         href={link.href} 
                                         onClick={(e) => handleLinkClick(e, link.href)} 
-                                        className="text-2xl font-bold text-white hover:text-primary transition-colors"
+                                        className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
                                     >
                                         {link.name}
                                     </a>
@@ -155,7 +155,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                     </nav>
 
                     <div 
-                      className="p-8 mt-auto border-t border-white/10 space-y-4 transition-all duration-300"
+                      className="p-8 mt-auto border-t border-border/10 space-y-4 transition-all duration-300"
                       style={{
                           transitionDelay: `${navLinks.length * 75}ms`,
                           opacity: mobileMenuOpen ? 1 : 0,

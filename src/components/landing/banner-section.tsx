@@ -22,7 +22,7 @@ const BannerSection = async () => {
                     {activeBanners.map((banner) => (
                         <CarouselItem key={banner.id} className="md:basis-1/2 lg:basis-1/3">
                             <div className="p-1">
-                                <div className="relative aspect-video overflow-hidden rounded-lg">
+                                <div className="relative aspect-video overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
                                     <Image
                                         src={banner.imageUrl || "https://placehold.co/1600x900.png"}
                                         alt={banner.title}

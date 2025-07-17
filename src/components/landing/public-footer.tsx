@@ -13,7 +13,7 @@ const PublicFooter = async () => {
     const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
 
     return (
-        <footer className="bg-[#1A1A1A] text-gray-300 font-sans">
+        <footer className="bg-slate-900 text-gray-300 font-sans">
             <div className="container mx-auto px-4 pt-16">
                 <div className="flex flex-col items-center text-center">
                     <PublicFooterClient logoUrl={logoUrl} />

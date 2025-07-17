@@ -19,7 +19,7 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
             className="object-cover transition-all duration-500 group-hover:scale-110"
             data-ai-hint="concert aftermovie photo"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-4 md:p-6">
             <h3 className="text-lg font-bold text-white">{recap.title}</h3>
             {recap.description && <p className="text-sm text-white/80 mt-1 line-clamp-2">{recap.description}</p>}

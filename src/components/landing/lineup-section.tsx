@@ -8,7 +8,7 @@ import type { Lineup } from '@/lib/types';
 import { getLineups } from '@/lib/data-services';
 
 const LineupCard = ({ lineup }: { lineup: Lineup }) => (
-    <div className="text-center p-4">
+    <div className="text-center p-4 transition-transform duration-300 hover:scale-105">
         <h3 className="text-2xl font-bold font-headline text-primary">{lineup.artistName}</h3>
         <div className="flex items-center justify-center gap-2 mt-2 text-muted-foreground">
             <Calendar className="h-4 w-4" />

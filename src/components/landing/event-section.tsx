@@ -13,7 +13,7 @@ import { getEvents } from '@/lib/data-services';
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
     <Card 
-        className="bg-card/5 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full animate-fade-up"
+        className="bg-card/80 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full animate-fade-up"
         style={{animationDelay: `${index * 0.15}s`}}
     >
         <CardHeader className="p-0">
@@ -28,7 +28,7 @@ const EventCard = ({ event, index }: { event: Event, index: number }) => (
             </div>
         </CardHeader>
         <CardContent className="p-6 flex-grow">
-            <h3 className="text-xl font-bold font-headline mb-2 text-primary-foreground">{event.name}</h3>
+            <h3 className="text-xl font-bold font-headline mb-2 text-foreground">{event.name}</h3>
             <p className="text-muted-foreground text-sm line-clamp-3 mb-4">{event.description}</p>
         </CardContent>
         <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">

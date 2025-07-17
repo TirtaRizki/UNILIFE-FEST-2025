@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 const TiketinCta = () => (
     <Link href="https://mytiketin.com/" target="_blank" rel="noopener noreferrer" className="block group">
-        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-[#0a205a] via-[#0a4d9e] to-[#0a4d9e] transition-transform duration-300 group-hover:scale-[1.02]">
+        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-blue-900 via-primary to-cyan-500 transition-transform duration-300 group-hover:scale-[1.02] shadow-lg shadow-primary/30">
             <div className="relative z-10">
                 <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4">
                     Tinggal Klik, Tiketin Aja!
@@ -44,14 +44,14 @@ export default function DashboardSection() {
     }, [isClient]);
 
     return (
-        <section id="dashboard-info" className="py-20 md:py-32 bg-background/5 animate-fade-up">
+        <section id="dashboard-info" className="py-20 md:py-32 bg-background/80 backdrop-blur-sm animate-fade-up">
             <div className="container mx-auto px-4 grid gap-8">
                 <div className="grid gap-8 grid-cols-1 lg:grid-cols-5">
-                    <Card className="lg:col-span-3 bg-card/5 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl">
+                    <Card className="lg:col-span-3 bg-card/80 border-border/20 p-4 md:p-6 flex flex-col gap-8 items-center justify-center rounded-xl shadow-lg">
                         <Countdown targetDate="2025-08-30T00:00:00" title="Start The Event" />
                         <div className="relative w-full max-w-sm flex items-center justify-center">
-                            <div className="absolute inset-x-0 h-px bg-white/20"></div>
-                            <div className="relative flex items-center gap-4 bg-background/5 px-4 rounded-full">
+                            <div className="absolute inset-x-0 h-px bg-border/50"></div>
+                            <div className="relative flex items-center gap-4 bg-background px-4 rounded-full">
                                 <Sparkles className="h-5 w-5 text-primary" />
                                 <Ticket className="h-5 w-5 text-primary" />
                                 <Music className="h-5 w-5 text-primary" />
@@ -65,7 +65,7 @@ export default function DashboardSection() {
                             buttonLink="https://mytiketin.com/event/79"
                         />
                     </Card>
-                    <Card className="lg:col-span-2 bg-card/5 border-border/20 flex justify-center items-center p-2 rounded-xl">
+                    <Card className="lg:col-span-2 bg-card/80 border-border/20 flex justify-center items-center p-2 rounded-xl shadow-lg">
                         {isClient && (
                             <Calendar
                                 mode="single"
@@ -77,7 +77,7 @@ export default function DashboardSection() {
                     </Card>
                 </div>
                 <TiketinCta />
-                <Card className="bg-card/5 border-border/20 rounded-xl">
+                <Card className="bg-card/80 border-border/20 rounded-xl shadow-lg">
                     <CardHeader>
                         <div className="flex items-center gap-2">
                             <Music className="h-6 w-6 text-primary" />

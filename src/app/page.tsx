@@ -13,7 +13,7 @@ import FloatingIcons from '@/components/landing/floating-icons';
 
 export default function LandingPage() {
   return (
-    <div className="landing-page-body text-white font-body">
+    <div className="landing-page-body font-body">
       <FloatingIcons />
       <PublicHeader />
       <main>
