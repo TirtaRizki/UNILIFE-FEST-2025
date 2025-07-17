@@ -12,15 +12,13 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'File tidak ditemukan.' }, { status: 400 });
         }
 
-        // getAdminDb() now returns the initialized app instance
+        // getAdminDb() will throw if not initialized, so we don't need to check for its existence.
         const adminApp = getAdminDb(); 
-        if (!adminApp) {
-             throw new Error("Firebase Admin SDK is not initialized.");
-        }
         
         // Get the default bucket from the initialized admin app
         const bucket = adminApp.storage().bucket();
         if (!bucket.name) {
+             // This error should now be caught during initialization, but as a safeguard:
              throw new Error("Firebase Storage bucket name is not configured in environment variables or admin initialization.");
         }
 
