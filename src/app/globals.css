@@ -113,6 +113,15 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
   }
+
+  @keyframes float-up-down {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 }
 
 @layer components {
