@@ -4,14 +4,13 @@ import React from 'react';
 import Image from 'next/image';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import type { Banner } from "@/lib/types";
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-const fetchActiveBanners = async (): Promise<Banner[]> => {
+const fetchBanners = async (): Promise<Banner[]> => {
     try {
         const bannersCollection = collection(db, 'banners');
-        const q = query(bannersCollection, where("status", "==", "Active"));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(bannersCollection);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Banner));
     } catch (error) {
         console.error("Failed to fetch banners:", error);
@@ -20,9 +19,10 @@ const fetchActiveBanners = async (): Promise<Banner[]> => {
 };
 
 const BannerSection = async () => {
-    const banners = await fetchActiveBanners();
+    const allBanners = await fetchBanners();
+    const activeBanners = allBanners.filter(banner => banner.status === "Active");
 
-    if (banners.length === 0) {
+    if (activeBanners.length === 0) {
         return null; // Don't render the section if there are no active banners
     }
 
@@ -30,7 +30,7 @@ const BannerSection = async () => {
         <section id="banners" className="container mx-auto px-4 py-12 animate-fade-up">
             <Carousel opts={{ loop: true, align: "start" }}>
                 <CarouselContent>
-                    {banners.map((banner) => (
+                    {activeBanners.map((banner) => (
                         <CarouselItem key={banner.id} className="md:basis-1/2 lg:basis-1/3">
                             <div className="p-1">
                                 <div className="relative aspect-video overflow-hidden rounded-lg">

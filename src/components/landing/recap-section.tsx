@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import type { Recap } from "@/lib/types";
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 
@@ -27,11 +27,10 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     </div>
 );
 
-const fetchPublishedRecaps = async (): Promise<Recap[]> => {
+const fetchRecaps = async (): Promise<Recap[]> => {
     try {
         const recapsCollection = collection(db, 'recaps');
-        const q = query(recapsCollection, where("status", "==", "Published"));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(recapsCollection);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Recap));
     } catch (error) {
         console.error("Failed to fetch recaps:", error);
@@ -40,9 +39,10 @@ const fetchPublishedRecaps = async (): Promise<Recap[]> => {
 };
 
 const RecapSection = async () => {
-    const recaps = await fetchPublishedRecaps();
+    const allRecaps = await fetchRecaps();
+    const publishedRecaps = allRecaps.filter(recap => recap.status === "Published");
     
-    if (recaps.length === 0) {
+    if (publishedRecaps.length === 0) {
         return null;
     }
 
@@ -51,7 +51,7 @@ const RecapSection = async () => {
             <div className="container mx-auto px-4">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {recaps.map((recap, index) => (
+                    {publishedRecaps.map((recap, index) => (
                         <RecapCard key={recap.id} recap={recap} index={index} />
                     ))}
                 </div>

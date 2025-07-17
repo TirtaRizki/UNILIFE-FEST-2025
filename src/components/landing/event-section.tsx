@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import type { Event } from '@/lib/types';
 import Link from 'next/link';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
@@ -51,11 +51,10 @@ const EventCard = ({ event, index }: { event: Event, index: number }) => (
     </Card>
 );
 
-const fetchUpcomingEvents = async (): Promise<Event[]> => {
+const fetchEvents = async (): Promise<Event[]> => {
     try {
         const eventsCollection = collection(db, 'events');
-        const q = query(eventsCollection, where("status", "==", "Upcoming"));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(eventsCollection);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
     } catch (error) {
         console.error("Failed to fetch events:", error);
@@ -64,9 +63,10 @@ const fetchUpcomingEvents = async (): Promise<Event[]> => {
 };
 
 const EventSection = async () => {
-    const events = await fetchUpcomingEvents();
+    const allEvents = await fetchEvents();
+    const upcomingEvents = allEvents.filter(event => event.status === "Upcoming");
 
-    if (events.length === 0) {
+    if (upcomingEvents.length === 0) {
         return null;
     }
 
@@ -75,7 +75,7 @@ const EventSection = async () => {
             <div className="container mx-auto px-4">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Upcoming Events</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {events.map((event, index) => (
+                    {upcomingEvents.map((event, index) => (
                         <EventCard key={event.id} event={event} index={index} />
                     ))}
                 </div>
