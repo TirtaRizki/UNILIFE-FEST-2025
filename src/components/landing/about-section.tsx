@@ -1,28 +1,15 @@
 
-"use client";
+"use server";
 
 import React from 'react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import type { About } from '@/lib/types';
-import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
 import { getAboutData } from '@/lib/data-services';
+import { AboutSectionClient } from './about-section-client';
 
-const AboutSectionContent = ({ about }: { about: About | null }) => {
-    const { toast } = useToast();
 
-    const handleGetTicketClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault();
-        const targetElement = document.querySelector('#dashboard-info');
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-        toast({
-            title: "Prepare for The War! 🚀",
-            description: "You are being scrolled to the ticket countdown section.",
-        });
-    };
+const AboutSection = async () => {
+    const about = await getAboutData();
     
     if (!about) {
         return null;
@@ -35,11 +22,7 @@ const AboutSectionContent = ({ about }: { about: About | null }) => {
                     <div className="text-center md:text-left">
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
-                        <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                            <a href="#dashboard-info" onClick={handleGetTicketClick}>
-                                Get Your Ticket
-                            </a>
-                        </Button>
+                        <AboutSectionClient />
                     </div>
                     <div className="flex justify-center">
                          <Image
@@ -56,12 +39,5 @@ const AboutSectionContent = ({ about }: { about: About | null }) => {
         </section>
     );
 };
-
-
-const AboutSection = async () => {
-    const about = await getAboutData();
-    return <AboutSectionContent about={about} />
-}
-
 
 export default AboutSection;

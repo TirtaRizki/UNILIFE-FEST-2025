@@ -71,9 +71,9 @@ const PublicHeader = () => {
 
                         <nav className="hidden md:flex items-center space-x-8">
                             {navLinks.map((link) => (
-                                <Link key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base font-medium text-white hover:text-primary transition-colors">
+                                <a key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base font-medium text-white hover:text-primary transition-colors">
                                     {link.name}
-                                </Link>
+                                </a>
                             ))}
                         </nav>
 
@@ -141,13 +141,13 @@ const PublicHeader = () => {
                                         transform: mobileMenuOpen ? 'translateY(0)' : 'translateY(15px)',
                                     }}
                                 >
-                                    <Link 
+                                    <a 
                                         href={link.href} 
                                         onClick={(e) => handleLinkClick(e, link.href)} 
                                         className="text-2xl font-bold text-white hover:text-primary transition-colors"
                                     >
                                         {link.name}
-                                    </Link>
+                                    </a>
                                 </li>
                             ))}
                         </ul>
