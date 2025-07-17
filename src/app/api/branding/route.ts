@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getAdminApp } from '@/lib/firebase-admin';
+import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import { getBrandingSettings } from '@/lib/data-services';
 import type { BrandingSettings } from '@/lib/types';
 import { revalidateTag } from 'next/cache';
@@ -20,8 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         // Initialize Admin SDK right when the API is called to ensure it's ready.
-        const adminApp = getAdminApp();
-        const adminDb = adminApp.firestore();
+        getAdminApp();
 
         const settings: BrandingSettings = await request.json();
         
@@ -30,7 +29,7 @@ export async function POST(request: Request) {
         }
 
         // Directly use the initialized adminDb instance to save settings.
-        await adminDb.collection('branding').doc('singleton').set(settings, { merge: true });
+        await adminDb().collection('branding').doc('singleton').set(settings, { merge: true });
         
         // Revalidate the cache tag so the new logo appears everywhere.
         revalidateTag('branding_settings_tag');

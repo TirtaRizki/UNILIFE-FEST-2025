@@ -1,13 +1,14 @@
 
 import { NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, getAdminApp } from '@/lib/firebase-admin';
 import { revalidateTag } from 'next/cache';
 
 
 // GET /api/visitors - Fetches the current visitor count
 export async function GET() {
     try {
+        getAdminApp(); // Ensure admin app is initialized
         const db = adminDb();
         const visitorDocRef = db.collection("siteStats").doc("visitors");
         const docSnap = await visitorDocRef.get();
@@ -28,6 +29,7 @@ export async function GET() {
 // POST /api/visitors - Increments the visitor count
 export async function POST() {
     try {
+        getAdminApp(); // Ensure admin app is initialized
         const db = adminDb();
         const visitorDocRef = db.collection("siteStats").doc("visitors");
         const docSnap = await visitorDocRef.get();

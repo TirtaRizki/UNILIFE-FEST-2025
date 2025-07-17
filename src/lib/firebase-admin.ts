@@ -34,21 +34,32 @@ function getStorageBucket() {
     return bucketName;
 }
 
-// A function to get or initialize the Firebase Admin app
-export function getAdminApp(): App {
-  if (admin.apps.length > 0) {
-    return admin.apps[0]!;
-  }
+// Use a global variable to store the initialized app to prevent re-initialization
+// during hot-reloads in development. This is a best practice for Next.js.
+declare global {
+  var firebaseAdminApp: App | undefined;
+}
 
+function initializeAdminApp(): App {
+  if (global.firebaseAdminApp) {
+    return global.firebaseAdminApp;
+  }
+  
   const serviceAccount = getServiceAccount();
   const storageBucket = getStorageBucket();
 
-  admin.initializeApp({
+  const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     storageBucket: storageBucket,
   });
 
-  return admin.app();
+  global.firebaseAdminApp = app;
+  return app;
+}
+
+// A function to get the initialized Firebase Admin app
+export function getAdminApp(): App {
+  return initializeAdminApp();
 }
 
 // Export a ready-to-use db and storage instance
