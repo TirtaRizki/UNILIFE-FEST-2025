@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 const MAX_FILE_SIZE_MB = 8.0;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -23,6 +25,7 @@ export default function SettingsPage() {
     const isAdmin = hasRole(['Admin']);
     const { toast } = useToast();
     const [logoUrl, setLogoUrl] = useState('');
+    const [logoFile, setLogoFile] = useState<File | null>(null);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const { theme, setTheme } = useTheme();
@@ -59,10 +62,10 @@ export default function SettingsPage() {
                 e.target.value = ''; // Reset input
                 return;
             }
+            setLogoFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 const dataUrl = reader.result as string;
-                setLogoUrl(dataUrl); // Store as Data URL
                 setLogoPreview(dataUrl);
             };
             reader.readAsDataURL(file);
@@ -73,6 +76,7 @@ export default function SettingsPage() {
         const url = e.target.value;
         setLogoUrl(url);
         setLogoPreview(url);
+        setLogoFile(null); // Clear file if URL is being used
     };
 
     const handleSaveLogo = async () => {
@@ -80,47 +84,20 @@ export default function SettingsPage() {
         try {
             let finalLogoUrl = logoUrl;
 
-            // Jika logoUrl adalah data URI (file yang diunggah), unggah ke storage dulu
-            if (logoUrl.startsWith('data:')) {
-                const fileResponse = await fetch(logoUrl);
-                const blob = await fileResponse.blob();
-                const file = new File([blob], "logo-upload", { type: blob.type });
-
-                const formData = new FormData();
-                formData.append('file', file);
+            // Jika ada file yang dipilih, unggah ke Firebase Storage
+            if (logoFile) {
+                const storage = getStorage();
+                const uniqueFilename = `${uuidv4()}-${logoFile.name}`;
+                const fileRef = storageRef(storage, `logos/${uniqueFilename}`);
                 
-                console.log('🔍 Sending request to:', '/api/upload');
-                console.log('🔍 File details:', {
-                    name: file.name,
-                    size: file.size,
-                    type: file.type
-                });
+                const uploadResult = await uploadBytes(fileRef, logoFile);
+                finalLogoUrl = await getDownloadURL(uploadResult.ref);
+            }
 
-                const uploadResponse = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-                
-                console.log('🔍 Response status:', uploadResponse.status);
-                console.log('🔍 Response ok:', uploadResponse.ok);
-
-                if (!uploadResponse.ok) {
-                    const errorText = await uploadResponse.text();
-                    console.error('🚨 Raw error response:', errorText);
-                    
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        console.error('🚨 Parsed error data:', errorData);
-                        throw new Error(errorData.message || 'Gagal mengunggah file.');
-                    } catch (parseError) {
-                        console.error('🚨 Could not parse error as JSON:', parseError);
-                        throw new Error(`Server error: ${uploadResponse.status} - ${errorText}`);
-                    }
-                }
-                
-                const uploadResult = await uploadResponse.json();
-                console.log('✅ Success upload result:', uploadResult);
-                finalLogoUrl = uploadResult.url;
+            if (!finalLogoUrl) {
+                toast({ title: "Error", description: "Logo URL atau file tidak boleh kosong.", variant: "destructive" });
+                setIsSaving(false);
+                return;
             }
 
             // Simpan URL final (baik dari URL input atau hasil unggahan) ke database
@@ -143,6 +120,9 @@ export default function SettingsPage() {
                 title: "Logo Diperbarui",
                 description: "Logo aplikasi telah berhasil diganti.",
             });
+            setLogoUrl(finalLogoUrl); // Update state to reflect saved URL
+            setLogoFile(null); // Clear file selection
+
         } catch (error) {
              toast({
                 title: "Error",
@@ -191,7 +171,7 @@ export default function SettingsPage() {
                                     <Input 
                                         id="logoUrl"
                                         placeholder="https://example.com/logo.png" 
-                                        value={logoUrl.startsWith('data:') ? '' : logoUrl}
+                                        value={logoUrl}
                                         onChange={handleUrlChange}
                                     />
                                 </TabsContent>
