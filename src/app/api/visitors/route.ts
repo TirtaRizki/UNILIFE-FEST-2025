@@ -2,35 +2,20 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, increment } from "firebase/firestore";
-import { unstable_cache } from 'next/cache';
 
 const visitorDocRef = doc(db, "siteStats", "visitors");
 
-// This function will be cached by Next.js
-const getCachedVisitorCount = unstable_cache(
-    async () => {
+// GET /api/visitors - Fetches the current visitor count
+export async function GET() {
+    try {
         const docSnap = await getDoc(visitorDocRef);
         if (docSnap.exists()) {
-            return { count: docSnap.data().count };
+            return NextResponse.json({ count: docSnap.data().count });
         } else {
             // If the document doesn't exist, create it.
             await setDoc(visitorDocRef, { count: 0 });
-            return { count: 0 };
+            return NextResponse.json({ count: 0 });
         }
-    },
-    ['visitor-count'], // Unique cache key
-    { 
-      revalidate: 60, // Revalidate data at most once per minute
-      tags: ['visitor-count-tag'] 
-    }
-);
-
-
-// GET /api/visitors - Fetches the current visitor count with caching
-export async function GET() {
-    try {
-        const data = await getCachedVisitorCount();
-        return NextResponse.json(data);
     } catch (error) {
         console.error("Error fetching visitor count:", error);
         return NextResponse.json({ message: 'Error fetching visitor count' }, { status: 500 });
@@ -56,5 +41,3 @@ export async function POST() {
         return NextResponse.json({ message: 'Error incrementing visitor count', error: (error as Error).message }, { status: 500 });
     }
 }
-
-    
