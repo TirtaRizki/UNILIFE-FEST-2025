@@ -1,17 +1,18 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import type { Lineup } from '@/lib/types';
-import { getLineups } from '@/lib/data-services';
 import { revalidateTag } from 'next/cache';
 
 const lineupsCollection = collection(db, 'lineups');
 
-// GET /api/lineup with caching
+// GET /api/lineup
 export async function GET() {
     try {
-        const lineups = await getLineups();
+        const q = query(lineupsCollection, orderBy("date", "asc"));
+        const lineupsSnapshot = await getDocs(q);
+        const lineups = lineupsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
         return NextResponse.json(lineups);
     } catch (error) {
         console.error("Error fetching lineups:", error);

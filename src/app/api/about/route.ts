@@ -1,21 +1,28 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, addDoc, updateDoc, collection, getDocs, limit, query } from 'firebase/firestore';
 import type { About } from '@/lib/types';
 import { revalidateTag } from 'next/cache';
-import { getAboutData } from '@/lib/data-services';
-
 
 // GET /api/about
 export async function GET() {
     try {
-        const abouts = await getAboutData();
-        // The service returns a single object or null, but API might expect an array
-        const data = abouts ? [abouts] : [];
+        // There should only be one 'about' document. We fetch the first one we find.
+        const q = query(collection(db, "abouts"), limit(1));
+        const querySnapshot = await getDocs(q);
+        
+        let aboutContent: About | null = null;
+        if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            aboutContent = { id: doc.id, ...doc.data() } as About;
+        }
+
+        // To maintain consistency, we return an array, even if it's just one item or empty.
+        const data = aboutContent ? [aboutContent] : [];
         return NextResponse.json(data);
     } catch (error) {
-        console.error("Error fetching abouts:", error);
+        console.error("Error fetching about content:", error);
         return NextResponse.json({ message: 'Error fetching about content', error: (error as Error).message }, { status: 500 });
     }
 }

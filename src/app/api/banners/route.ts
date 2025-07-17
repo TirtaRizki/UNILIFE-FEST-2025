@@ -1,17 +1,18 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import type { Banner } from '@/lib/types';
-import { getBanners } from '@/lib/data-services';
 import { revalidateTag } from 'next/cache';
 
 const bannersCollection = collection(db, 'banners');
 
-// GET /api/banners with caching
+// GET /api/banners
 export async function GET() {
     try {
-        const banners = await getBanners();
+        const q = query(bannersCollection, orderBy("title", "asc"));
+        const bannersSnapshot = await getDocs(q);
+        const banners = bannersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
         return NextResponse.json(banners);
     } catch (error) {
         console.error("Error fetching banners:", error);

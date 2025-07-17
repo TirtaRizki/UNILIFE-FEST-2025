@@ -1,18 +1,19 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import type { Recap } from '@/lib/types';
-import { getRecaps } from '@/lib/data-services';
 import { revalidateTag } from 'next/cache';
 
 
 const recapsCollection = collection(db, 'recaps');
 
-// GET /api/recap with caching
+// GET /api/recap
 export async function GET() {
     try {
-        const recaps = await getRecaps();
+        const q = query(recapsCollection, orderBy("title", "asc"));
+        const recapsSnapshot = await getDocs(q);
+        const recaps = recapsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Recap[];
         return NextResponse.json(recaps);
     } catch (error) {
         console.error("Error fetching recaps:", error);

@@ -1,20 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
-import { getEvents } from '@/lib/data-services';
 import { revalidateTag } from 'next/cache';
 
 const eventsCollection = collection(db, 'events');
 
-// GET /api/events with caching
+// GET /api/events
 export async function GET() {
     try {
-        const events = await getEvents();
+        const q = query(eventsCollection, orderBy("date", "desc"));
+        const eventsSnapshot = await getDocs(q);
+        const events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Event[];
         return NextResponse.json(events);
-    } catch (error)
-        {
+    } catch (error) {
         console.error("Error fetching events:", error);
         return NextResponse.json({ message: 'Error fetching events', error: (error as Error).message }, { status: 500 });
     }
