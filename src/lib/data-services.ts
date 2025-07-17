@@ -3,15 +3,18 @@
  * @fileoverview This file contains data fetching services for the application.
  * It centralizes all Firestore queries, using the Firebase Admin SDK for server-side rendering.
  */
-import { adminDb } from '@/lib/firebase-admin';
+import { getAdminApp } from '@/lib/firebase-admin';
 import type { About, Banner, Event, Lineup, Recap, BrandingSettings, User } from '@/lib/types';
 import { unstable_cache } from 'next/cache';
+
+// Helper function to get an initialized admin DB instance
+const adminDb = () => getAdminApp().firestore();
+
 
 // Re-usable function to fetch a collection and map the documents
 async function getCollection<T>(collectionName: string, orderByField?: string, orderDirection: 'asc' | 'desc' = 'asc'): Promise<T[]> {
     try {
-        const db = adminDb();
-        let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = db.collection(collectionName);
+        let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = adminDb().collection(collectionName);
         if (orderByField) {
             query = query.orderBy(orderByField, orderDirection);
         }
@@ -29,8 +32,7 @@ async function getCollection<T>(collectionName: string, orderByField?: string, o
 // Re-usable function to fetch a single document
 async function getDocument<T>(collectionName: string, docId: string): Promise<T | null> {
     try {
-        const db = adminDb();
-        const docRef = db.collection(collectionName).doc(docId);
+        const docRef = adminDb().collection(collectionName).doc(docId);
         const docSnap = await docRef.get();
         if (docSnap.exists) {
             return { id: docSnap.id, ...docSnap.data() } as T;
@@ -57,8 +59,7 @@ export const getBrandingSettings = unstable_cache(
 
 export const saveBrandingSettings = async (settings: BrandingSettings) => {
     try {
-        const db = adminDb();
-        await db.collection('branding').doc(BRANDING_DOC_ID).set(settings, { merge: true });
+        await adminDb().collection('branding').doc(BRANDING_DOC_ID).set(settings, { merge: true });
     } catch (error) {
         console.error("Error saving branding settings:", error);
         throw error;
@@ -123,8 +124,7 @@ export const getRecaps = unstable_cache(
 export const getVisitorCount = unstable_cache(
     async (): Promise<number> => {
         try {
-            const db = adminDb();
-            const docRef = db.collection("siteStats").doc("visitors");
+            const docRef = adminDb().collection("siteStats").doc("visitors");
             const docSnap = await docRef.get();
             if (docSnap.exists) {
                 return docSnap.data()?.count || 0;
