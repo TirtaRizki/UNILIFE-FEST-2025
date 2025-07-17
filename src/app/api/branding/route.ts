@@ -26,10 +26,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'Logo URL is required' }, { status: 400 });
         }
 
-        // The call to adminDb() will trigger initialization if it hasn't happened yet.
         await adminDb().collection('branding').doc('singleton').set(settings, { merge: true });
         
-        // Revalidate the cache tag so the new logo appears everywhere.
         revalidateTag('branding_settings_tag');
         
         console.log('✅ Branding settings saved successfully.');

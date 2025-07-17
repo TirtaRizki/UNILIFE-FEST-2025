@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 export async function POST(request: Request) {
   console.log('📨 /api/upload route called');
   try {
-    // The call to adminStorage() will trigger initialization if it hasn't happened yet.
     const bucket = adminStorage().bucket();
     
     const formData = await request.formData();
@@ -31,10 +30,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // Make the file publicly readable
     await fileUpload.makePublic();
     
-    // Get the public URL
     const publicUrl = fileUpload.publicUrl();
 
     console.log('✅ File uploaded successfully:', publicUrl);

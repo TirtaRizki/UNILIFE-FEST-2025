@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview This file handles the Firebase Admin SDK initialization using a robust singleton pattern.
  * This pattern ensures the SDK is initialized only once and is safe for Next.js server environments,
@@ -20,8 +21,6 @@ function getServiceAccount() {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
   if (!privateKey || !clientEmail || !projectId) {
-    // This error will be thrown if the environment variables are not set.
-    // This is the root cause of the previous errors.
     throw new Error(
       'Firebase Admin credentials are not set in environment variables. Required: FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, NEXT_PUBLIC_FIREBASE_PROJECT_ID'
     );
@@ -30,7 +29,6 @@ function getServiceAccount() {
   return {
     projectId: projectId,
     clientEmail: clientEmail,
-    // The private key from environment variables often has escaped newlines.
     privateKey: privateKey.replace(/\\n/g, '\n'),
   };
 }
@@ -49,7 +47,6 @@ function getStorageBucket() {
  * @returns The initialized Firebase Admin App.
  */
 function getAdminApp(): App {
-  // If the app is already initialized, return it from the global cache.
   if (globalThis.firebaseAdminApp) {
     return globalThis.firebaseAdminApp;
   }
@@ -57,7 +54,6 @@ function getAdminApp(): App {
   const serviceAccount = getServiceAccount();
   const storageBucket = getStorageBucket();
 
-  // Initialize the app with credentials.
   const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     storageBucket: storageBucket,
@@ -65,13 +61,10 @@ function getAdminApp(): App {
 
   console.log('Firebase Admin SDK initialized successfully.');
 
-  // Cache the initialized app in globalThis for subsequent calls.
   globalThis.firebaseAdminApp = app;
 
   return app;
 }
 
-// Export ready-to-use db and storage instances.
-// They lazily initialize the app on first use by calling getAdminApp().
 export const adminDb = () => getAdminApp().firestore();
 export const adminStorage = () => getAdminApp().storage();
