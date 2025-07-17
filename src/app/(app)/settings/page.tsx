@@ -87,7 +87,8 @@ export default function SettingsPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save logo');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save logo to database');
             }
 
             // Update state and dispatch event
@@ -102,9 +103,10 @@ export default function SettingsPage() {
         } catch (error) {
              toast({
                 title: "Error",
-                description: error instanceof Error ? error.message : "Gagal menyimpan logo.",
+                description: error instanceof Error ? error.message : "Gagal menyimpan logo. Periksa konsol untuk detail.",
                 variant: "destructive"
             });
+            console.error("Full save logo error:", error);
         } finally {
             setIsSaving(false);
         }
