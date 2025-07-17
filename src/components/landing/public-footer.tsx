@@ -5,9 +5,6 @@ import React from 'react';
 import VisitorCounter from './visitor-counter';
 import { getBrandingSettings } from '@/lib/data-services';
 import PublicFooterClient from './public-footer-client';
-import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-
 
 const PublicFooter = async () => {
     const branding = await getBrandingSettings();
@@ -15,15 +12,22 @@ const PublicFooter = async () => {
 
     let initialVisitorCount = 0;
     try {
-        const visitorDocRef = doc(db, "siteStats", "visitors");
-        const docSnap = await getDoc(visitorDocRef);
-        if (docSnap.exists()) {
-            initialVisitorCount = docSnap.data().count;
+        // Construct the full URL for server-side fetch. Use localhost for development.
+        // In production, NEXT_PUBLIC_APP_URL should be set to the public domain.
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
+        const apiUrl = `${appUrl}/api/visitors`;
+        
+        const response = await fetch(apiUrl, { next: { revalidate: 60 } }); // Revalidate every 60s
+        
+        if (response.ok) {
+            const data = await response.json();
+            initialVisitorCount = data.count;
+        } else {
+             console.error("Failed to fetch visitor count from API:", response.status, await response.text());
         }
     } catch (error) {
-        console.error("Failed to fetch initial visitor count directly:", error);
+        console.error("Failed to fetch initial visitor count from API:", error);
     }
-
 
     return (
         <footer className="bg-slate-900 text-gray-300 font-sans">
@@ -58,7 +62,3 @@ const PublicFooter = async () => {
 };
 
 export default PublicFooter;
-
-
-
-    
