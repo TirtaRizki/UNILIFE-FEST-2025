@@ -17,6 +17,7 @@ const navLinks = [
     { name: 'Recap', href: '#recap' },
 ];
 
+// The component now accepts logoUrl as a prop
 const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

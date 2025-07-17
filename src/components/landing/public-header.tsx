@@ -7,7 +7,8 @@ import { getBrandingSettings } from '@/lib/data-services';
 
 const PublicHeader = async () => {
     const branding = await getBrandingSettings();
-    const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
+    // Pass the logoUrl to the client component. Use a default if it's null.
+    const logoUrl = branding?.logoUrl || '/images/unilife_logo.png'; 
 
     return <PublicHeaderClient logoUrl={logoUrl} />;
 };

@@ -9,6 +9,7 @@ import PublicFooterClient from './public-footer-client';
 
 const PublicFooter = async () => {
     const branding = await getBrandingSettings();
+    // Pass the logoUrl to the client component. Use a default if it's null.
     const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
 
     return (
