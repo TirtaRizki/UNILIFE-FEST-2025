@@ -25,7 +25,7 @@ const PublicFooterClient = ({ logoUrl }: { logoUrl: string }) => {
 
     return (
         <>
-            <Link href="/" className="inline-block mb-4">
+            <Link href="/" className="inline-block mb-4" onClick={(e) => handleLinkClick(e, '#home')}>
                 <Image
                     src={logoUrl}
                     alt="Unilife Logo"
@@ -47,9 +47,9 @@ const PublicFooterClient = ({ logoUrl }: { logoUrl: string }) => {
             </div>
             <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-10">
                 {navLinks.map((link) => (
-                    <Link key={link.href} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base text-gray-300 hover:text-primary transition-colors">
+                    <a key={link.href} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-base text-gray-300 hover:text-primary transition-colors">
                         {link.name}
-                    </Link>
+                    </a>
                 ))}
             </nav>
         </>

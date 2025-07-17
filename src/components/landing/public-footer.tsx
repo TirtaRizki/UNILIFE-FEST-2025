@@ -2,9 +2,6 @@
 "use server";
 
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { FaInstagram, FaTiktok } from 'react-icons/fa';
 import VisitorCounter from './visitor-counter';
 import { getBrandingSettings } from '@/lib/data-services';
 import PublicFooterClient from './public-footer-client';
