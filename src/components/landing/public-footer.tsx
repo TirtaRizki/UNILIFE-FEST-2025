@@ -9,8 +9,22 @@ import PublicFooterClient from './public-footer-client';
 
 const PublicFooter = async () => {
     const branding = await getBrandingSettings();
-    // Pass the logoUrl to the client component. Use a default if it's null.
     const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
+
+    // Fetch visitor count on the server
+    let initialVisitorCount = 0;
+    try {
+        // Using an absolute URL here is best practice for server-side fetch in Next.js
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
+        const response = await fetch(`${baseUrl}/api/visitors`, { next: { revalidate: 60 } });
+        if (response.ok) {
+            const data = await response.json();
+            initialVisitorCount = data.count;
+        }
+    } catch (error) {
+        console.error("Failed to fetch initial visitor count:", error);
+    }
+
 
     return (
         <footer className="bg-slate-900 text-gray-300 font-sans">
@@ -31,7 +45,7 @@ const PublicFooter = async () => {
                         </iframe>
                     </div>
                     <div className="w-full md:w-1/2 flex justify-center">
-                        <VisitorCounter />
+                        <VisitorCounter initialCount={initialVisitorCount} />
                     </div>
                 </div>
             </div>
