@@ -78,14 +78,61 @@ export default function SettingsPage() {
     const handleSaveLogo = async () => {
         setIsSaving(true);
         try {
+            let finalLogoUrl = logoUrl;
+
+            // Jika logoUrl adalah data URI (file yang diunggah), unggah ke storage dulu
+            if (logoUrl.startsWith('data:')) {
+                const fileResponse = await fetch(logoUrl);
+                const blob = await fileResponse.blob();
+                const file = new File([blob], "logo-upload", { type: blob.type });
+
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                console.log('🔍 Sending request to:', '/api/upload');
+                console.log('🔍 File details:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                });
+
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                console.log('🔍 Response status:', uploadResponse.status);
+                console.log('🔍 Response ok:', uploadResponse.ok);
+
+                if (!uploadResponse.ok) {
+                    const errorText = await uploadResponse.text();
+                    console.error('🚨 Raw error response:', errorText);
+                    
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        console.error('🚨 Parsed error data:', errorData);
+                        throw new Error(errorData.message || 'Gagal mengunggah file.');
+                    } catch (parseError) {
+                        console.error('🚨 Could not parse error as JSON:', parseError);
+                        throw new Error(`Server error: ${uploadResponse.status} - ${errorText}`);
+                    }
+                }
+                
+                const uploadResult = await uploadResponse.json();
+                console.log('✅ Success upload result:', uploadResult);
+                finalLogoUrl = uploadResult.url;
+            }
+
+            // Simpan URL final (baik dari URL input atau hasil unggahan) ke database
             const response = await fetch('/api/branding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ logoUrl: logoUrl }),
+                body: JSON.stringify({ logoUrl: finalLogoUrl }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('🚨 Branding save error:', errorData);
                 throw new Error(errorData.message || 'Gagal menyimpan logo ke database');
             }
             
@@ -102,7 +149,7 @@ export default function SettingsPage() {
                 description: error instanceof Error ? error.message : "Gagal menyimpan logo.",
                 variant: "destructive"
             });
-            console.error("Save logo error:", error);
+            console.error("🚨 Full error object in handleSaveLogo:", error);
         } finally {
             setIsSaving(false);
         }
