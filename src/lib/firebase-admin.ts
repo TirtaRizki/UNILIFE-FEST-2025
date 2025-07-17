@@ -7,9 +7,6 @@
 import admin from 'firebase-admin';
 import type { App } from 'firebase-admin/app';
 
-// Ensure this file is only run on the server
-import 'server-only';
-
 // Use globalThis to store the initialized app, preventing re-initialization.
 declare global {
   var firebaseAdminApp: App | undefined;
