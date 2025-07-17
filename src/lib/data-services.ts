@@ -57,16 +57,6 @@ export const getBrandingSettings = unstable_cache(
     } 
 );
 
-export const saveBrandingSettings = async (settings: BrandingSettings) => {
-    try {
-        await adminDb().collection('branding').doc(BRANDING_DOC_ID).set(settings, { merge: true });
-    } catch (error) {
-        console.error("Error saving branding settings:", error);
-        throw error;
-    }
-};
-
-
 // --- About Service ---
 export const getAboutData = unstable_cache(
     async (): Promise<About | null> => {

@@ -1,9 +1,9 @@
 
 import { NextResponse } from 'next/server';
-import { getBrandingSettings, saveBrandingSettings } from '@/lib/data-services';
+import { getAdminApp } from '@/lib/firebase-admin';
+import { getBrandingSettings } from '@/lib/data-services';
 import type { BrandingSettings } from '@/lib/types';
 import { revalidateTag } from 'next/cache';
-import { getAdminApp } from '@/lib/firebase-admin';
 
 // GET /api/branding
 export async function GET() {
@@ -19,17 +19,20 @@ export async function GET() {
 // POST /api/branding
 export async function POST(request: Request) {
     try {
-        // Ensure Admin SDK is initialized
-        getAdminApp();
+        // Initialize Admin SDK right when the API is called to ensure it's ready.
+        const adminApp = getAdminApp();
+        const adminDb = adminApp.firestore();
 
         const settings: BrandingSettings = await request.json();
-        // Add some validation here if needed
+        
         if (!settings.logoUrl) {
             return NextResponse.json({ message: 'Logo URL is required' }, { status: 400 });
         }
-        await saveBrandingSettings(settings);
+
+        // Directly use the initialized adminDb instance to save settings.
+        await adminDb.collection('branding').doc('singleton').set(settings, { merge: true });
         
-        // Revalidate the cache for the branding settings
+        // Revalidate the cache tag so the new logo appears everywhere.
         revalidateTag('branding_settings_tag');
         
         return NextResponse.json({ message: 'Branding settings saved successfully' }, { status: 200 });
