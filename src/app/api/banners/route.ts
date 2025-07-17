@@ -3,14 +3,22 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Banner } from '@/lib/types';
+import { unstable_cache } from 'next/cache';
 
 const bannersCollection = collection(db, 'banners');
 
-// GET /api/banners
+// GET /api/banners with caching
 export async function GET() {
     try {
-        const snapshot = await getDocs(bannersCollection);
-        const banners = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
+        const getCachedBanners = unstable_cache(
+            async () => {
+                const snapshot = await getDocs(bannersCollection);
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
+            },
+            ['banners'],
+            { revalidate: 300 } // Revalidate every 5 minutes
+        );
+        const banners = await getCachedBanners();
         return NextResponse.json(banners);
     } catch (error) {
         console.error("Error fetching banners:", error);

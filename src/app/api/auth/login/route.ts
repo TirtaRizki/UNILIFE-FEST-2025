@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
+import { rateLimitMiddleware } from '@/lib/rate-limiter';
 
 const usersCollection = collection(db, 'users');
 
@@ -27,6 +28,9 @@ async function initializeDefaultUsers() {
 
 // POST /api/auth/login
 export async function POST(request: Request) {
+    const rateLimitResponse = await rateLimitMiddleware(request);
+    if (rateLimitResponse) return rateLimitResponse;
+
     try {
         const { email, password } = await request.json();
 

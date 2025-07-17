@@ -3,14 +3,22 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Recap } from '@/lib/types';
+import { unstable_cache } from 'next/cache';
 
 const recapsCollection = collection(db, 'recaps');
 
-// GET /api/recap
+// GET /api/recap with caching
 export async function GET() {
     try {
-        const snapshot = await getDocs(recapsCollection);
-        const recaps = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Recap[];
+        const getCachedRecaps = unstable_cache(
+            async () => {
+                const snapshot = await getDocs(recapsCollection);
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Recap[];
+            },
+            ['recaps'],
+            { revalidate: 300 } // Revalidate every 5 minutes
+        );
+        const recaps = await getCachedRecaps();
         return NextResponse.json(recaps);
     } catch (error) {
         console.error("Error fetching recaps:", error);

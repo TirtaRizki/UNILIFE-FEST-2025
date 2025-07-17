@@ -1,16 +1,25 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import type { Lineup } from '@/lib/types';
+import { unstable_cache } from 'next/cache';
 
 const lineupsCollection = collection(db, 'lineups');
 
-// GET /api/lineup
+// GET /api/lineup with caching
 export async function GET() {
     try {
-        const snapshot = await getDocs(lineupsCollection);
-        const lineups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
+        const getCachedLineups = unstable_cache(
+            async () => {
+                const q = query(lineupsCollection, orderBy("date", "asc"));
+                const snapshot = await getDocs(q);
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
+            },
+            ['lineups'],
+            { revalidate: 300 } // Revalidate every 5 minutes
+        );
+        const lineups = await getCachedLineups();
         return NextResponse.json(lineups);
     } catch (error) {
         console.error("Error fetching lineups:", error);

@@ -3,14 +3,23 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
 import type { About } from '@/lib/types';
+import { unstable_cache } from 'next/cache';
 
 const aboutsCollection = collection(db, 'abouts');
 
-// GET /api/about
+// GET /api/about with caching
 export async function GET() {
     try {
-        const snapshot = await getDocs(aboutsCollection);
-        const abouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as About[];
+        const getCachedAbouts = unstable_cache(
+            async () => {
+                const snapshot = await getDocs(aboutsCollection);
+                const abouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as About[];
+                return abouts;
+            },
+            ['abouts'], // Cache key
+            { revalidate: 300 } // Revalidate every 5 minutes (300 seconds)
+        );
+        const abouts = await getCachedAbouts();
         return NextResponse.json(abouts);
     } catch (error) {
         console.error("Error fetching abouts:", error);
