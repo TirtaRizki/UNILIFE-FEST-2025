@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
 import type { About } from '@/lib/types';
 import { getAboutData } from '@/lib/data-services';
 
