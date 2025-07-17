@@ -120,13 +120,13 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                     mobileMenuOpen ? "translate-x-0" : "translate-x-full"
                 )}
             >
-                <div className="h-full flex flex-col bg-background/95 backdrop-blur-xl border-l border-white/10">
+                <div className="h-full flex flex-col bg-gradient-to-b from-slate-900 to-blue-950/90 text-white backdrop-blur-xl border-l border-white/10">
                     <div className="flex items-center justify-between p-4 border-b border-border/10">
                          <Link href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
                             <Image src={logoUrl} alt="Unilife Logo" width={100} height={28} className="object-contain" />
                         </Link>
                         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
-                            <X className="h-6 w-6 text-foreground" />
+                            <X className="h-6 w-6 text-white" />
                         </Button>
                     </div>
 
@@ -145,7 +145,7 @@ const PublicHeaderClient = ({ logoUrl }: { logoUrl: string }) => {
                                     <a 
                                         href={link.href} 
                                         onClick={(e) => handleLinkClick(e, link.href)} 
-                                        className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
+                                        className="text-2xl font-bold text-white hover:text-primary transition-colors"
                                     >
                                         {link.name}
                                     </a>
