@@ -1,7 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+// This file will only be responsible for initializing the app and Firestore.
+// Other services like Storage will be imported directly where needed.
 
 // Your web app's Firebase configuration is now read from Environment Variables
 // This is the secure way to handle sensitive keys.
@@ -20,6 +21,6 @@ const firebaseConfig = {
 // This pattern prevents re-initializing the app on hot reloads.
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-export { db, storage };
+// Do not export storage from here.
+export { db };

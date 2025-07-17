@@ -1,5 +1,6 @@
 
 "use client";
+import '@/lib/firebase'; // Import for side-effects to ensure initialization
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import PageHeader from "@/components/page-header";
