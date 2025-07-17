@@ -16,7 +16,7 @@ export default function LandingPage() {
     <div className="landing-page-body font-body">
       <FloatingIcons />
       <PublicHeader />
-      <main>
+      <main className="relative z-10">
         <HeroSection />
         <DashboardSection />
         <BannerSection />
