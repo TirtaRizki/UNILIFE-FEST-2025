@@ -1,11 +1,10 @@
+
 "use server";
 
 import React from 'react';
 import { format } from 'date-fns';
 import { Calendar, Music } from 'lucide-react';
 import type { Lineup } from '@/lib/types';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     <div className="text-center p-4">
@@ -19,10 +18,14 @@ const LineupCard = ({ lineup }: { lineup: Lineup }) => (
 
 const fetchLineups = async (): Promise<Lineup[]> => {
     try {
-        const lineupsCollection = collection(db, 'lineups');
-        const q = query(lineupsCollection, orderBy("date", "asc"));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Lineup));
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/lineup`, {
+            next: { revalidate: 300 } // Revalidate every 5 minutes
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch lineups: ${response.statusText}`);
+        }
+        return await response.json();
     } catch (error) {
         console.error("Failed to fetch lineups:", error);
         return [];

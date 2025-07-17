@@ -1,3 +1,4 @@
+
 "use server";
 
 import React from 'react';
@@ -8,8 +9,6 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import type { Event } from '@/lib/types';
 import Link from 'next/link';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
     <Card 
@@ -53,9 +52,14 @@ const EventCard = ({ event, index }: { event: Event, index: number }) => (
 
 const fetchEvents = async (): Promise<Event[]> => {
     try {
-        const eventsCollection = collection(db, 'events');
-        const snapshot = await getDocs(eventsCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/events`, {
+            next: { revalidate: 300 } // Revalidate every 5 minutes
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch events: ${response.statusText}`);
+        }
+        return await response.json();
     } catch (error) {
         console.error("Failed to fetch events:", error);
         return [];

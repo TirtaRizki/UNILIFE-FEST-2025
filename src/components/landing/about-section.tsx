@@ -1,44 +1,34 @@
-"use client";
+
+"use server";
+
+import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import type { About } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-const AboutSection = () => {
-    const { toast } = useToast();
-    const [about, setAbout] = useState<About | null>(null);
-
-    useEffect(() => {
-        const fetchAbout = async () => {
-            try {
-                const response = await fetch('/api/about');
-                if (!response.ok) return;
-                const data = await response.json();
-                if (data.length > 0) {
-                    setAbout(data[0]);
-                }
-            } catch (error) {
-                console.error("Could not fetch about content:", error);
-            }
-        };
-        fetchAbout();
-    }, []);
-
-    const handleGetTicketClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault();
-        const targetElement = document.querySelector('#dashboard-info');
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-        toast({
-            title: "Prepare for The War! 🚀",
-            description: "You are being scrolled to the ticket countdown section.",
+// This function now fetches from the internal API route
+const fetchAbout = async (): Promise<About | null> => {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/about`, {
+            next: { revalidate: 300 } // Revalidate every 5 minutes
         });
-    };
+        if (!response.ok) {
+           throw new Error(`Failed to fetch about content: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.length > 0 ? data[0] : null;
+    } catch (error) {
+        console.error("Could not fetch about content:", error);
+        return null;
+    }
+};
+    
+const AboutSection = async () => {
+    const about = await fetchAbout();
     
     if (!about) {
-        // Render a placeholder or nothing while loading
         return null;
     }
 
@@ -50,9 +40,9 @@ const AboutSection = () => {
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
                         <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                            <a href="#dashboard-info" onClick={handleGetTicketClick}>
+                            <Link href="#dashboard-info">
                                 Get Your Ticket
-                            </a>
+                            </Link>
                         </Button>
                     </div>
                     <div className="flex justify-center">

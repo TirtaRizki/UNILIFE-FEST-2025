@@ -1,17 +1,23 @@
+
 "use server";
 
 import React from 'react';
 import Image from 'next/image';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import type { Banner } from "@/lib/types";
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
+// This function now fetches from the internal API route
 const fetchBanners = async (): Promise<Banner[]> => {
     try {
-        const bannersCollection = collection(db, 'banners');
-        const snapshot = await getDocs(bannersCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Banner));
+        // Using an absolute URL is a good practice for server-side fetching
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/banners`, {
+            next: { revalidate: 300 } // Revalidate every 5 minutes
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch banners: ${response.statusText}`);
+        }
+        return await response.json();
     } catch (error) {
         console.error("Failed to fetch banners:", error);
         return [];

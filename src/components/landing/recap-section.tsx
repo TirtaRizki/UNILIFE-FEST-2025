@@ -1,10 +1,9 @@
+
 "use server";
 
 import React from 'react';
 import Image from 'next/image';
 import type { Recap } from "@/lib/types";
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 
 const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
@@ -29,9 +28,14 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
 
 const fetchRecaps = async (): Promise<Recap[]> => {
     try {
-        const recapsCollection = collection(db, 'recaps');
-        const snapshot = await getDocs(recapsCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Recap));
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/recap`, {
+            next: { revalidate: 300 } // Revalidate every 5 minutes
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch recaps: ${response.statusText}`);
+        }
+        return await response.json();
     } catch (error) {
         console.error("Failed to fetch recaps:", error);
         return [];
