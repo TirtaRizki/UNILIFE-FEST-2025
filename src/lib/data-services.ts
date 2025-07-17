@@ -3,12 +3,9 @@
  * @fileoverview This file contains data fetching services for the application.
  * It centralizes all Firestore queries, using the Firebase Admin SDK for server-side rendering.
  */
-import { getAdminApp } from '@/lib/firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 import type { About, Banner, Event, Lineup, Recap, BrandingSettings, User } from '@/lib/types';
 import { unstable_cache } from 'next/cache';
-
-// Helper function to get an initialized admin DB instance
-const adminDb = () => getAdminApp().firestore();
 
 
 // Re-usable function to fetch a collection and map the documents

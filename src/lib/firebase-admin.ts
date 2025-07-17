@@ -1,6 +1,7 @@
 /**
  * @fileoverview This file handles the Firebase Admin SDK initialization.
- * It ensures the SDK is initialized only once and provides a global instance.
+ * It ensures the SDK is initialized only once (singleton pattern) and provides global instances.
+ * This pattern is robust for Next.js server environments, including serverless functions.
  */
 import admin from 'firebase-admin';
 import type { App } from 'firebase-admin/app';
@@ -22,7 +23,7 @@ function getServiceAccount() {
   return {
     projectId: projectId,
     clientEmail: clientEmail,
-    privateKey: privateKey.replace(/\\n/g, '\n'), // Important for Vercel/similar environments
+    privateKey: privateKey.replace(/\\n/g, '\n'),
   };
 }
 
@@ -34,15 +35,15 @@ function getStorageBucket() {
     return bucketName;
 }
 
-// Use a global variable to store the initialized app to prevent re-initialization
-// during hot-reloads in development. This is a best practice for Next.js.
+// Use globalThis to store the initialized app, preventing re-initialization during hot-reloads.
+// This is a best practice for Next.js.
 declare global {
   var firebaseAdminApp: App | undefined;
 }
 
-function initializeAdminApp(): App {
-  if (global.firebaseAdminApp) {
-    return global.firebaseAdminApp;
+function getAdminApp(): App {
+  if (globalThis.firebaseAdminApp) {
+    return globalThis.firebaseAdminApp;
   }
   
   const serviceAccount = getServiceAccount();
@@ -53,15 +54,11 @@ function initializeAdminApp(): App {
     storageBucket: storageBucket,
   });
 
-  global.firebaseAdminApp = app;
+  console.log('Firebase Admin SDK initialized successfully.');
+  globalThis.firebaseAdminApp = app;
   return app;
 }
 
-// A function to get the initialized Firebase Admin app
-export function getAdminApp(): App {
-  return initializeAdminApp();
-}
-
-// Export a ready-to-use db and storage instance
+// Export ready-to-use db and storage instances that lazily initialize the app on first use.
 export const adminDb = () => getAdminApp().firestore();
 export const adminStorage = () => getAdminApp().storage();

@@ -11,12 +11,12 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
-    console.log('📨 Received file:', file?.name);
-
     if (!file) {
       console.error('❌ No file in request');
       return NextResponse.json({ message: 'File tidak ditemukan.' }, { status: 400 });
     }
+    
+    console.log('📨 Received file:', file?.name);
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     const uniqueFilename = `${uuidv4()}-${file.name}`;
