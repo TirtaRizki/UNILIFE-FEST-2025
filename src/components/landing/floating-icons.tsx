@@ -15,7 +15,7 @@ const icons = [
 
 const FloatingIcons = () => {
   return (
-    <div className="hidden lg:block absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+    <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
       {icons.map((item, index) => {
         const { Icon, className, style } = item;
         return (
