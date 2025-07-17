@@ -6,6 +6,8 @@
  */
 import admin from 'firebase-admin';
 import type { App } from 'firebase-admin/app';
+import path from 'path';
+import fs from 'fs';
 
 // Use globalThis to store the initialized app, preventing re-initialization.
 declare global {
@@ -13,46 +15,8 @@ declare global {
 }
 
 /**
- * Retrieves the necessary Firebase service account credentials from environment variables.
- * Throws an error if any of the required variables are missing.
- * @returns The service account object for Firebase Admin SDK initialization.
- */
-function getServiceAccount() {
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-
-  if (!privateKey || !clientEmail || !projectId) {
-    throw new Error(
-      'Firebase Admin credentials are not set in environment variables. Required: FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, NEXT_PUBLIC_FIREBASE_PROJECT_ID'
-    );
-  }
-
-  return {
-    projectId: projectId,
-    clientEmail: clientEmail,
-    // Replace escaped newlines with actual newlines for the private key
-    privateKey: privateKey.replace(/\\n/g, '\n'),
-  };
-}
-
-/**
- * Retrieves the Firebase Storage bucket name from environment variables.
- * Throws an error if the variable is missing.
- * @returns The Firebase Storage bucket name.
- */
-function getStorageBucket() {
-    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
-    if (!bucketName) {
-        throw new Error('Firebase Storage bucket name is not configured in environment variables (NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET).');
-    }
-    return bucketName;
-}
-
-
-/**
  * Initializes and returns the Firebase Admin app instance, ensuring it's created only once.
- * This function uses a singleton pattern to prevent re-initialization during hot reloads or across serverless function invocations.
+ * This function now reads credentials directly from a JSON file for better reliability in Node.js environments.
  * @returns The initialized Firebase Admin App.
  */
 function getAdminApp(): App {
@@ -61,13 +25,21 @@ function getAdminApp(): App {
     return globalThis.firebaseAdminApp;
   }
   
-  const serviceAccount = getServiceAccount();
-  const storageBucket = getStorageBucket();
+  // Path to your service account key file
+  const serviceAccountPath = path.resolve(process.cwd(), 'firebase-credentials.json');
+
+  if (!fs.existsSync(serviceAccountPath)) {
+    throw new Error(
+      `Firebase credentials file not found at ${serviceAccountPath}. Please create 'firebase-credentials.json' in the root of your project.`
+    );
+  }
+
+  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
   // Initialize the app with the retrieved credentials.
   const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: storageBucket,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
 
   console.log('Firebase Admin SDK initialized successfully.');

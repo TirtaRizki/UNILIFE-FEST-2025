@@ -1,11 +1,10 @@
-
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
-.pnp.cjs
+.yarn/install-state.gz
 
 # testing
 /coverage
@@ -39,3 +38,6 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Firebase credentials file
+firebase-credentials.json
