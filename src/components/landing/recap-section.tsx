@@ -1,11 +1,9 @@
+"use client";
 
-"use server";
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import type { Recap } from "@/lib/types";
-import { getRecaps } from '@/lib/data-services';
-
+import { Skeleton } from '../ui/skeleton';
 
 const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     <div 
@@ -27,12 +25,52 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     </div>
 );
 
+const RecapCardSkeleton = () => (
+    <div className="relative aspect-square overflow-hidden rounded-lg">
+        <Skeleton className="w-full h-full" />
+    </div>
+);
 
-const RecapSection = async () => {
-    const allRecaps = await getRecaps();
-    const publishedRecaps = allRecaps.filter(recap => recap.status === "Published");
+const RecapSection = () => {
+    const [recaps, setRecaps] = useState<Recap[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRecaps = async () => {
+            try {
+                const response = await fetch('/api/recap');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recaps');
+                }
+                const data: Recap[] = await response.json();
+                const publishedRecaps = data.filter(recap => recap.status === "Published");
+                setRecaps(publishedRecaps);
+            } catch (error) {
+                console.error("Error fetching recaps for landing page:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchRecaps();
+    }, []);
     
-    if (publishedRecaps.length === 0) {
+    if (isLoading) {
+        return (
+             <section id="recap" className="py-20 md:py-32 overflow-hidden">
+                <div className="container mx-auto px-4">
+                    <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[...Array(4)].map((_, index) => (
+                           <RecapCardSkeleton key={index} />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
+    if (recaps.length === 0) {
         return null;
     }
 
@@ -41,7 +79,7 @@ const RecapSection = async () => {
             <div className="container mx-auto px-4">
                 <h2 className="text-4xl md:text-5xl font-bold font-headline text-center mb-12">Recap Aftermovie</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {publishedRecaps.map((recap, index) => (
+                    {recaps.map((recap, index) => (
                         <RecapCard key={recap.id} recap={recap} index={index} />
                     ))}
                 </div>

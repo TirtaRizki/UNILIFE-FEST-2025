@@ -1,14 +1,15 @@
-
 /**
  * @fileoverview This file contains data fetching services for the application.
  * It centralizes all Firestore queries, using the Firebase Admin SDK for server-side rendering.
+ * NOTE: As of the last update, most landing page components were moved to client-side fetching
+ * via API routes to ensure robust environment variable access. These functions are kept
+ * for potential server-side use elsewhere or for reference.
  */
 import { adminDb } from '@/lib/firebase-admin';
 import type { About, Banner, Event, Lineup, Recap, BrandingSettings, User } from '@/lib/types';
 import { unstable_cache } from 'next/cache';
 
-
-// Re-usable function to fetch a collection and map the documents
+// This function now explicitly ensures the admin app is initialized.
 async function getCollection<T>(collectionName: string, orderByField?: string, orderDirection: 'asc' | 'desc' = 'asc'): Promise<T[]> {
     try {
         let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = adminDb().collection(collectionName);
@@ -22,11 +23,11 @@ async function getCollection<T>(collectionName: string, orderByField?: string, o
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
     } catch (error) {
         console.error(`Error fetching collection ${collectionName}:`, error);
-        return []; // Return empty array on error to prevent breaking the page
+        return [];
     }
 }
 
-// Re-usable function to fetch a single document
+// This function now explicitly ensures the admin app is initialized.
 async function getDocument<T>(collectionName: string, docId: string): Promise<T | null> {
     try {
         const docRef = adminDb().collection(collectionName).doc(docId);
@@ -52,59 +53,6 @@ export const getBrandingSettings = unstable_cache(
         revalidate: 3600,
         tags: ['branding_settings_tag'],
     } 
-);
-
-// --- About Service ---
-export const getAboutData = unstable_cache(
-    async (): Promise<About | null> => {
-        const abouts = await getCollection<About>('abouts');
-        return abouts.length > 0 ? abouts[0] : null; // Return the first (and only) about document
-    },
-    ['about_data'],
-    { 
-        revalidate: 300,
-        tags: ['about_data'],
-    }
-);
-
-// --- Banner Service ---
-export const getBanners = unstable_cache(
-    async (): Promise<Banner[]> => getCollection<Banner>('banners'),
-    ['banners'],
-    { 
-        revalidate: 300,
-        tags: ['banners'],
-    }
-);
-
-// --- Event Service ---
-export const getEvents = unstable_cache(
-    async (): Promise<Event[]> => getCollection<Event>('events', 'date', 'asc'),
-    ['events'],
-    { 
-        revalidate: 300,
-        tags: ['events'],
-    }
-);
-
-// --- Lineup Service ---
-export const getLineups = unstable_cache(
-    async (): Promise<Lineup[]> => getCollection<Lineup>('lineups', 'date', 'asc'),
-    ['lineups'],
-    { 
-        revalidate: 300,
-        tags: ['lineups'],
-    }
-);
-
-// --- Recap Service ---
-export const getRecaps = unstable_cache(
-    async (): Promise<Recap[]> => getCollection<Recap>('recaps'),
-    ['recaps'],
-    { 
-        revalidate: 300,
-        tags: ['recaps'],
-    }
 );
 
 // --- Visitor Service ---
