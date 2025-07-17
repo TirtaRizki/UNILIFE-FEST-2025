@@ -28,26 +28,29 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getBrandingSettings } from "@/lib/data-services";
 
 const Logo = () => {
     const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
 
     const fetchLogo = async () => {
-        const settings = await getBrandingSettings();
-        if (settings?.logoUrl) {
-            setLogoUrl(settings.logoUrl);
+        try {
+            const response = await fetch('/api/branding');
+            if (response.ok) {
+                const settings = await response.json();
+                if (settings?.logoUrl) {
+                    setLogoUrl(settings.logoUrl);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch branding settings for sidebar", error);
         }
     };
 
     useEffect(() => {
         fetchLogo();
 
-        // Listen for storage changes to update logo in real-time
-        const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'brandingSettings') {
-                fetchLogo();
-            }
+        const handleStorageChange = () => {
+            fetchLogo();
         };
 
         window.addEventListener('storage', handleStorageChange);

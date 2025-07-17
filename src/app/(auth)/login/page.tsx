@@ -10,16 +10,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import { getBrandingSettings } from '@/lib/data-services';
 
 const Logo = () => {
     const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
 
     useEffect(() => {
         const fetchLogo = async () => {
-            const settings = await getBrandingSettings();
-            if (settings?.logoUrl) {
-                setLogoUrl(settings.logoUrl);
+            try {
+                const response = await fetch('/api/branding');
+                if (response.ok) {
+                    const settings = await response.json();
+                    if (settings?.logoUrl) {
+                        setLogoUrl(settings.logoUrl);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch branding settings for login page", error);
             }
         };
         fetchLogo();
