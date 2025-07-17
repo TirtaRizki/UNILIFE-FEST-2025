@@ -1,7 +1,6 @@
 
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebase-admin';
-import admin from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
@@ -13,12 +12,17 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'File tidak ditemukan.' }, { status: 400 });
         }
 
-        // Initialize Firebase Admin Storage
-        const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
-        if (!bucketName) {
-            throw new Error("Firebase Storage bucket name is not configured in environment variables.");
+        // getAdminDb() now returns the initialized app instance
+        const adminApp = getAdminDb(); 
+        if (!adminApp) {
+             throw new Error("Firebase Admin SDK is not initialized.");
         }
-        const bucket = getAdminDb().storage().bucket(bucketName);
+        
+        // Get the default bucket from the initialized admin app
+        const bucket = adminApp.storage().bucket();
+        if (!bucket.name) {
+             throw new Error("Firebase Storage bucket name is not configured in environment variables or admin initialization.");
+        }
 
         const buffer = Buffer.from(await file.arrayBuffer());
         const filename = `logos/${uuidv4()}-${file.name.replace(/\s+/g, '_')}`;
@@ -28,13 +32,11 @@ export async function POST(request: Request) {
             metadata: {
                 contentType: file.type,
             },
+            public: true, // Make the file publicly readable
         });
 
-        // Get public URL
-        const [url] = await fileUpload.getSignedUrl({
-            action: 'read',
-            expires: '03-09-2491', // A very long time in the future
-        });
+        // Construct the public URL manually
+        const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
 
         return NextResponse.json({ message: 'File berhasil diunggah', url }, { status: 200 });
 

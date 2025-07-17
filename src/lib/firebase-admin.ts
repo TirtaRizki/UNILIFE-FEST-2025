@@ -39,19 +39,16 @@ if (!getApps().length && projectId && clientEmail && privateKey) {
   }
 }
 
-// Ensure storage is part of the admin export
-const adminDb = getApps().length ? admin.firestore() : null;
-
 // Export a getter function for the database to ensure it's accessed only when initialized.
 const getAdminDb = () => {
-  if (!adminDb) {
+  if (!getApps().length) {
     // This provides a clearer error message if something tries to use the db when it's not available.
     throw new Error('Firebase Admin SDK is not initialized. Database operations are not available.');
   }
   // The Admin SDK combines services, so we can return the entire admin object
-  // if we need more than just Firestore. Let's return just the DB for now.
+  // if we need more than just Firestore.
   return admin.apps[0];
 }
 
 
-export { getAdminDb, adminDb };
+export { getAdminDb };
