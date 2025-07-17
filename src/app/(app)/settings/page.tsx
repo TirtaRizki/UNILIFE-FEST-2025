@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
 
-const MAX_FILE_SIZE_MB = 0.7; // Approx 700KB to be safe for Base64 encoding under 1MB
+const MAX_FILE_SIZE_MB = 8.0;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export default function SettingsPage() {
