@@ -4,7 +4,7 @@
  * This prevents issues with data being re-initialized on serverless function cold starts.
  * 
  * To run this script:
- * 1. Make sure your .env.local file has the correct Firebase Admin credentials.
+ * 1. Create a `firebase-credentials.json` file in the root of your project with your service account key.
  * 2. Run `pnpm db:seed` or `npm run db:seed` in your terminal.
  */
 import { adminDb } from './firebase-admin';
@@ -33,6 +33,7 @@ async function seedDatabase() {
             }
         }
         console.log('🌲 Database seeding complete!');
+        process.exit(0);
     } catch (error) {
         console.error('❌ Error seeding database:', error);
         process.exit(1);

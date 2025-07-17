@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview This file handles the Firebase Admin SDK initialization using a robust singleton pattern.
  * This pattern ensures the SDK is initialized only once and is safe for Next.js server environments,
@@ -30,7 +29,7 @@ function getAdminApp(): App {
 
   if (!fs.existsSync(serviceAccountPath)) {
     throw new Error(
-      `Firebase credentials file not found at ${serviceAccountPath}. Please create 'firebase-credentials.json' in the root of your project.`
+      `Firebase credentials file not found at ${serviceAccountPath}. Please create 'firebase-credentials.json' in the root of your project with the service account key.`
     );
   }
 
