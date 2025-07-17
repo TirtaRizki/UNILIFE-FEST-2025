@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
 import type { About } from '@/lib/types';
-import { getAboutData } from '@/lib/data-services';
 import { revalidateTag } from 'next/cache';
+import { getAboutData } from '@/lib/data-services';
+
 
 // GET /api/about
 export async function GET() {

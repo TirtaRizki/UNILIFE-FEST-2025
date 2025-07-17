@@ -1,6 +1,8 @@
+
 import { NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase-admin';
+import { revalidateTag } from 'next/cache';
 
 const visitorDocRef = adminDb.collection("siteStats").doc("visitors");
 
@@ -31,6 +33,8 @@ export async function POST() {
         } else {
             await visitorDocRef.update({ count: FieldValue.increment(1) });
         }
+        // Revalidate the tag to update the cached visitor count
+        revalidateTag('visitor_count');
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         console.error("Error incrementing visitor count:", error);

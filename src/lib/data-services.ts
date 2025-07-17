@@ -1,41 +1,61 @@
 
 /**
  * @fileoverview This file contains data fetching services for the application.
- * It centralizes all Firestore queries and uses Next.js caching for performance.
+ * It centralizes all Firestore queries, using the Firebase Admin SDK for server-side rendering.
  */
+import { adminDb } from '@/lib/firebase-admin';
+import type { About, Banner, Event, Lineup, Recap, BrandingSettings, User } from '@/lib/types';
 import { unstable_cache } from 'next/cache';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, doc, getDoc, setDoc } from 'firebase/firestore';
-import type { About, Banner, Event, Lineup, Recap, BrandingSettings } from '@/lib/types';
+
+// Re-usable function to fetch a collection and map the documents
+async function getCollection<T>(collectionName: string, orderByField?: string, orderDirection: 'asc' | 'desc' = 'asc'): Promise<T[]> {
+    try {
+        let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = adminDb.collection(collectionName);
+        if (orderByField) {
+            query = query.orderBy(orderByField, orderDirection);
+        }
+        const snapshot = await query.get();
+        if (snapshot.empty) {
+            return [];
+        }
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+    } catch (error) {
+        console.error(`Error fetching collection ${collectionName}:`, error);
+        return []; // Return empty array on error to prevent breaking the page
+    }
+}
+
+// Re-usable function to fetch a single document
+async function getDocument<T>(collectionName: string, docId: string): Promise<T | null> {
+    try {
+        const docRef = adminDb.collection(collectionName).doc(docId);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+            return { id: docSnap.id, ...docSnap.data() } as T;
+        }
+        return null;
+    } catch (error) {
+        console.error(`Error fetching document ${docId} from ${collectionName}:`, error);
+        return null;
+    }
+}
 
 
 // --- Branding Settings Service ---
 const BRANDING_DOC_ID = 'singleton';
-const brandingDocRef = doc(db, "branding", BRANDING_DOC_ID);
 
 export const getBrandingSettings = unstable_cache(
-    async (): Promise<BrandingSettings | null> => {
-        try {
-            const docSnap = await getDoc(brandingDocRef);
-            if (docSnap.exists()) {
-                return docSnap.data() as BrandingSettings;
-            }
-            return null;
-        } catch (error) {
-            console.error("Error fetching branding settings:", error);
-            return null;
-        }
-    },
+    async (): Promise<BrandingSettings | null> => getDocument<BrandingSettings>('branding', BRANDING_DOC_ID),
     ['branding_settings'],
     { 
-        revalidate: 3600, // Revalidate every hour
-        tags: ['branding_settings_tag'], // Add a tag for on-demand revalidation
+        revalidate: 3600,
+        tags: ['branding_settings_tag'],
     } 
 );
 
 export const saveBrandingSettings = async (settings: BrandingSettings) => {
     try {
-        await setDoc(brandingDocRef, settings, { merge: true });
+        await adminDb.collection('branding').doc(BRANDING_DOC_ID).set(settings, { merge: true });
     } catch (error) {
         console.error("Error saving branding settings:", error);
         throw error;
@@ -46,42 +66,19 @@ export const saveBrandingSettings = async (settings: BrandingSettings) => {
 // --- About Service ---
 export const getAboutData = unstable_cache(
     async (): Promise<About | null> => {
-        try {
-             const aboutCollection = collection(db, 'abouts');
-             const q = query(aboutCollection);
-             const snapshot = await getDocs(q);
-             if (snapshot.empty) {
-                return null;
-             }
-             // There should only be one 'about' document.
-             const doc = snapshot.docs[0];
-             return { id: doc.id, ...doc.data() } as About;
-        } catch (error) {
-            console.error("Error fetching about data:", error);
-            return null;
-        }
+        const abouts = await getCollection<About>('abouts');
+        return abouts.length > 0 ? abouts[0] : null; // Return the first (and only) about document
     },
-    ['about_data'], // Cache key
+    ['about_data'],
     { 
-        revalidate: 300, // Revalidate every 5 minutes
+        revalidate: 300,
         tags: ['about_data'],
     }
 );
 
-
 // --- Banner Service ---
 export const getBanners = unstable_cache(
-    async (): Promise<Banner[]> => {
-        try {
-            const bannersCollection = collection(db, 'banners');
-            const q = query(bannersCollection);
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Banner));
-        } catch (error) {
-            console.error("Error fetching banners:", error);
-            return [];
-        }
-    },
+    async (): Promise<Banner[]> => getCollection<Banner>('banners'),
     ['banners'],
     { 
         revalidate: 300,
@@ -91,17 +88,7 @@ export const getBanners = unstable_cache(
 
 // --- Event Service ---
 export const getEvents = unstable_cache(
-    async (): Promise<Event[]> => {
-        try {
-            const eventsCollection = collection(db, 'events');
-            const q = query(eventsCollection, orderBy('date', 'asc'));
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        } catch (error) {
-            console.error("Error fetching events:", error);
-            return [];
-        }
-    },
+    async (): Promise<Event[]> => getCollection<Event>('events', 'date', 'asc'),
     ['events'],
     { 
         revalidate: 300,
@@ -109,21 +96,9 @@ export const getEvents = unstable_cache(
     }
 );
 
-
 // --- Lineup Service ---
 export const getLineups = unstable_cache(
-    async (): Promise<Lineup[]> => {
-        try {
-            const lineupsCollection = collection(db, 'lineups');
-            const q = query(lineupsCollection, orderBy('date', 'asc'));
-            const snapshot = await getDocs(q);
-            const lineups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Lineup));
-            return lineups;
-        } catch (error) {
-            console.error("Error fetching lineups:", error);
-            return [];
-        }
-    },
+    async (): Promise<Lineup[]> => getCollection<Lineup>('lineups', 'date', 'asc'),
     ['lineups'],
     { 
         revalidate: 300,
@@ -133,20 +108,34 @@ export const getLineups = unstable_cache(
 
 // --- Recap Service ---
 export const getRecaps = unstable_cache(
-    async (): Promise<Recap[]> => {
-        try {
-            const recapsCollection = collection(db, 'recaps');
-            const q = query(recapsCollection);
-            const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Recap));
-        } catch (error) {
-            console.error("Error fetching recaps:", error);
-            return [];
-        }
-    },
+    async (): Promise<Recap[]> => getCollection<Recap>('recaps'),
     ['recaps'],
     { 
         revalidate: 300,
         tags: ['recaps'],
+    }
+);
+
+// --- Visitor Service ---
+export const getVisitorCount = unstable_cache(
+    async (): Promise<number> => {
+        try {
+            const docRef = adminDb.collection("siteStats").doc("visitors");
+            const docSnap = await docRef.get();
+            if (docSnap.exists) {
+                return docSnap.data()?.count || 0;
+            }
+            // If the document doesn't exist, create it.
+            await docRef.set({ count: 0 });
+            return 0;
+        } catch (error) {
+            console.error("Error fetching visitor count:", error);
+            return 0;
+        }
+    },
+    ['visitor_count'],
+    {
+        revalidate: 60, // Revalidate every minute
+        tags: ['visitor_count'],
     }
 );
