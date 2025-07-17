@@ -5,24 +5,26 @@ import React from 'react';
 import VisitorCounter from './visitor-counter';
 import { getBrandingSettings } from '@/lib/data-services';
 import PublicFooterClient from './public-footer-client';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 
 const PublicFooter = async () => {
     const branding = await getBrandingSettings();
     const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
 
-    // Fetch visitor count on the server
+    // Fetch visitor count on the server directly from Firestore.
+    // This is the most reliable way.
     let initialVisitorCount = 0;
     try {
-        // Using an absolute URL here is best practice for server-side fetch in Next.js
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
-        const response = await fetch(`${baseUrl}/api/visitors`, { next: { revalidate: 60 } });
-        if (response.ok) {
-            const data = await response.json();
-            initialVisitorCount = data.count;
+        const visitorDocRef = doc(db, "siteStats", "visitors");
+        const docSnap = await getDoc(visitorDocRef);
+        if (docSnap.exists()) {
+            initialVisitorCount = docSnap.data().count;
         }
     } catch (error) {
-        console.error("Failed to fetch initial visitor count:", error);
+        console.error("Failed to fetch initial visitor count directly:", error);
+        // initialVisitorCount remains 0 if there's an error.
     }
 
 
@@ -59,3 +61,4 @@ const PublicFooter = async () => {
 };
 
 export default PublicFooter;
+
