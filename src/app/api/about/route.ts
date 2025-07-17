@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, updateDoc, collection } from 'firebase/firestore';
 import type { About } from '@/lib/types';
 import { getAboutData } from '@/lib/data-services';
+import { revalidateTag } from 'next/cache';
 
 // GET /api/about
 export async function GET() {
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
             const docRef = await addDoc(collection(db, 'abouts'), dataToAdd);
             savedAbout = { ...aboutData, id: docRef.id };
         }
+
+        revalidateTag('about_data'); // Revalidate the cache for about data
 
         return NextResponse.json({ message: 'About content saved successfully', about: savedAbout }, { status: 201 });
 

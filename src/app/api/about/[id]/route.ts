@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, deleteDoc, getDoc } from "firebase/firestore";
+import { revalidateTag } from 'next/cache';
 
 // DELETE /api/about/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
@@ -15,6 +16,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
         
         await deleteDoc(aboutDoc);
+        revalidateTag('about_data'); // Revalidate the cache for about data
+
         return NextResponse.json({ message: 'About content deleted successfully' }, { status: 200 });
 
     } catch (error) {

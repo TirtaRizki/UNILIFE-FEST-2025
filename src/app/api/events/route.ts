@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Event } from '@/lib/types';
 import { getEvents } from '@/lib/data-services';
+import { revalidateTag } from 'next/cache';
 
 const eventsCollection = collection(db, 'events');
 
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
             savedEvent = { ...eventData, id: docRef.id };
         }
         
+        revalidateTag('events'); // Revalidate the cache for events
+
         return NextResponse.json({ message: 'Event saved successfully', event: savedEvent }, { status: 201 });
 
     } catch (error) {

@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Recap } from '@/lib/types';
 import { getRecaps } from '@/lib/data-services';
+import { revalidateTag } from 'next/cache';
 
 
 const recapsCollection = collection(db, 'recaps');
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
             savedRecap = { ...recapData, id: docRef.id };
         }
         
+        revalidateTag('recaps'); // Revalidate the cache for recaps
+
         return NextResponse.json({ message: 'Recap saved successfully', recap: savedRecap }, { status: 201 });
 
     } catch (error) {

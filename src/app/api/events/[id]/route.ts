@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { revalidateTag } from 'next/cache';
 
 // DELETE /api/events/{id}
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
@@ -15,6 +16,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
         
         await deleteDoc(eventDoc);
+        revalidateTag('events'); // Revalidate the cache for events
+
         return NextResponse.json({ message: 'Event deleted successfully' }, { status: 200 });
 
     } catch (error) {

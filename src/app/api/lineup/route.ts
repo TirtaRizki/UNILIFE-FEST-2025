@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Lineup } from '@/lib/types';
 import { getLineups } from '@/lib/data-services';
+import { revalidateTag } from 'next/cache';
 
 const lineupsCollection = collection(db, 'lineups');
 
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
             savedLineup = { ...lineupData, id: docRef.id };
         }
         
+        revalidateTag('lineups'); // Revalidate the cache for lineups
+
         return NextResponse.json({ message: 'Lineup artist saved successfully', lineup: savedLineup }, { status: 201 });
 
     } catch (error) {

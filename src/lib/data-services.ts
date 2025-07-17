@@ -57,7 +57,10 @@ export const getAboutData = unstable_cache(
         }
     },
     ['about_data'], // Cache key
-    { revalidate: 300 } // Revalidate every 5 minutes
+    { 
+        revalidate: 300, // Revalidate every 5 minutes
+        tags: ['about_data'],
+    }
 );
 
 
@@ -74,7 +77,10 @@ export const getBanners = unstable_cache(
         }
     },
     ['banners'],
-    { revalidate: 300 }
+    { 
+        revalidate: 300,
+        tags: ['banners'],
+    }
 );
 
 // --- Event Service ---
@@ -90,7 +96,10 @@ export const getEvents = unstable_cache(
         }
     },
     ['events'],
-    { revalidate: 300 }
+    { 
+        revalidate: 300,
+        tags: ['events'],
+    }
 );
 
 
@@ -108,7 +117,10 @@ export const getLineups = unstable_cache(
         }
     },
     ['lineups'],
-    { revalidate: 300 }
+    { 
+        revalidate: 300,
+        tags: ['lineups'],
+    }
 );
 
 // --- Recap Service ---
@@ -124,5 +136,8 @@ export const getRecaps = unstable_cache(
         }
     },
     ['recaps'],
-    { revalidate: 300 }
+    { 
+        revalidate: 300,
+        tags: ['recaps'],
+    }
 );

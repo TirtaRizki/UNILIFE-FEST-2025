@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Banner } from '@/lib/types';
 import { getBanners } from '@/lib/data-services';
+import { revalidateTag } from 'next/cache';
 
 const bannersCollection = collection(db, 'banners');
 
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
             savedBanner = { ...bannerData, id: docRef.id };
         }
         
+        revalidateTag('banners'); // Revalidate the cache for banners
+
         return NextResponse.json({ message: 'Banner saved successfully', banner: savedBanner }, { status: 201 });
 
     } catch (error) {
