@@ -1,28 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Banner } from '@/lib/types';
-import { unstable_cache } from 'next/cache';
+import { getBanners } from '@/lib/data-services';
 
 const bannersCollection = collection(db, 'banners');
 
 // GET /api/banners with caching
 export async function GET() {
     try {
-        const getCachedBanners = unstable_cache(
-            async () => {
-                const snapshot = await getDocs(bannersCollection);
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Banner[];
-            },
-            ['banners'],
-            { revalidate: 300 } // Revalidate every 5 minutes
-        );
-        const banners = await getCachedBanners();
+        const banners = await getBanners();
         return NextResponse.json(banners);
     } catch (error) {
         console.error("Error fetching banners:", error);
-        return NextResponse.json({ message: 'Error fetching banners', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error fetching banners', error: (error as Error).message }, { status: 500 });
     }
 }
 
@@ -47,6 +39,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("Error saving banner:", error);
-        return NextResponse.json({ message: 'Error saving banner', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error saving banner', error: (error as Error).message }, { status: 500 });
     }
 }

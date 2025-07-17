@@ -1,29 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Lineup } from '@/lib/types';
-import { unstable_cache } from 'next/cache';
+import { getLineups } from '@/lib/data-services';
 
 const lineupsCollection = collection(db, 'lineups');
 
 // GET /api/lineup with caching
 export async function GET() {
     try {
-        const getCachedLineups = unstable_cache(
-            async () => {
-                const q = query(lineupsCollection, orderBy("date", "asc"));
-                const snapshot = await getDocs(q);
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Lineup[];
-            },
-            ['lineups'],
-            { revalidate: 300 } // Revalidate every 5 minutes
-        );
-        const lineups = await getCachedLineups();
+        const lineups = await getLineups();
         return NextResponse.json(lineups);
     } catch (error) {
         console.error("Error fetching lineups:", error);
-        return NextResponse.json({ message: 'Error fetching lineups', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error fetching lineups', error: (error as Error).message }, { status: 500 });
     }
 }
 
@@ -48,6 +39,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("Error saving lineup:", error);
-        return NextResponse.json({ message: 'Error saving lineup artist', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error saving lineup artist', error: (error as Error).message }, { status: 500 });
     }
 }

@@ -5,27 +5,10 @@ import React from 'react';
 import Image from 'next/image';
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import type { Banner } from "@/lib/types";
-
-// This function now fetches from the internal API route
-const fetchBanners = async (): Promise<Banner[]> => {
-    try {
-        // Using an absolute URL is a good practice for server-side fetching
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/banners`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch banners: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to fetch banners:", error);
-        return [];
-    }
-};
+import { getBanners } from '@/lib/data-services';
 
 const BannerSection = async () => {
-    const allBanners = await fetchBanners();
+    const allBanners = await getBanners();
     const activeBanners = allBanners.filter(banner => banner.status === "Active");
 
     if (activeBanners.length === 0) {

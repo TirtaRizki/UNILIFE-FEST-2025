@@ -1,28 +1,21 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import type { Recap } from '@/lib/types';
-import { unstable_cache } from 'next/cache';
+import { getRecaps } from '@/lib/data-services';
+
 
 const recapsCollection = collection(db, 'recaps');
 
 // GET /api/recap with caching
 export async function GET() {
     try {
-        const getCachedRecaps = unstable_cache(
-            async () => {
-                const snapshot = await getDocs(recapsCollection);
-                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Recap[];
-            },
-            ['recaps'],
-            { revalidate: 300 } // Revalidate every 5 minutes
-        );
-        const recaps = await getCachedRecaps();
+        const recaps = await getRecaps();
         return NextResponse.json(recaps);
     } catch (error) {
         console.error("Error fetching recaps:", error);
-        return NextResponse.json({ message: 'Error fetching recaps', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error fetching recaps', error: (error as Error).message }, { status: 500 });
     }
 }
 
@@ -47,6 +40,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("Error saving recap:", error);
-        return NextResponse.json({ message: 'Error saving recap', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error saving recap', error: (error as Error).message }, { status: 500 });
     }
 }

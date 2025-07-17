@@ -5,6 +5,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Calendar, Music } from 'lucide-react';
 import type { Lineup } from '@/lib/types';
+import { getLineups } from '@/lib/data-services';
 
 const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     <div className="text-center p-4">
@@ -16,24 +17,9 @@ const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     </div>
 );
 
-const fetchLineups = async (): Promise<Lineup[]> => {
-    try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/lineup`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch lineups: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to fetch lineups:", error);
-        return [];
-    }
-};
 
 const LineupSection = async () => {
-    const lineups = await fetchLineups();
+    const lineups = await getLineups();
 
     if (lineups.length === 0) {
         return null;

@@ -4,6 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import type { Recap } from "@/lib/types";
+import { getRecaps } from '@/lib/data-services';
 
 
 const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
@@ -26,24 +27,9 @@ const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     </div>
 );
 
-const fetchRecaps = async (): Promise<Recap[]> => {
-    try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/recap`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch recaps: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to fetch recaps:", error);
-        return [];
-    }
-};
 
 const RecapSection = async () => {
-    const allRecaps = await fetchRecaps();
+    const allRecaps = await getRecaps();
     const publishedRecaps = allRecaps.filter(recap => recap.status === "Published");
     
     if (publishedRecaps.length === 0) {

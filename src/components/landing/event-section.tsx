@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import type { Event } from '@/lib/types';
 import Link from 'next/link';
+import { getEvents } from '@/lib/data-services';
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
     <Card 
@@ -50,24 +51,8 @@ const EventCard = ({ event, index }: { event: Event, index: number }) => (
     </Card>
 );
 
-const fetchEvents = async (): Promise<Event[]> => {
-    try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/events`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch events: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to fetch events:", error);
-        return [];
-    }
-};
-
 const EventSection = async () => {
-    const allEvents = await fetchEvents();
+    const allEvents = await getEvents();
     const upcomingEvents = allEvents.filter(event => event.status === "Upcoming");
 
     if (upcomingEvents.length === 0) {

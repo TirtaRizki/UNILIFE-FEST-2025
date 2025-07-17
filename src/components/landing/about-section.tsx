@@ -1,32 +1,28 @@
 
-"use server";
+"use client";
 
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import type { About } from '@/lib/types';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { getAboutData } from '@/lib/data-services';
 
-// This function now fetches from the internal API route
-const fetchAbout = async (): Promise<About | null> => {
-    try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/about`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
-        });
-        if (!response.ok) {
-           throw new Error(`Failed to fetch about content: ${response.statusText}`);
+const AboutSectionContent = ({ about }: { about: About | null }) => {
+    const { toast } = useToast();
+
+    const handleGetTicketClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const targetElement = document.querySelector('#dashboard-info');
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
         }
-        const data = await response.json();
-        return data.length > 0 ? data[0] : null;
-    } catch (error) {
-        console.error("Could not fetch about content:", error);
-        return null;
-    }
-};
-    
-const AboutSection = async () => {
-    const about = await fetchAbout();
+        toast({
+            title: "Prepare for The War! 🚀",
+            description: "You are being scrolled to the ticket countdown section.",
+        });
+    };
     
     if (!about) {
         return null;
@@ -40,9 +36,9 @@ const AboutSection = async () => {
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
                         <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                            <Link href="#dashboard-info">
+                            <a href="#dashboard-info" onClick={handleGetTicketClick}>
                                 Get Your Ticket
-                            </Link>
+                            </a>
                         </Button>
                     </div>
                     <div className="flex justify-center">
@@ -60,5 +56,12 @@ const AboutSection = async () => {
         </section>
     );
 };
+
+
+const AboutSection = async () => {
+    const about = await getAboutData();
+    return <AboutSectionContent about={about} />
+}
+
 
 export default AboutSection;

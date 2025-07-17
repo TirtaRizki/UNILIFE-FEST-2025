@@ -1,29 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, addDoc, updateDoc } from 'firebase/firestore';
 import type { About } from '@/lib/types';
-import { unstable_cache } from 'next/cache';
+import { getAboutData } from '@/lib/data-services';
 
-const aboutsCollection = collection(db, 'abouts');
-
-// GET /api/about with caching
+// GET /api/about
 export async function GET() {
     try {
-        const getCachedAbouts = unstable_cache(
-            async () => {
-                const snapshot = await getDocs(aboutsCollection);
-                const abouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as About[];
-                return abouts;
-            },
-            ['abouts'], // Cache key
-            { revalidate: 300 } // Revalidate every 5 minutes (300 seconds)
-        );
-        const abouts = await getCachedAbouts();
-        return NextResponse.json(abouts);
+        const abouts = await getAboutData();
+        // The service returns a single object or null, but API might expect an array
+        const data = abouts ? [abouts] : [];
+        return NextResponse.json(data);
     } catch (error) {
         console.error("Error fetching abouts:", error);
-        return NextResponse.json({ message: 'Error fetching about content', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error fetching about content', error: (error as Error).message }, { status: 500 });
     }
 }
 
@@ -39,8 +30,10 @@ export async function POST(request: Request) {
             await updateDoc(aboutDoc, dataToUpdate);
             savedAbout = aboutData;
         } else { // Create
+            // Since there should only be one about page, this logic handles creation.
+            // A more robust solution might use a known document ID.
             const { id, ...dataToAdd } = aboutData;
-            const docRef = await addDoc(aboutsCollection, dataToAdd);
+            const docRef = await addDoc(collection(db, 'abouts'), dataToAdd);
             savedAbout = { ...aboutData, id: docRef.id };
         }
 
@@ -48,6 +41,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("Error saving about content:", error);
-        return NextResponse.json({ message: 'Error saving about content', error }, { status: 500 });
+        return NextResponse.json({ message: 'Error saving about content', error: (error as Error).message }, { status: 500 });
     }
 }
