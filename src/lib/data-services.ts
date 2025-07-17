@@ -1,11 +1,44 @@
+
 /**
  * @fileoverview This file contains data fetching services for the application.
  * It centralizes all Firestore queries and uses Next.js caching for performance.
  */
 import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import type { About, Banner, Event, Lineup, Recap } from '@/lib/types';
+import { collection, getDocs, query, orderBy, doc, getDoc, setDoc } from 'firebase/firestore';
+import type { About, Banner, Event, Lineup, Recap, BrandingSettings } from '@/lib/types';
+
+// --- Branding Settings Service ---
+const BRANDING_DOC_ID = 'singleton';
+const brandingDocRef = doc(db, "branding", BRANDING_DOC_ID);
+
+export const getBrandingSettings = unstable_cache(
+    async (): Promise<BrandingSettings | null> => {
+        try {
+            const docSnap = await getDoc(brandingDocRef);
+            if (docSnap.exists()) {
+                return docSnap.data() as BrandingSettings;
+            }
+            return null;
+        } catch (error) {
+            console.error("Error fetching branding settings:", error);
+            return null;
+        }
+    },
+    ['branding_settings'],
+    { revalidate: 300 } // Revalidate every 5 minutes
+);
+
+export const saveBrandingSettings = async (settings: BrandingSettings) => {
+    try {
+        await setDoc(brandingDocRef, settings, { merge: true });
+        // Manually revalidate cache on write if possible, or rely on time-based revalidation
+    } catch (error) {
+        console.error("Error saving branding settings:", error);
+        throw error;
+    }
+};
+
 
 // --- About Service ---
 export const getAboutData = unstable_cache(

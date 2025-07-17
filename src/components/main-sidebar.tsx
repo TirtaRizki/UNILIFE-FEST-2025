@@ -28,9 +28,36 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { getBrandingSettings } from "@/lib/data-services";
 
 const Logo = () => {
-    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain" />;
+    const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
+
+    const fetchLogo = async () => {
+        const settings = await getBrandingSettings();
+        if (settings?.logoUrl) {
+            setLogoUrl(settings.logoUrl);
+        }
+    };
+
+    useEffect(() => {
+        fetchLogo();
+
+        // Listen for storage changes to update logo in real-time
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'brandingSettings') {
+                fetchLogo();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+
+    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" />;
 };
 
 export const navItems = [

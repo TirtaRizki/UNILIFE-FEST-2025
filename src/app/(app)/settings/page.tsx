@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
+import { getBrandingSettings, saveBrandingSettings } from '@/lib/data-services';
+import type { BrandingSettings } from '@/lib/types';
 
 export default function SettingsPage() {
     const { hasRole } = useAuth();
@@ -21,15 +23,19 @@ export default function SettingsPage() {
     const [logoUrl, setLogoUrl] = useState('');
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const { theme, setTheme } = useTheme();
-     const [isMounted, setIsMounted] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
-        const storedLogo = localStorage.getItem('appLogo');
-        if (storedLogo) {
-            setLogoUrl(storedLogo);
-            setLogoPreview(storedLogo);
-        }
+        const fetchLogo = async () => {
+            const settings = await getBrandingSettings();
+            if (settings?.logoUrl) {
+                setLogoUrl(settings.logoUrl);
+                setLogoPreview(settings.logoUrl);
+            }
+        };
+        fetchLogo();
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,14 +57,25 @@ export default function SettingsPage() {
         setLogoPreview(url);
     };
 
-    const handleSaveLogo = () => {
-        localStorage.setItem('appLogo', logoUrl);
-        // Dispatch storage event to notify other components like the sidebar
-        window.dispatchEvent(new Event('storage'));
-        toast({
-            title: "Logo Diperbarui",
-            description: "Logo aplikasi telah berhasil diganti.",
-        });
+    const handleSaveLogo = async () => {
+        setIsSaving(true);
+        try {
+            await saveBrandingSettings({ logoUrl });
+            // Dispatch storage event to notify other components like the sidebar
+            window.dispatchEvent(new Event('storage'));
+            toast({
+                title: "Logo Diperbarui",
+                description: "Logo aplikasi telah berhasil diganti.",
+            });
+        } catch (error) {
+             toast({
+                title: "Error",
+                description: "Gagal menyimpan logo.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     if (!isMounted) {
@@ -118,7 +135,7 @@ export default function SettingsPage() {
                                 </TabsContent>
                             </Tabs>
                             <div className="flex justify-end">
-                                <Button onClick={handleSaveLogo}>Simpan Logo</Button>
+                                <Button onClick={handleSaveLogo} disabled={isSaving}>{isSaving ? 'Menyimpan...' : 'Simpan Logo'}</Button>
                             </div>
                         </CardContent>
                     </Card>

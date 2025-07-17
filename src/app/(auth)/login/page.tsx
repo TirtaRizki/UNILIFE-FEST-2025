@@ -3,16 +3,29 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
+import { getBrandingSettings } from '@/lib/data-services';
 
 const Logo = () => {
-    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain" priority />;
+    const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
+
+    useEffect(() => {
+        const fetchLogo = async () => {
+            const settings = await getBrandingSettings();
+            if (settings?.logoUrl) {
+                setLogoUrl(settings.logoUrl);
+            }
+        };
+        fetchLogo();
+    }, []);
+
+    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" priority />;
 };
 
 export default function LoginPage() {

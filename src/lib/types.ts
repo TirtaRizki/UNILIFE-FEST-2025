@@ -1,4 +1,5 @@
 
+
 export type Event = {
     id: string;
     name: string;
@@ -58,4 +59,8 @@ export type User = {
     role: "Admin" | "Member" | "Panitia";
     password?: string;
     phoneNumber?: string;
+};
+
+export type BrandingSettings = {
+    logoUrl?: string;
 };
