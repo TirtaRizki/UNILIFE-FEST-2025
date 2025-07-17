@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Menu, X, Ticket } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const navLinks = [
     { name: 'Home', href: '#home' },
@@ -19,6 +20,7 @@ const navLinks = [
 const PublicHeader = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -46,6 +48,13 @@ const PublicHeader = () => {
           targetElement.scrollIntoView({ behavior: 'smooth' });
         }
         setMobileMenuOpen(false);
+
+        if (href === '#dashboard-info') {
+            toast({
+                title: "Prepare for The War! 🚀",
+                description: "You are being scrolled to the ticket countdown section.",
+            });
+        }
     };
 
     return (

@@ -1,11 +1,27 @@
+"use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FaInstagram } from 'react-icons/fa';
+import { useToast } from '@/hooks/use-toast';
 
 const HeroSection = () => {
+  const { toast } = useToast();
+
+  const handleGetTicketClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      const targetElement = document.querySelector('#dashboard-info');
+      if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+      }
+      toast({
+          title: "Prepare for The War! 🚀",
+          description: "You are being scrolled to the ticket countdown section.",
+      });
+  };
+
   return (
     <section id="home" className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('/images/unilife_logo.png')"}} data-ai-hint="cartoon characters festival"></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-hero-bg-zoom" style={{backgroundImage: "url('/images/unilife_bg.png')"}} data-ai-hint="cartoon characters festival"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
         
         <div className="relative z-10 px-4 flex flex-col items-center">
@@ -18,7 +34,7 @@ const HeroSection = () => {
             <p className="text-lg md:text-xl mb-4 animate-fade-up" style={{animationDelay: '0.6s'}}>30-31 Agustus 2025</p>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 animate-fade-up" style={{animationDelay: '0.8s'}}>PKOR, Bandar Lampung</p>
             <Button size="lg" className="h-14 px-10 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 transition-transform duration-300 hover:scale-105 animate-fade-up" style={{animationDelay: '1s'}} asChild>
-                <a href="#dashboard-info">
+                <a href="#dashboard-info" onClick={handleGetTicketClick}>
                     Get Ticket
                 </a>
             </Button>

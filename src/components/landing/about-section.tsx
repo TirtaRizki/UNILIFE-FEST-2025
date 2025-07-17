@@ -1,38 +1,45 @@
-"use server";
+"use client";
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import type { About } from '@/lib/types';
-import { collection, getDocs, limit, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
 
-const fetchAbout = async (): Promise<About | null> => {
-    try {
-        const aboutsCollection = collection(db, 'abouts');
-        // We only ever need one "About" document
-        const q = query(aboutsCollection, limit(1));
-        const snapshot = await getDocs(q);
+const AboutSection = () => {
+    const { toast } = useToast();
+    const [about, setAbout] = useState<About | null>(null);
 
-        if (snapshot.empty) {
-            console.log("No about document found.");
-            return null;
+    useEffect(() => {
+        const fetchAbout = async () => {
+            try {
+                const response = await fetch('/api/about');
+                if (!response.ok) return;
+                const data = await response.json();
+                if (data.length > 0) {
+                    setAbout(data[0]);
+                }
+            } catch (error) {
+                console.error("Could not fetch about content:", error);
+            }
+        };
+        fetchAbout();
+    }, []);
+
+    const handleGetTicketClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const targetElement = document.querySelector('#dashboard-info');
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
         }
-        
-        const doc = snapshot.docs[0];
-        return { id: doc.id, ...doc.data() } as About;
-
-    } catch (error) {
-        console.error("Could not fetch about content:", error);
-        // In case of error, return null to not render the section
-        return null;
-    }
-};
-
-
-const AboutSection = async () => {
-    const about = await fetchAbout();
+        toast({
+            title: "Prepare for The War! 🚀",
+            description: "You are being scrolled to the ticket countdown section.",
+        });
+    };
     
     if (!about) {
-        return null; // Don't render the section if there's no content or an error occurs
+        // Render a placeholder or nothing while loading
+        return null;
     }
 
     return (
@@ -43,7 +50,7 @@ const AboutSection = async () => {
                         <h2 className="text-4xl md:text-5xl font-bold font-headline mb-6 text-primary">{about.title}</h2>
                         <p className="text-muted-foreground text-lg mb-8 whitespace-pre-wrap">{about.description}</p>
                         <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-                            <a href="#dashboard-info">
+                            <a href="#dashboard-info" onClick={handleGetTicketClick}>
                                 Get Your Ticket
                             </a>
                         </Button>
