@@ -26,6 +26,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'Logo URL is required' }, { status: 400 });
         }
 
+        // Use the reliable adminDb instance from the singleton
         await adminDb().collection('branding').doc('singleton').set(settings, { merge: true });
         
         revalidateTag('branding_settings_tag');
