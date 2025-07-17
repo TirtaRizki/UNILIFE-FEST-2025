@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
-import { getBrandingSettings, saveBrandingSettings } from '@/lib/data-services';
 import type { BrandingSettings } from '@/lib/types';
 
 export default function SettingsPage() {
@@ -29,10 +28,17 @@ export default function SettingsPage() {
     useEffect(() => {
         setIsMounted(true);
         const fetchLogo = async () => {
-            const settings = await getBrandingSettings();
-            if (settings?.logoUrl) {
-                setLogoUrl(settings.logoUrl);
-                setLogoPreview(settings.logoUrl);
+             try {
+                const response = await fetch('/api/branding');
+                if (response.ok) {
+                    const settings = await response.json();
+                    if (settings?.logoUrl) {
+                        setLogoUrl(settings.logoUrl);
+                        setLogoPreview(settings.logoUrl);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch branding settings for settings page", error);
             }
         };
         fetchLogo();
@@ -60,7 +66,16 @@ export default function SettingsPage() {
     const handleSaveLogo = async () => {
         setIsSaving(true);
         try {
-            await saveBrandingSettings({ logoUrl });
+            const response = await fetch('/api/branding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ logoUrl }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save logo');
+            }
+
             // Dispatch storage event to notify other components like the sidebar
             window.dispatchEvent(new Event('storage'));
             toast({
