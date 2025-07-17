@@ -1,15 +1,15 @@
 
 import { NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
-import { getAdminDb } from '@/lib/firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 import { revalidateTag } from 'next/cache';
 
 
 // GET /api/visitors - Fetches the current visitor count
 export async function GET() {
     try {
-        const adminDb = getAdminDb();
-        const visitorDocRef = adminDb.collection("siteStats").doc("visitors");
+        const db = adminDb();
+        const visitorDocRef = db.collection("siteStats").doc("visitors");
         const docSnap = await visitorDocRef.get();
         if (docSnap.exists) {
             const data = docSnap.data();
@@ -28,8 +28,8 @@ export async function GET() {
 // POST /api/visitors - Increments the visitor count
 export async function POST() {
     try {
-        const adminDb = getAdminDb();
-        const visitorDocRef = adminDb.collection("siteStats").doc("visitors");
+        const db = adminDb();
+        const visitorDocRef = db.collection("siteStats").doc("visitors");
         const docSnap = await visitorDocRef.get();
         if (!docSnap.exists) {
             await visitorDocRef.set({ count: 1 });

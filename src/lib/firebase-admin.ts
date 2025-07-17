@@ -1,55 +1,56 @@
-
+/**
+ * @fileoverview This file handles the Firebase Admin SDK initialization.
+ * It ensures the SDK is initialized only once and provides a global instance.
+ */
 import admin from 'firebase-admin';
-import { getApps } from 'firebase-admin/app';
+import type { App } from 'firebase-admin/app';
 
-// This is a server-only file. It uses environment variables that should
-// only be available on the server.
+// Ensure this file is only run on the server
+import 'server-only';
 
-const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+function getServiceAccount() {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
-if (!projectId || !clientEmail || !privateKey) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn(
-      'Firebase Admin SDK not initialized. Missing one or more environment variables: NEXT_PUBLIC_FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY. This is expected in some environments like client-side storybooks, but may be an error.'
+  if (!privateKey || !clientEmail || !projectId) {
+    throw new Error(
+      'Firebase Admin credentials are not set in environment variables. Required: FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, NEXT_PUBLIC_FIREBASE_PROJECT_ID'
     );
-  } else {
-    // In production, we should throw an error to fail fast.
-    throw new Error('Firebase Admin SDK failed to initialize due to missing environment variables.');
   }
+
+  return {
+    projectId: projectId,
+    clientEmail: clientEmail,
+    privateKey: privateKey.replace(/\\n/g, '\n'), // Important for Vercel/similar environments
+  };
 }
 
-const serviceAccount = {
-  project_id: projectId,
-  client_email: clientEmail,
-  private_key: privateKey,
-};
-
-if (!getApps().length && projectId && clientEmail && privateKey) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      storageBucket: storageBucket,
-    });
-  } catch (error) {
-    console.error('Firebase admin initialization error:', error);
-    throw new Error('Failed to initialize Firebase Admin SDK. Please check your service account credentials.');
-  }
+function getStorageBucket() {
+    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+    if (!bucketName) {
+        throw new Error('Firebase Storage bucket name is not configured in environment variables (NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET).');
+    }
+    return bucketName;
 }
 
-// Export a getter function for the database to ensure it's accessed only when initialized.
-const getAdminDb = () => {
-  const adminApp = getApps()[0];
-  if (!adminApp) {
-    // This provides a clearer error message if something tries to use the db when it's not available.
-    throw new Error('Firebase Admin SDK is not initialized. Database operations are not available.');
+// A function to get or initialize the Firebase Admin app
+export function getAdminApp(): App {
+  if (admin.apps.length > 0) {
+    return admin.apps[0]!;
   }
-  // The Admin SDK combines services, so we can return the entire admin object
-  // if we need more than just Firestore.
-  return adminApp;
+
+  const serviceAccount = getServiceAccount();
+  const storageBucket = getStorageBucket();
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: storageBucket,
+  });
+
+  return admin.app();
 }
 
-
-export { getAdminDb };
+// Export a ready-to-use db and storage instance
+export const adminDb = () => getAdminApp().firestore();
+export const adminStorage = () => getAdminApp().storage();

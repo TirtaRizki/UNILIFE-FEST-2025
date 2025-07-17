@@ -15,16 +15,18 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
 
+const MAX_FILE_SIZE_MB = 0.7; // Approx 700KB to be safe for Base64 encoding under 1MB
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export default function SettingsPage() {
     const { hasRole } = useAuth();
     const isAdmin = hasRole(['Admin']);
     const { toast } = useToast();
     const [logoUrl, setLogoUrl] = useState('');
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
-    const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
     const { theme, setTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -44,14 +46,23 @@ export default function SettingsPage() {
         };
         fetchLogo();
     }, []);
-
+    
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setFileToUpload(file);
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                toast({
+                    title: "File Terlalu Besar",
+                    description: `Ukuran file maksimal adalah ${MAX_FILE_SIZE_MB} MB.`,
+                    variant: "destructive"
+                });
+                e.target.value = ''; // Reset input
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
                 const dataUrl = reader.result as string;
+                setLogoUrl(dataUrl); // Store as Data URL
                 setLogoPreview(dataUrl);
             };
             reader.readAsDataURL(file);
@@ -62,46 +73,25 @@ export default function SettingsPage() {
         const url = e.target.value;
         setLogoUrl(url);
         setLogoPreview(url);
-        setFileToUpload(null); // Clear file if URL is being used
     };
 
     const handleSaveLogo = async () => {
         setIsSaving(true);
-        let finalLogoUrl = logoUrl;
-
         try {
-            if (fileToUpload) {
-                const formData = new FormData();
-                formData.append('file', fileToUpload);
-
-                const uploadResponse = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const uploadResult = await uploadResponse.json();
-
-                if (!uploadResponse.ok) {
-                    throw new Error(uploadResult.message || 'Gagal mengunggah file.');
-                }
-                finalLogoUrl = uploadResult.url;
-            }
-            
             const response = await fetch('/api/branding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ logoUrl: finalLogoUrl }),
+                body: JSON.stringify({ logoUrl: logoUrl }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Gagal menyimpan logo ke database');
             }
-
-            setLogoUrl(finalLogoUrl);
-            setLogoPreview(finalLogoUrl);
-            setFileToUpload(null);
+            
+            // This event tells other components (like the sidebar) to refetch the logo
             window.dispatchEvent(new Event('storage'));
+
             toast({
                 title: "Logo Diperbarui",
                 description: "Logo aplikasi telah berhasil diganti.",
@@ -109,10 +99,10 @@ export default function SettingsPage() {
         } catch (error) {
              toast({
                 title: "Error",
-                description: error instanceof Error ? error.message : "Gagal menyimpan logo. Periksa konsol untuk detail.",
+                description: error instanceof Error ? error.message : "Gagal menyimpan logo.",
                 variant: "destructive"
             });
-            console.error("Full save logo error:", error);
+            console.error("Save logo error:", error);
         } finally {
             setIsSaving(false);
         }
@@ -154,16 +144,16 @@ export default function SettingsPage() {
                                     <Input 
                                         id="logoUrl"
                                         placeholder="https://example.com/logo.png" 
-                                        value={logoUrl}
+                                        value={logoUrl.startsWith('data:') ? '' : logoUrl}
                                         onChange={handleUrlChange}
                                     />
                                 </TabsContent>
                                 <TabsContent value="upload">
-                                    <Label htmlFor="logoUpload">Upload File</Label>
+                                    <Label htmlFor="logoUpload">Upload File (Max {MAX_FILE_SIZE_MB}MB)</Label>
                                     <Input
                                         id="logoUpload"
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/png, image/jpeg, image/gif, image/svg+xml"
                                         onChange={handleFileChange}
                                         className="w-full text-sm text-slate-500
                                             file:mr-4 file:py-2 file:px-4

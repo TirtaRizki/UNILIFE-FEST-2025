@@ -1,46 +1,43 @@
 
 import { NextResponse } from 'next/server';
-import { getAdminDb } from '@/lib/firebase-admin';
+import { adminStorage } from '@/lib/firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
-    try {
-        const formData = await request.formData();
-        const file = formData.get('file') as File | null;
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File | null;
 
-        if (!file) {
-            return NextResponse.json({ message: 'File tidak ditemukan.' }, { status: 400 });
-        }
-
-        // getAdminDb() will throw if not initialized, so we don't need to check for its existence.
-        const adminApp = getAdminDb(); 
-        
-        // Get the default bucket from the initialized admin app
-        const bucket = adminApp.storage().bucket();
-        if (!bucket.name) {
-             // This error should now be caught during initialization, but as a safeguard:
-             throw new Error("Firebase Storage bucket name is not configured in environment variables or admin initialization.");
-        }
-
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const filename = `logos/${uuidv4()}-${file.name.replace(/\s+/g, '_')}`;
-        const fileUpload = bucket.file(filename);
-
-        await fileUpload.save(buffer, {
-            metadata: {
-                contentType: file.type,
-            },
-            public: true, // Make the file publicly readable
-        });
-
-        // Construct the public URL manually
-        const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
-
-        return NextResponse.json({ message: 'File berhasil diunggah', url }, { status: 200 });
-
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan di server.';
-        return NextResponse.json({ message: errorMessage }, { status: 500 });
+    if (!file) {
+      return NextResponse.json({ message: 'File tidak ditemukan.' }, { status: 400 });
     }
+
+    const storage = adminStorage();
+    const bucket = storage.bucket();
+
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const uniqueFilename = `${uuidv4()}-${file.name}`;
+    const filePath = `logos/${uniqueFilename}`;
+    
+    const fileUpload = bucket.file(filePath);
+
+    await fileUpload.save(fileBuffer, {
+      metadata: {
+        contentType: file.type,
+      },
+    });
+
+    // Make the file publicly readable
+    await fileUpload.makePublic();
+    
+    // Get the public URL
+    const publicUrl = fileUpload.publicUrl();
+
+    return NextResponse.json({ url: publicUrl }, { status: 200 });
+
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ message: `Gagal mengunggah file: ${errorMessage}` }, { status: 500 });
+  }
 }
