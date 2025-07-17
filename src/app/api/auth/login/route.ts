@@ -20,11 +20,6 @@ export async function POST(request: Request) {
         const userSnapshot = await getDocs(q);
 
         if (userSnapshot.empty) {
-            // Check if any users exist at all. If not, guide the user to seed the database.
-            const allUsersSnapshot = await getDocs(usersCollection);
-            if (allUsersSnapshot.empty) {
-                 return NextResponse.json({ message: 'Database is empty. Please run the seeding script to create default users.' }, { status: 404 });
-            }
             return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
         }
 
@@ -32,7 +27,7 @@ export async function POST(request: Request) {
         const foundUser = { id: userDoc.id, ...userDoc.data() } as User;
 
         if (foundUser.password !== password) {
-            return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
+            return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
         }
 
         // Only allow Admin or Panitia to log in to the CMS
