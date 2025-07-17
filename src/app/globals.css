@@ -107,7 +107,7 @@
   }
 
   .landing-page-body {
-    background-color: hsl(var(--background));
+    background-color: #D3E5F5;
     color: hsl(var(--foreground));
     background-size: cover;
     background-position: center;
