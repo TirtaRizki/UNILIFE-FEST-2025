@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview This script is used to seed the Firestore database with initial data.
  * It's meant to be run manually from the command line, NOT as part of the application runtime.
@@ -8,11 +7,6 @@
  * 1. Make sure your .env.local file has the correct Firebase Admin credentials.
  * 2. Run `pnpm db:seed` or `npm run db:seed` in your terminal.
  */
-
-// Load environment variables from .env.local
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
-
 import { adminDb } from './firebase-admin';
 import type { User } from './types';
 
