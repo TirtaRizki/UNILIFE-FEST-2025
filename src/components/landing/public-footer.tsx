@@ -13,22 +13,15 @@ const PublicFooter = async () => {
     const branding = await getBrandingSettings();
     const logoUrl = branding?.logoUrl || '/images/unilife_logo.png';
 
-    // Fetch visitor count from the API route instead of directly.
-    // This is more robust and avoids build-time issues.
     let initialVisitorCount = 0;
     try {
-        // Construct the full URL for server-side fetch
-        const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/visitors`;
-        const response = await fetch(apiUrl, { next: { revalidate: 60 } }); // Revalidate every 60s
-        if (response.ok) {
-            const data = await response.json();
-            initialVisitorCount = data.count;
-        } else {
-            console.error("Failed to fetch visitor count from API:", response.statusText);
+        const visitorDocRef = doc(db, "siteStats", "visitors");
+        const docSnap = await getDoc(visitorDocRef);
+        if (docSnap.exists()) {
+            initialVisitorCount = docSnap.data().count;
         }
     } catch (error) {
-        console.error("Failed to fetch initial visitor count from API:", error);
-        // initialVisitorCount remains 0 if there's an error.
+        console.error("Failed to fetch initial visitor count directly:", error);
     }
 
 
