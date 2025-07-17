@@ -26,13 +26,15 @@ export const getBrandingSettings = unstable_cache(
         }
     },
     ['branding_settings'],
-    { revalidate: 300 } // Revalidate every 5 minutes
+    { 
+        revalidate: 3600, // Revalidate every hour
+        tags: ['branding_settings_tag'], // Add a tag for on-demand revalidation
+    } 
 );
 
 export const saveBrandingSettings = async (settings: BrandingSettings) => {
     try {
         await setDoc(brandingDocRef, settings, { merge: true });
-        // Manually revalidate cache on write if possible, or rely on time-based revalidation
     } catch (error) {
         console.error("Error saving branding settings:", error);
         throw error;

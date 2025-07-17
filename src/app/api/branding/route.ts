@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getBrandingSettings, saveBrandingSettings } from '@/lib/data-services';
 import type { BrandingSettings } from '@/lib/types';
+import { revalidateTag } from 'next/cache';
 
 // GET /api/branding
 export async function GET() {
@@ -23,6 +24,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'Logo URL is required' }, { status: 400 });
         }
         await saveBrandingSettings(settings);
+        
+        // Revalidate the cache for the branding settings
+        revalidateTag('branding_settings_tag');
+        
         return NextResponse.json({ message: 'Branding settings saved successfully' }, { status: 200 });
     } catch (error) {
         console.error("Error saving branding settings:", error);
