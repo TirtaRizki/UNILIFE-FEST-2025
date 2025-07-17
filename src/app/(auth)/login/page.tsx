@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 
 const Logo = () => {
-    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain h-10 w-auto" priority />;
+    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain" priority />;
 };
 
 export default function LoginPage() {

@@ -99,11 +99,11 @@
   }
    .auth-layout {
     @apply min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1');
+    background-image: url('/images/unilife_bg.png');
   }
 
   .dark .auth-layout {
-    background-image: url('https://firebasestudio.googleapis.com/v0/b/firebase-studio-users.appspot.com/o/user%2Fclw1uss2s00001y6w36fhhq82%2Fimages%2Fcoe90a6x-9f5b611e-a0e0-410a-b30a-20d049f78393.png?alt=media&token=c222ff43-ff81-432d-83b3-5753066acab1');
+    background-image: url('/images/unilife_bg.png');
   }
 
   .landing-page-body {
