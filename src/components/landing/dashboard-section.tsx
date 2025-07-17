@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 
 const TiketinCta = () => (
     <Link href="https://mytiketin.com/" target="_blank" rel="noopener noreferrer" className="block group">
-        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-blue-900 via-primary to-cyan-500 transition-transform duration-300 group-hover:scale-[1.02] shadow-lg shadow-primary/30">
+        <div className="relative rounded-xl overflow-hidden p-8 md:p-12 text-center text-white bg-gradient-to-r from-green-500 via-blue-500 to-red-500 transition-transform duration-300 group-hover:scale-[1.02] shadow-lg shadow-primary/30">
             <div className="relative z-10">
                 <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4">
                     Tinggal Klik, Tiketin Aja!
@@ -19,7 +20,7 @@ const TiketinCta = () => (
                 </p>
                 <Button 
                     size="lg"
-                    className="bg-white/90 text-primary hover:bg-white font-semibold transition-all"
+                    className="bg-white/90 text-primary hover:bg-yellow-300 hover:text-black font-semibold transition-all"
                 >
                     Cari Event Sekarang
                 </Button>
@@ -52,9 +53,9 @@ export default function DashboardSection() {
                         <div className="relative w-full max-w-sm flex items-center justify-center">
                             <div className="absolute inset-x-0 h-px bg-border/50"></div>
                             <div className="relative flex items-center gap-4 bg-background px-4 rounded-full">
-                                <Sparkles className="h-5 w-5 text-primary" />
-                                <Ticket className="h-5 w-5 text-primary" />
-                                <Music className="h-5 w-5 text-primary" />
+                                <Sparkles className="h-5 w-5 text-yellow-500" />
+                                <Ticket className="h-5 w-5 text-red-500" />
+                                <Music className="h-5 w-5 text-green-500" />
                             </div>
                         </div>
                         <Countdown 

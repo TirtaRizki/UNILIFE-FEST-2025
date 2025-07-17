@@ -56,7 +56,7 @@ const Countdown = ({ targetDate, title, showButtonOnEnd = false, buttonText = "G
     }
     
     const TimerUnit = ({ value, label }: { value: number, label: string }) => (
-        <div className="bg-gradient-to-br from-primary to-[#764ba2] text-white rounded-lg p-3 md:p-4 text-center min-w-[70px] md:min-w-[80px]">
+        <div className="bg-gradient-to-br from-primary via-red-500 to-yellow-400 text-white rounded-lg p-3 md:p-4 text-center min-w-[70px] md:min-w-[80px] shadow-lg">
             <div className="text-2xl md:text-3xl font-bold">{isClient ? formatTime(value) : '00'}</div>
             <div className="text-xs uppercase opacity-80">{label}</div>
         </div>
