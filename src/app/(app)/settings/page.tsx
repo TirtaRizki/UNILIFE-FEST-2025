@@ -14,6 +14,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
 import type { BrandingSettings } from '@/lib/types';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function SettingsPage() {
     const { hasRole } = useAuth();
@@ -21,6 +23,7 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const [logoUrl, setLogoUrl] = useState('');
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [fileToUpload, setFileToUpload] = useState<File | null>(null);
     const { theme, setTheme } = useTheme();
     const [isMounted, setIsMounted] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -47,11 +50,11 @@ export default function SettingsPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setFileToUpload(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 const dataUrl = reader.result as string;
                 setLogoPreview(dataUrl);
-                setLogoUrl(dataUrl); 
             };
             reader.readAsDataURL(file);
         }
@@ -61,22 +64,35 @@ export default function SettingsPage() {
         const url = e.target.value;
         setLogoUrl(url);
         setLogoPreview(url);
+        setFileToUpload(null); // Clear file if URL is being used
     };
 
     const handleSaveLogo = async () => {
         setIsSaving(true);
+        let finalLogoUrl = logoUrl;
+
         try {
+            if (fileToUpload) {
+                const storage = getStorage();
+                const storageRef = ref(storage, `logos/${uuidv4()}-${fileToUpload.name}`);
+                const snapshot = await uploadBytes(storageRef, fileToUpload);
+                finalLogoUrl = await getDownloadURL(snapshot.ref);
+            }
+            
             const response = await fetch('/api/branding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ logoUrl }),
+                body: JSON.stringify({ logoUrl: finalLogoUrl }),
             });
 
             if (!response.ok) {
                 throw new Error('Failed to save logo');
             }
 
-            // Dispatch storage event to notify other components like the sidebar
+            // Update state and dispatch event
+            setLogoUrl(finalLogoUrl);
+            setLogoPreview(finalLogoUrl);
+            setFileToUpload(null);
             window.dispatchEvent(new Event('storage'));
             toast({
                 title: "Logo Diperbarui",
@@ -85,7 +101,7 @@ export default function SettingsPage() {
         } catch (error) {
              toast({
                 title: "Error",
-                description: "Gagal menyimpan logo.",
+                description: error instanceof Error ? error.message : "Gagal menyimpan logo.",
                 variant: "destructive"
             });
         } finally {
