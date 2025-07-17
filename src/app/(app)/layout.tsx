@@ -107,13 +107,15 @@ export default function AppLayout({
   
   return (
     <SidebarProvider>
+      <div className="flex w-full">
         <MainSidebar />
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col flex-1">
           <AppHeader />
           <main className="flex flex-1 flex-col gap-4 p-4 sm:px-6 sm:py-6 md:gap-8">
             {children}
           </main>
         </div>
+      </div>
     </SidebarProvider>
   );
 }
