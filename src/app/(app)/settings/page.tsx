@@ -14,9 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
 import { useTheme } from "next-themes";
 import { Moon, Sun } from 'lucide-react';
-import type { BrandingSettings } from '@/lib/types';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { v4 as uuidv4 } from 'uuid';
 
 export default function SettingsPage() {
     const { hasRole } = useAuth();
@@ -74,10 +71,20 @@ export default function SettingsPage() {
 
         try {
             if (fileToUpload) {
-                const storage = getStorage();
-                const storageRef = ref(storage, `logos/${uuidv4()}-${fileToUpload.name}`);
-                const snapshot = await uploadBytes(storageRef, fileToUpload);
-                finalLogoUrl = await getDownloadURL(snapshot.ref);
+                const formData = new FormData();
+                formData.append('file', fileToUpload);
+
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadResult.message || 'Gagal mengunggah file.');
+                }
+                finalLogoUrl = uploadResult.url;
             }
             
             const response = await fetch('/api/branding', {
@@ -88,10 +95,9 @@ export default function SettingsPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save logo to database');
+                throw new Error(errorData.message || 'Gagal menyimpan logo ke database');
             }
 
-            // Update state and dispatch event
             setLogoUrl(finalLogoUrl);
             setLogoPreview(finalLogoUrl);
             setFileToUpload(null);

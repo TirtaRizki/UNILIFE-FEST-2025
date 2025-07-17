@@ -8,6 +8,7 @@ import { getApps } from 'firebase-admin/app';
 const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
 if (!projectId || !clientEmail || !privateKey) {
   if (process.env.NODE_ENV === 'development') {
@@ -30,6 +31,7 @@ if (!getApps().length && projectId && clientEmail && privateKey) {
   try {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
+      storageBucket: storageBucket,
     });
   } catch (error) {
     console.error('Firebase admin initialization error:', error);
@@ -37,6 +39,7 @@ if (!getApps().length && projectId && clientEmail && privateKey) {
   }
 }
 
+// Ensure storage is part of the admin export
 const adminDb = getApps().length ? admin.firestore() : null;
 
 // Export a getter function for the database to ensure it's accessed only when initialized.
@@ -45,7 +48,9 @@ const getAdminDb = () => {
     // This provides a clearer error message if something tries to use the db when it's not available.
     throw new Error('Firebase Admin SDK is not initialized. Database operations are not available.');
   }
-  return adminDb;
+  // The Admin SDK combines services, so we can return the entire admin object
+  // if we need more than just Firestore. Let's return just the DB for now.
+  return admin.apps[0];
 }
 
 
