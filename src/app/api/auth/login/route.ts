@@ -1,11 +1,29 @@
 
 import { NextResponse } from 'next/server';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
 import { rateLimitMiddleware } from '@/lib/rate-limiter';
 
 const usersCollection = collection(db, 'users');
+
+const defaultUsers: Omit<User, 'id'>[] = [
+    { email: 'admin@unilifefest.com', password: 'unilifejaya123', role: 'Admin', name: 'Super Admin', phoneNumber: '08001234567' },
+    { email: 'panitia2025@unilife.com', password: 'lampungfest123', role: 'Panitia', name: 'Panitia 2025', phoneNumber: '08119876543' }
+];
+
+// Helper function to initialize users if the collection is empty
+async function initializeDefaultUsers() {
+    const snapshot = await getDocs(usersCollection);
+    if (snapshot.empty) {
+        console.log("Users collection is empty, initializing default users...");
+        for (const user of defaultUsers) {
+            await addDoc(usersCollection, user);
+        }
+        console.log("Default users initialized.");
+    }
+}
+
 
 // POST /api/auth/login
 export async function POST(request: Request) {
@@ -13,6 +31,8 @@ export async function POST(request: Request) {
     if (rateLimitResponse) return rateLimitResponse;
 
     try {
+        await initializeDefaultUsers();
+
         const { email, password } = await request.json();
 
         if (!email || !password) {
