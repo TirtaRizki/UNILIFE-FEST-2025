@@ -1,30 +1,11 @@
 
 import { NextResponse } from 'next/server';
-import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
 import { rateLimitMiddleware } from '@/lib/rate-limiter';
 
 const usersCollection = collection(db, 'users');
-
-// Hardcoded default users - This list is used to bootstrap the first users if the database is empty.
-const defaultUsers: Omit<User, 'id'>[] = [
-    { email: 'admin@unilifefest.com', password: 'unilifejaya123', role: 'Admin', name: 'Super Admin', phoneNumber: '08001234567' },
-    { email: 'panitia2025@unilife.com', password: 'lampungfest123', role: 'Panitia', name: 'Panitia 2025', phoneNumber: '08119876543' }
-];
-
-async function initializeDefaultUsers() {
-    console.log("Initializing default users...");
-    for (const userData of defaultUsers) {
-        // Check if user already exists
-        const q = query(usersCollection, where("email", "==", userData.email));
-        const existingUserSnapshot = await getDocs(q);
-        if (existingUserSnapshot.empty) {
-            await addDoc(usersCollection, userData);
-            console.log(`Created user: ${userData.email}`);
-        }
-    }
-}
 
 // POST /api/auth/login
 export async function POST(request: Request) {
@@ -34,10 +15,8 @@ export async function POST(request: Request) {
     try {
         const { email, password } = await request.json();
 
-        // Check if there are any users in the database. If not, create the defaults.
-        const allUsersSnapshot = await getDocs(usersCollection);
-        if (allUsersSnapshot.empty) {
-            await initializeDefaultUsers();
+        if (!email || !password) {
+            return NextResponse.json({ message: 'Email and password are required.' }, { status: 400 });
         }
 
         // Find the user by email
@@ -51,6 +30,8 @@ export async function POST(request: Request) {
         const userDoc = userSnapshot.docs[0];
         const foundUser = { id: userDoc.id, ...userDoc.data() } as User;
 
+        // In a real app, you would compare a hashed password.
+        // For this project, we'll stick to plaintext comparison as per existing logic.
         if (foundUser.password !== password) {
             return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
         }
