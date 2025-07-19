@@ -7,6 +7,7 @@ import type { Lineup } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import Image from 'next/image';
 import { Separator } from '../ui/separator';
+import Link from 'next/link';
 
 const dummyLineups: Lineup[] = [
     { id: "dummy-1", artistName: "Denny Caknan", day: "Jumat", date: "2025-08-30" },
@@ -102,8 +103,10 @@ const LineupSection = () => {
                 </div>
 
                 <div className="my-10">
-                    <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-blue-500 rounded-full px-6 py-3 font-bold">
-                        MORE GUEST STARS TO BE ANNOUNCED
+                    <Button asChild variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-blue-500 rounded-full px-6 py-3 font-bold">
+                        <Link href="https://www.instagram.com/unilife.festival?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">
+                            MORE GUEST STARS TO BE ANNOUNCED
+                        </Link>
                     </Button>
                 </div>
                 
