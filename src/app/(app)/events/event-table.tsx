@@ -14,6 +14,27 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
+const dummyEvents: Event[] = [
+    {
+        id: "dummy-event-1",
+        name: "UNILIFE Main Concert Day 1",
+        description: "Hari pertama festival dengan penampilan spektakuler dari deretan artis nasional. Rasakan euforia musik dan semangat kebersamaan di panggung utama UNILIFE.",
+        date: "2025-08-30",
+        location: "PKOR Way Halim, Bandar Lampung",
+        status: "Upcoming",
+        imageUrl: "https://placehold.co/400x300.png"
+    },
+    {
+        id: "dummy-event-2",
+        name: "UNILIFE Main Concert Day 2",
+        description: "Puncak acara UNILIFE! Jangan lewatkan penampilan pamungkas dari guest star utama dan nikmati malam penutupan yang meriah dengan pesta kembang api.",
+        date: "2025-08-31",
+        location: "PKOR Way Halim, Bandar Lampung",
+        status: "Upcoming",
+        imageUrl: "https://placehold.co/400x300.png"
+    }
+];
+
 const EventCard = ({ event, onEdit, onDelete, canManage }: { event: Event, onEdit: (event: Event) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     const content = (
         <Card className="overflow-hidden content-card group flex flex-col h-full">
@@ -87,10 +108,14 @@ export default function EventGrid() {
         try {
             const response = await fetch(`/api/events`);
             if (!response.ok) throw new Error("Failed to fetch events");
-            const data = await response.json();
+            let data = await response.json();
+            if (!data || data.length === 0) {
+                data = dummyEvents;
+            }
             setEvents(data);
         } catch (error) {
-            toast({ title: "Error", description: "Could not fetch events.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not fetch events. Displaying dummy data.", variant: "destructive" });
+            setEvents(dummyEvents);
         } finally {
             setIsLoading(false);
         }
@@ -111,6 +136,10 @@ export default function EventGrid() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id.startsWith('dummy-')) {
+            toast({ title: "Info", description: "Cannot delete dummy data." });
+            return;
+        }
         try {
             const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
             if (!response.ok) {
@@ -130,7 +159,7 @@ export default function EventGrid() {
             const response = await fetch(`/api/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(eventData),
+                body: JSON.stringify(eventData.id.startsWith('dummy-') ? { ...eventData, id: '' } : eventData),
             });
             if (!response.ok) {
                 const errorData = await response.json();

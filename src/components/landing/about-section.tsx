@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,6 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import type { About } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const dummyAboutData: About = {
+    id: 'dummy-about',
+    title: "UNILIFE LAMPUNG FEST 2025",
+    description: "UNILIFE (UNIYOUTH LIFE FESTIVAL) adalah festival 'Back To School' terbesar di Lampung yang diselenggarakan oleh UNIYOUTH. Acara ini merupakan perpaduan antara musik, seni, dan kreativitas anak muda, menciptakan momen tak terlupakan sebelum kembali ke rutinitas sekolah.\n\nNikmati penampilan dari musisi-musisi ternama, jelajahi instalasi seni yang mengagumkan, dan ikut serta dalam berbagai workshop kreatif. UNILIFE adalah wadah bagi generasi muda untuk berekspresi, berkolaborasi, dan merayakan semangat masa muda. Bergabunglah dengan kami dalam perayaan akbar ini!"
+};
 
 const AboutSectionClient = () => {
   const { toast } = useToast();
@@ -44,10 +51,14 @@ const AboutSection = () => {
                 }
                 const data = await response.json();
                 // API returns an array, we take the first element
-                setAbout(data.length > 0 ? data[0] : null);
+                if (data && data.length > 0) {
+                    setAbout(data[0]);
+                } else {
+                    setAbout(dummyAboutData);
+                }
             } catch (error) {
                 console.error("Error fetching about section data:", error);
-                setAbout(null); // Ensure it's null on error
+                setAbout(dummyAboutData);
             } finally {
                 setIsLoading(false);
             }

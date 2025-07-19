@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -10,6 +11,35 @@ import type { Event } from '@/lib/types';
 import Link from 'next/link';
 import { Skeleton } from '../ui/skeleton';
 
+const dummyEvents: Event[] = [
+    {
+        id: "dummy-event-1",
+        name: "UNILIFE Main Concert Day 1",
+        description: "Hari pertama festival dengan penampilan spektakuler dari deretan artis nasional. Rasakan euforia musik dan semangat kebersamaan di panggung utama UNILIFE.",
+        date: "2025-08-30",
+        location: "PKOR Way Halim, Bandar Lampung",
+        status: "Upcoming",
+        imageUrl: "https://placehold.co/400x300.png"
+    },
+    {
+        id: "dummy-event-2",
+        name: "UNILIFE Main Concert Day 2",
+        description: "Puncak acara UNILIFE! Jangan lewatkan penampilan pamungkas dari guest star utama dan nikmati malam penutupan yang meriah dengan pesta kembang api.",
+        date: "2025-08-31",
+        location: "PKOR Way Halim, Bandar Lampung",
+        status: "Upcoming",
+        imageUrl: "https://placehold.co/400x300.png"
+    },
+    {
+        id: "dummy-event-3",
+        name: "Art & Creative Workshop",
+        description: "Ikuti workshop seni dan kreativitas bersama para ahli. Buat karyamu sendiri dan bawa pulang sebagai kenang-kenangan.",
+        date: "2025-08-30",
+        location: "Creative Corner, PKOR",
+        status: "Upcoming",
+        imageUrl: "https://placehold.co/400x300.png"
+    }
+];
 
 const EventCard = ({ event, index }: { event: Event, index: number }) => (
     <Card 
@@ -83,11 +113,16 @@ const EventSection = () => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch events');
                 }
-                const data: Event[] = await response.json();
-                const upcomingEvents = data.filter(event => event.status === "Upcoming");
+                let data: Event[] = await response.json();
+                let upcomingEvents = data.filter(event => event.status === "Upcoming");
+                
+                if (upcomingEvents.length === 0) {
+                    upcomingEvents = dummyEvents.filter(event => event.status === "Upcoming");
+                }
                 setEvents(upcomingEvents);
             } catch (error) {
                 console.error("Error fetching events for landing page:", error);
+                setEvents(dummyEvents.filter(event => event.status === "Upcoming"));
             } finally {
                 setIsLoading(false);
             }

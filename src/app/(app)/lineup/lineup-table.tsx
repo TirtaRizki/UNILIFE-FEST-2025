@@ -26,6 +26,18 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
+const dummyLineups: Lineup[] = [
+    { id: "dummy-1", artistName: "Denny Caknan", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-2", artistName: "Guyon Waton", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-3", artistName: "Feel Koplo", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-4", artistName: "Happy Asmara", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-5", artistName: "JKT48", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-6", artistName: "Tipe-X", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-7", artistName: "Nadin Amizah", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-8", artistName: "For Revenge", day: "Sabtu", date: "2025-08-31" },
+];
+
+
 const LineupCard = ({ lineup, onEdit, onDelete, canManage }: { lineup: Lineup, onEdit: (lineup: Lineup) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
         <Card className="overflow-hidden content-card group flex flex-col h-full shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -76,12 +88,18 @@ export default function LineupGrid() {
         try {
             const response = await fetch(`/api/lineup`);
             if (!response.ok) throw new Error("Failed to fetch lineups");
-            const data = await response.json();
+            let data = await response.json();
+
+            if (!data || data.length === 0) {
+                data = dummyLineups;
+            }
             // Sort by date
             data.sort((a: Lineup, b: Lineup) => new Date(a.date).getTime() - new Date(b.date).getTime());
             setLineups(data);
         } catch (error) {
-            toast({ title: "Error", description: "Could not fetch lineups.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not fetch lineups. Displaying dummy data.", variant: "destructive" });
+            const sortedDummies = [...dummyLineups].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            setLineups(sortedDummies);
         } finally {
             setIsLoading(false);
         }
@@ -102,6 +120,10 @@ export default function LineupGrid() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id.startsWith('dummy-')) {
+            toast({ title: "Info", description: "Cannot delete dummy data." });
+            return;
+        }
         try {
             const response = await fetch(`/api/lineup/${id}`, { method: 'DELETE' });
              if (!response.ok) {
@@ -121,7 +143,7 @@ export default function LineupGrid() {
             const response = await fetch(`/api/lineup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(lineupData),
+                body: JSON.stringify(lineupData.id.startsWith('dummy-') ? { ...lineupData, id: '' } : lineupData),
             });
             if (!response.ok) {
                 const errorData = await response.json();

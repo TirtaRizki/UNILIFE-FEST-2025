@@ -11,6 +11,12 @@ import { AboutForm } from './about-form';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
+const dummyAboutData: About = {
+    id: 'dummy-about',
+    title: "UNILIFE LAMPUNG FEST 2025",
+    description: "UNILIFE (UNIYOUTH LIFE FESTIVAL) adalah festival 'Back To School' terbesar di Lampung yang diselenggarakan oleh UNIYOUTH. Acara ini merupakan perpaduan antara musik, seni, dan kreativitas anak muda, menciptakan momen tak terlupakan sebelum kembali ke rutinitas sekolah.\n\nNikmati penampilan dari musisi-musisi ternama, jelajahi instalasi seni yang mengagumkan, dan ikut serta dalam berbagai workshop kreatif. UNILIFE adalah wadah bagi generasi muda untuk berekspresi, berkolaborasi, dan merayakan semangat masa muda. Bergabunglah dengan kami dalam perayaan akbar ini!"
+};
+
 const AboutDisplay = ({ about, onEdit, onDelete, canManage }: { about: About, onEdit: (about: About) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     return (
         <Card className="content-card overflow-hidden">
@@ -78,10 +84,17 @@ export default function AboutContent() {
         try {
             const response = await fetch(`/api/about`);
             if (!response.ok) throw new Error("Failed to fetch about content");
-            const data = await response.json();
+            let data = await response.json();
+            
+            if (!data || data.length === 0) {
+                // If database is empty, use dummy data
+                data = [dummyAboutData];
+            }
             setAbouts(data);
         } catch (error) {
-            toast({ title: "Error", description: "Could not fetch about content.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not fetch about content. Displaying dummy data.", variant: "destructive" });
+            // On error, use dummy data
+            setAbouts([dummyAboutData]);
         } finally {
             setIsLoading(false);
         }
@@ -102,6 +115,10 @@ export default function AboutContent() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id === 'dummy-about') {
+            toast({ title: "Info", description: "Cannot delete dummy data." });
+            return;
+        }
         try {
             const response = await fetch(`/api/about/${id}`, { method: 'DELETE' });
             if (!response.ok) {
@@ -121,7 +138,7 @@ export default function AboutContent() {
             const response = await fetch(`/api/about`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(aboutData),
+                body: JSON.stringify(aboutData.id === 'dummy-about' ? { ...aboutData, id: '' } : aboutData),
             });
              if (!response.ok) {
                 const errorData = await response.json();

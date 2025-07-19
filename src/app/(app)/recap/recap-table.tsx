@@ -13,6 +13,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
+const dummyRecaps: Recap[] = [
+    {
+        id: "dummy-recap-1",
+        title: "Aftermovie UNILIFE 2024",
+        description: "Lihat kembali keseruan dan momen tak terlupakan dari UNILIFE tahun lalu!",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+    {
+        id: "dummy-recap-2",
+        title: "Keseruan Bazaar & Workshop",
+        description: "Intip berbagai kegiatan kreatif di area bazaar dan workshop.",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+    {
+        id: "dummy-recap-3",
+        title: "Antusiasme Penonton",
+        description: "Energi luar biasa dari para Unifriends yang hadir!",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+     {
+        id: "dummy-recap-4",
+        title: "Behind The Scenes",
+        description: "Momen di balik panggung dan persiapan para panitia.",
+        status: "Draft",
+        imageUrl: "https://placehold.co/500x500.png"
+    }
+];
+
 const RecapCard = ({ recap, onEdit, onDelete, canManage }: { recap: Recap, onEdit: (recap: Recap) => void, onDelete: (id: string) => void, canManage: boolean }) => {
     const getBadgeVariant = (status: Recap['status']) => {
         switch (status) {
@@ -79,10 +110,14 @@ export default function RecapGrid() {
         try {
             const response = await fetch(`/api/recap`);
             if (!response.ok) throw new Error("Failed to fetch recaps");
-            const data = await response.json();
+            let data = await response.json();
+            if (!data || data.length === 0) {
+                data = dummyRecaps;
+            }
             setRecaps(data);
         } catch (error) {
-            toast({ title: "Error", description: "Could not fetch recaps.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not fetch recaps. Displaying dummy data.", variant: "destructive" });
+            setRecaps(dummyRecaps);
         } finally {
             setIsLoading(false);
         }
@@ -103,6 +138,10 @@ export default function RecapGrid() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id.startsWith('dummy-')) {
+            toast({ title: "Info", description: "Cannot delete dummy data." });
+            return;
+        }
         try {
             const response = await fetch(`/api/recap/${id}`, { method: 'DELETE' });
             if (!response.ok) {
@@ -122,7 +161,7 @@ export default function RecapGrid() {
             const response = await fetch(`/api/recap`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(recapData),
+                body: JSON.stringify(recapData.id.startsWith('dummy-') ? { ...recapData, id: '' } : recapData),
             });
             if (!response.ok) {
                 const errorData = await response.json();

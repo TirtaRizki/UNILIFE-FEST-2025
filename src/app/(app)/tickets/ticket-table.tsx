@@ -27,6 +27,16 @@ import { TicketForm } from './ticket-form';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 
+const dummyTickets: Ticket[] = [
+    { id: "dummy-t1", type: "Early Bird - Day 1", price: 75000, status: "Sold Out" },
+    { id: "dummy-t2", type: "Presale 1 - Day 1", price: 100000, status: "Available" },
+    { id: "dummy-t3", type: "Early Bird - Day 2", price: 75000, status: "Sold Out" },
+    { id: "dummy-t4", type: "Presale 1 - Day 2", price: 100000, status: "Available" },
+    { id: "dummy-t5", type: "Presale 1 - 2 Days Pass", price: 180000, status: "Available" },
+    { id: "dummy-t6", type: "VIP Access", price: 500000, status: "Available" },
+];
+
+
 export default function TicketTable() {
     const { hasRole } = useAuth();
     const canManage = hasRole(['Admin', 'Panitia']);
@@ -41,10 +51,14 @@ export default function TicketTable() {
         try {
             const response = await fetch(`/api/tickets`);
             if (!response.ok) throw new Error("Failed to fetch tickets");
-            const data = await response.json();
+            let data = await response.json();
+            if (!data || data.length === 0) {
+                data = dummyTickets;
+            }
             setTickets(data);
         } catch (error) {
-            toast({ title: "Error", description: "Could not fetch tickets.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not fetch tickets. Displaying dummy data.", variant: "destructive" });
+            setTickets(dummyTickets);
         } finally {
             setIsLoading(false);
         }
@@ -65,6 +79,10 @@ export default function TicketTable() {
     };
     
     const handleDelete = async (id: string) => {
+        if (id.startsWith('dummy-')) {
+            toast({ title: "Info", description: "Cannot delete dummy data." });
+            return;
+        }
         try {
             const response = await fetch(`/api/tickets/${id}`, {
                 method: 'DELETE',
@@ -86,7 +104,7 @@ export default function TicketTable() {
             const response = await fetch(`/api/tickets`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(ticketData),
+                body: JSON.stringify(ticketData.id.startsWith('dummy-') ? { ...ticketData, id: '' } : ticketData),
             });
             if (!response.ok) {
                 const errorData = await response.json();

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -5,6 +6,18 @@ import { format } from 'date-fns';
 import { Calendar } from 'lucide-react';
 import type { Lineup } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
+
+const dummyLineups: Lineup[] = [
+    { id: "dummy-1", artistName: "Denny Caknan", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-2", artistName: "Guyon Waton", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-3", artistName: "Feel Koplo", day: "Jumat", date: "2025-08-30" },
+    { id: "dummy-4", artistName: "Happy Asmara", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-5", artistName: "JKT48", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-6", artistName: "Tipe-X", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-7", artistName: "Nadin Amizah", day: "Sabtu", date: "2025-08-31" },
+    { id: "dummy-8", artistName: "For Revenge", day: "Sabtu", date: "2025-08-31" },
+];
+
 
 const LineupCard = ({ lineup }: { lineup: Lineup }) => (
     <div className="text-center p-4 transition-transform duration-300 hover:scale-105">
@@ -34,10 +47,14 @@ const LineupSection = () => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch lineups');
                 }
-                const data: Lineup[] = await response.json();
+                let data: Lineup[] = await response.json();
+                if (!data || data.length === 0) {
+                    data = dummyLineups;
+                }
                 setLineups(data);
             } catch (error) {
                 console.error("Error fetching lineups for landing page:", error);
+                setLineups(dummyLineups);
             } finally {
                 setIsLoading(false);
             }

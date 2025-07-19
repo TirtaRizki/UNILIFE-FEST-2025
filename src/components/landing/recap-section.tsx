@@ -1,9 +1,41 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import type { Recap } from "@/lib/types";
 import { Skeleton } from '../ui/skeleton';
+
+const dummyRecaps: Recap[] = [
+    {
+        id: "dummy-recap-1",
+        title: "Aftermovie UNILIFE 2024",
+        description: "Lihat kembali keseruan dan momen tak terlupakan dari UNILIFE tahun lalu!",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+    {
+        id: "dummy-recap-2",
+        title: "Keseruan Bazaar & Workshop",
+        description: "Intip berbagai kegiatan kreatif di area bazaar dan workshop.",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+    {
+        id: "dummy-recap-3",
+        title: "Antusiasme Penonton",
+        description: "Energi luar biasa dari para Unifriends yang hadir!",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    },
+     {
+        id: "dummy-recap-4",
+        title: "Momen di Balik Panggung",
+        description: "Eksklusif! Momen di balik panggung dan persiapan para panitia.",
+        status: "Published",
+        imageUrl: "https://placehold.co/500x500.png"
+    }
+];
 
 const RecapCard = ({ recap, index }: { recap: Recap, index: number }) => (
     <div 
@@ -42,11 +74,16 @@ const RecapSection = () => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch recaps');
                 }
-                const data: Recap[] = await response.json();
-                const publishedRecaps = data.filter(recap => recap.status === "Published");
+                let data: Recap[] = await response.json();
+                let publishedRecaps = data.filter(recap => recap.status === "Published");
+                
+                if (publishedRecaps.length === 0) {
+                    publishedRecaps = dummyRecaps.filter(recap => recap.status === "Published");
+                }
                 setRecaps(publishedRecaps);
             } catch (error) {
                 console.error("Error fetching recaps for landing page:", error);
+                setRecaps(dummyRecaps.filter(recap => recap.status === "Published"));
             } finally {
                 setIsLoading(false);
             }
