@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     try {
         const { email, password } = await request.json();
-        const db = adminDb();
+        const db = adminDb(); // Correctly call the function to get the db instance
         const usersCollection = db.collection('users');
 
         // Find the user by email
