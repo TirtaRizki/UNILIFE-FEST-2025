@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview This script is used to seed the Firestore database with initial data.
  * It's meant to be run manually from the command line, NOT as part of the application runtime.
