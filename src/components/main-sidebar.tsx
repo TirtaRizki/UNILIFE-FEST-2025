@@ -30,37 +30,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const Logo = () => {
-    const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
-
-    const fetchLogo = async () => {
-        try {
-            const response = await fetch('/api/branding');
-            if (response.ok) {
-                const settings = await response.json();
-                if (settings?.logoUrl) {
-                    setLogoUrl(settings.logoUrl);
-                }
-            }
-        } catch (error) {
-            console.error("Failed to fetch branding settings for sidebar", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchLogo();
-
-        const handleStorageChange = () => {
-            fetchLogo();
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
-    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" />;
+    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain" />;
 };
 
 export const navItems = [

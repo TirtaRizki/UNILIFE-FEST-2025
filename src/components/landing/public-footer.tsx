@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,24 +7,17 @@ import PublicFooterClient from './public-footer-client';
 import { Skeleton } from '../ui/skeleton';
 
 const PublicFooter = () => {
-    const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png');
     const [initialVisitorCount, setInitialVisitorCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Hardcode the logo URL
+    const logoUrl = '/images/unilife_logo.png';
 
     useEffect(() => {
         const fetchFooterData = async () => {
             try {
-                const [brandingRes, visitorsRes] = await Promise.all([
-                    fetch('/api/branding'),
-                    fetch('/api/visitors')
-                ]);
-
-                if (brandingRes.ok) {
-                    const brandingData = await brandingRes.json();
-                    if (brandingData?.logoUrl) {
-                        setLogoUrl(brandingData.logoUrl);
-                    }
-                }
+                // Only fetch visitor data now
+                const visitorsRes = await fetch('/api/visitors');
 
                 if (visitorsRes.ok) {
                     const visitorData = await visitorsRes.json();

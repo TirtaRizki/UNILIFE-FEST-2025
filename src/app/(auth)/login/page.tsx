@@ -12,26 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 
 const Logo = () => {
-    const [logoUrl, setLogoUrl] = useState('/images/unilife_logo.png'); // Fallback logo
-
-    useEffect(() => {
-        const fetchLogo = async () => {
-            try {
-                const response = await fetch('/api/branding');
-                if (response.ok) {
-                    const settings = await response.json();
-                    if (settings?.logoUrl) {
-                        setLogoUrl(settings.logoUrl);
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch branding settings for login page", error);
-            }
-        };
-        fetchLogo();
-    }, []);
-
-    return <Image src={logoUrl} alt="Unilife Logo" width={140} height={40} className="object-contain" priority />;
+    return <Image src="/images/unilife_logo.png" alt="Unilife Logo" width={140} height={40} className="object-contain" priority />;
 };
 
 export default function LoginPage() {
