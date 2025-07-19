@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import type { Event } from '@/lib/types';
 import Link from 'next/link';
 import { Skeleton } from '../ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const dummyEvents: Event[] = [
     {
@@ -41,45 +42,61 @@ const dummyEvents: Event[] = [
     }
 ];
 
-const EventCard = ({ event, index }: { event: Event, index: number }) => (
-    <Card 
-        className="bg-card/80 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full animate-fade-up"
-        style={{animationDelay: `${index * 0.15}s`}}
-    >
-        <CardHeader className="p-0">
-            <div className="relative w-full aspect-[4/3]">
-                <Image
-                    src={event.imageUrl || "https://placehold.co/400x300.png"}
-                    alt={event.name}
-                    fill
-                    className="object-cover"
-                    data-ai-hint="event concert festival"
-                />
-            </div>
-        </CardHeader>
-        <CardContent className="p-6 flex-grow">
-            <h3 className="text-xl font-bold font-headline mb-2 text-foreground">{event.name}</h3>
-            <p className="text-muted-foreground text-sm line-clamp-3 mb-4">{event.description}</p>
-        </CardContent>
-        <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
-            <div className="flex flex-col gap-2 w-full text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <span>{format(new Date(event.date), "PPP")}</span>
+const EventCard = ({ event, index }: { event: Event, index: number }) => {
+    const { toast } = useToast();
+
+    const handleViewDetailsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const targetElement = document.querySelector('#dashboard-info');
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+        toast({
+            title: "Siap-siap War Tiket! 🔥",
+            description: "Anda sedang diarahkan ke bagian hitung mundur tiket.",
+        });
+    };
+
+    return (
+        <Card 
+            className="bg-card/80 border-border/20 rounded-xl overflow-hidden shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full animate-fade-up"
+            style={{animationDelay: `${index * 0.15}s`}}
+        >
+            <CardHeader className="p-0">
+                <div className="relative w-full aspect-[4/3]">
+                    <Image
+                        src={event.imageUrl || "https://placehold.co/400x300.png"}
+                        alt={event.name}
+                        fill
+                        className="object-cover"
+                        data-ai-hint="event concert festival"
+                    />
                 </div>
-                <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span>{event.location}</span>
+            </CardHeader>
+            <CardContent className="p-6 flex-grow">
+                <h3 className="text-xl font-bold font-headline mb-2 text-foreground">{event.name}</h3>
+                <p className="text-muted-foreground text-sm line-clamp-3 mb-4">{event.description}</p>
+            </CardContent>
+            <CardFooter className="p-6 pt-0 flex flex-col items-start gap-4">
+                <div className="flex flex-col gap-2 w-full text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        <span>{format(new Date(event.date), "PPP")}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span>{event.location}</span>
+                    </div>
                 </div>
-            </div>
-             <Button asChild size="sm" className="w-full bg-primary/10 text-primary hover:bg-primary/20 font-semibold">
-                <Link href="https://mytiketin.com/event/79" target="_blank" rel="noopener noreferrer">
-                    View Details
-                </Link>
-            </Button>
-        </CardFooter>
-    </Card>
-);
+                <Button asChild size="sm" className="w-full bg-primary/10 text-primary hover:bg-primary/20 font-semibold">
+                    <a href="#dashboard-info" onClick={handleViewDetailsClick}>
+                        View Details
+                    </a>
+                </Button>
+            </CardFooter>
+        </Card>
+    );
+};
 
 const EventCardSkeleton = () => (
     <Card className="flex flex-col h-full">
