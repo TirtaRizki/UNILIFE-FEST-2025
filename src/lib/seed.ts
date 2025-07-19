@@ -1,11 +1,12 @@
+
 /**
  * @fileoverview This script is used to seed the Firestore database with initial data.
  * It's meant to be run manually from the command line, NOT as part of the application runtime.
  * This prevents issues with data being re-initialized on serverless function cold starts.
  * 
  * To run this script:
- * 1. Create a `firebase-credentials.json` file in the root of your project with your service account key.
- * 2. Run `pnpm db:seed` or `npm run db:seed` in your terminal.
+ * 1. Create a `.env.local` file in your project root and fill in your FIREBASE_CREDENTIALS.
+ * 2. Run `npm run db:seed` in your terminal.
  */
 import { adminDb } from './firebase-admin';
 import type { User } from './types';

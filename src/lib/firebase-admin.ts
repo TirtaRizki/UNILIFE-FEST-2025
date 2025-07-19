@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview This file handles the Firebase Admin SDK initialization using a robust singleton pattern.
  * This pattern ensures the SDK is initialized only once and is safe for Next.js server environments,
