@@ -1,11 +1,8 @@
 
 import { NextResponse } from 'next/server';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import type { User } from '@/lib/types';
 import { rateLimitMiddleware } from '@/lib/rate-limiter';
-
-const usersCollection = collection(db, 'users');
 
 // POST /api/auth/login
 export async function POST(request: Request) {
@@ -14,10 +11,12 @@ export async function POST(request: Request) {
 
     try {
         const { email, password } = await request.json();
+        const db = adminDb();
+        const usersCollection = db.collection('users');
 
         // Find the user by email
-        const q = query(usersCollection, where("email", "==", email));
-        const userSnapshot = await getDocs(q);
+        const userQuery = usersCollection.where("email", "==", email);
+        const userSnapshot = await userQuery.get();
 
         if (userSnapshot.empty) {
             return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
@@ -26,6 +25,7 @@ export async function POST(request: Request) {
         const userDoc = userSnapshot.docs[0];
         const foundUser = { id: userDoc.id, ...userDoc.data() } as User;
 
+        // Directly compare passwords (assuming they are stored as plain text as per the seed script)
         if (foundUser.password !== password) {
             return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
         }
