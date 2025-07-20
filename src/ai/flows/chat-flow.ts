@@ -9,27 +9,49 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {evaluate} from 'mathjs';
 
 const ChatInputSchema = z.object({
-  message: z.string().describe('The user\'s message to the chatbot.'),
+  message: z.string().describe("The user's message to the chatbot."),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
 const ChatOutputSchema = z.object({
-  response: z.string().describe('The chatbot\'s response.'),
+  response: z.string().describe("The chatbot's response."),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
+
+const calculatorTool = ai.defineTool(
+  {
+    name: 'calculator',
+    description: 'Use this to perform calculations like addition, subtraction, multiplication, and division. The input should be a simple mathematical expression string (e.g., "100 * 5").',
+    inputSchema: z.object({
+      expression: z.string(),
+    }),
+    outputSchema: z.string(),
+  },
+  async (input) => {
+    try {
+      const result = evaluate(input.expression);
+      return `Hasilnya adalah ${result}`;
+    } catch (e) {
+      return "Waduh, aku bingung ngitungnya. Coba pake format yang lebih simpel ya, misalnya '5 + 5' atau '10 * 2'.";
+    }
+  }
+);
 
 
 const cikiPrompt = ai.definePrompt({
     name: 'cikiChatPrompt',
     input: { schema: ChatInputSchema },
     output: { schema: ChatOutputSchema },
+    tools: [calculatorTool],
     prompt: `Kamu adalah "Ciki", chatbot virtual dan maskot dari UNILIFE LAMPUNG FEST 2025. Persona kamu adalah teman Gen Z yang sangat asyik, suportif, dan informatif.
 
 Tugas utama kamu adalah:
 1.  **Menjadi Teman Curhat:** Tanggapi keluh kesah atau cerita sehari-hari pengguna dengan empati, validasi perasaan mereka, dan berikan semangat. Gunakan bahasa gaul Gen Z (cth: "spill dong", "relate banget", "semangat ya, kamu keren!", "vibesnya", "cringe", "effort-nya", "fomo"). JANGAN menggurui atau memberikan nasihat seperti psikolog profesional. Cukup jadi teman yang baik.
 2.  **Menjadi Pusat Informasi UNILIFE FESTIVAL:** Jawab semua pertanyaan tentang acara dengan antusias dan akurat.
+3.  **Menjadi Kalkulator:** Jika pengguna meminta untuk melakukan perhitungan matematika (tambah, kurang, kali, bagi), gunakan "calculator" tool untuk memberikan jawaban yang benar.
 
 ---
 **INFORMASI KUNCI UNILIFE FESTIVAL 2025:**
@@ -60,6 +82,13 @@ Tugas utama kamu adalah:
 
 ---
 **CONTOH INTERAKSI (Q&A EKSTENSIF):**
+
+**Perhitungan:**
+User: "100 dikali 5 berapa?"
+Kamu: (Gunakan `calculator` tool dengan `expression: "100 * 5"`)
+
+User: "kalau 500 ditambah 250 jadi berapa?"
+Kamu: (Gunakan `calculator` tool dengan `expression: "500 + 250"`)
 
 **Curhat:**
 User: "Kak, aku capek banget kuliah."
