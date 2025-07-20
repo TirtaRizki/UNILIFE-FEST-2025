@@ -1,11 +1,5 @@
 
 import { NextResponse } from 'next/server';
-<<<<<<< HEAD
-import { adminDb } from '@/lib/firebase-admin';
-import type { User } from '@/lib/types';
-import { rateLimitMiddleware } from '@/lib/rate-limiter';
-
-=======
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User } from '@/lib/types';
@@ -20,40 +14,44 @@ const defaultUsers: Omit<User, 'id'>[] = [
 
 // Helper function to initialize users if the collection is empty
 async function initializeDefaultUsers() {
-    const snapshot = await getDocs(usersCollection);
-    if (snapshot.empty) {
-        console.log("Users collection is empty, initializing default users...");
-        for (const user of defaultUsers) {
-            await addDoc(usersCollection, user);
+    try {
+        const snapshot = await getDocs(query(usersCollection, where("email", "!=", ""))); // A simple query to check connection
+        if (snapshot.empty) {
+            console.log("Users collection is empty or not initialized, attempting to add default users...");
+            for (const user of defaultUsers) {
+                // Check if user already exists before adding
+                const existingUserQuery = await getDocs(query(usersCollection, where("email", "==", user.email)));
+                if(existingUserQuery.empty) {
+                    await addDoc(usersCollection, user);
+                }
+            }
+            console.log("Default users initialization check complete.");
         }
-        console.log("Default users initialized.");
+    } catch (error) {
+        console.error("Failed to initialize default users. This might be a Firestore rules or configuration issue.", error);
+        // We don't re-throw here, as login should still be attempted with existing data.
     }
 }
 
 
->>>>>>> e2a9ec0cc22da326c26226fb9702dad42eb68f24
 // POST /api/auth/login
 export async function POST(request: Request) {
     const rateLimitResponse = await rateLimitMiddleware(request);
     if (rateLimitResponse) return rateLimitResponse;
 
     try {
+        // Run initialization check, but don't block login if it fails
         await initializeDefaultUsers();
 
         const { email, password } = await request.json();
-<<<<<<< HEAD
-        const db = adminDb(); // Correctly call the function to get the db instance
-        const usersCollection = db.collection('users');
-=======
 
         if (!email || !password) {
             return NextResponse.json({ message: 'Email and password are required.' }, { status: 400 });
         }
->>>>>>> e2a9ec0cc22da326c26226fb9702dad42eb68f24
 
         // Find the user by email
-        const userQuery = usersCollection.where("email", "==", email);
-        const userSnapshot = await userQuery.get();
+        const userQuery = query(usersCollection, where("email", "==", email));
+        const userSnapshot = await getDocs(userQuery);
 
         if (userSnapshot.empty) {
             return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
@@ -62,12 +60,8 @@ export async function POST(request: Request) {
         const userDoc = userSnapshot.docs[0];
         const foundUser = { id: userDoc.id, ...userDoc.data() } as User;
 
-<<<<<<< HEAD
-        // Directly compare passwords (assuming they are stored as plain text as per the seed script)
-=======
         // In a real app, you would compare a hashed password.
         // For this project, we'll stick to plaintext comparison as per existing logic.
->>>>>>> e2a9ec0cc22da326c26226fb9702dad42eb68f24
         if (foundUser.password !== password) {
             return NextResponse.json({ message: 'Invalid credentials or user not found.' }, { status: 401 });
         }
