@@ -11,7 +11,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+<<<<<<< HEAD
     "db:seed": "tsx -r dotenv/config src/lib/seed.ts"
+=======
+    "db:seed": "tsx src/lib/seed.ts"
+>>>>>>> e2a9ec0cc22da326c26226fb9702dad42eb68f24
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.13.0",

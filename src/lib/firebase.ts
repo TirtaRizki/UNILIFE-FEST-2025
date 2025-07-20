@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 // Your web app's Firebase configuration is now read from Environment Variables
 // This is the secure way to handle sensitive keys.
@@ -21,5 +22,14 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
-export { app, db, storage };
+// Set login persistence
+setPersistence(auth, browserLocalPersistence)
+  .catch((error) => {
+    // Handle errors here.
+    console.error("Error setting auth persistence:", error);
+  });
+
+
+export { app, db, storage, auth };

@@ -23,7 +23,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
 # local env files
 .env*.local
@@ -35,5 +34,9 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
+<<<<<<< HEAD
 # Firebase
+=======
+# studio
+>>>>>>> e2a9ec0cc22da326c26226fb9702dad42eb68f24
 firebase-credentials.json
